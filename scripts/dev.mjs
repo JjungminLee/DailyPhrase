@@ -4,7 +4,12 @@ import { rootDir } from '../src/config.mjs';
 
 const apiPort = process.env.PORT || '3000';
 const uiPort = process.env.VITE_PORT || '5173';
-const env = { ...process.env, PORT: apiPort, DAILY_PHRASE_LOCAL: '1' };
+const env = {
+  ...process.env,
+  PORT: apiPort,
+  DAILY_PHRASE_LOCAL: '1',
+  NODE_USE_SYSTEM_CA: '1',
+};
 let shuttingDown = false;
 const children = [];
 

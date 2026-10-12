@@ -1,73 +1,20 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-
-type Feed = {
-  id: string;
-  name: string;
-  language: string;
-  rss_url: string;
-  homepage_url?: string;
-  enabled: boolean;
-  verified: boolean;
-  is_default?: boolean;
-  last_checked_at?: string;
-  last_error?: { type: string; message: string } | null;
-};
-
-type Article = {
-  id: string;
-  feed_id: string;
-  feed_name: string;
-  language: string;
-  title: string;
-  url: string;
-  published_at: string | null;
-  discovered_at: string;
-  status: 'new' | 'processed' | 'baseline';
-};
-
-type Verification = {
-  url: string;
-  source_type: string;
-  entry_count: number;
-  sample: Array<{ title: string; url: string; published_at: string }>;
-};
+import { api } from './api';
+import type { ArticleItem, BatchStudy, Feed, FeedVerification } from './types';
 
 type AdminProps = {
   languages: Array<{ code: string; name: string }>;
   onCollect: (language: string) => Promise<void>;
 };
 
-type BatchStudy = {
-  runs: Array<{
-    concurrency: number;
-    mean_duration_ms: number;
-    p50_duration_ms: number;
-    p95_duration_ms: number;
-    scans_per_second: number;
-    successful_scans: number;
-    failed_scans: number;
-  }>;
-};
-
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`/api${path}`, {
-    ...options,
-    headers: { 'content-type': 'application/json', ...options?.headers },
-  });
-  const payload = (await response.json()) as T & { error?: { message?: string } };
-  if (!response.ok)
-    throw new Error(payload.error?.message ?? `Request failed (${response.status})`);
-  return payload;
-}
-
 export function AdminPage({ languages, onCollect }: AdminProps) {
   const [feeds, setFeeds] = useState<Feed[]>([]);
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [articles, setArticles] = useState<ArticleItem[]>([]);
   const [url, setUrl] = useState('');
   const [name, setName] = useState('');
   const [language, setLanguage] = useState(languages[0]?.code ?? 'en');
-  const [verification, setVerification] = useState<Verification | null>(null);
+  const [verification, setVerification] = useState<FeedVerification | null>(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -75,8 +22,8 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
 
   async function refresh() {
     const [feedResponse, articleResponse] = await Promise.all([
-      request<{ feeds: Feed[] }>('/admin/feeds'),
-      request<{ articles: Article[] }>('/admin/articles'),
+      api<{ feeds: Feed[] }>('/admin/feeds'),
+      api<{ articles: ArticleItem[] }>('/admin/articles'),
     ]);
     setFeeds(feedResponse.feeds);
     setArticles(articleResponse.articles);
@@ -85,8 +32,8 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
   useEffect(() => {
     let active = true;
     Promise.all([
-      request<{ feeds: Feed[] }>('/admin/feeds'),
-      request<{ articles: Article[] }>('/admin/articles'),
+      api<{ feeds: Feed[] }>('/admin/feeds'),
+      api<{ articles: ArticleItem[] }>('/admin/articles'),
     ])
       .then(([feedResponse, articleResponse]) => {
         if (!active) return;
@@ -108,7 +55,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
     setMessage('');
     setVerification(null);
     try {
-      const result = await request<{ verification: Verification }>('/admin/feeds/verify', {
+      const result = await api<{ verification: FeedVerification }>('/admin/feeds/verify', {
         method: 'POST',
         body: JSON.stringify({ url }),
       });
@@ -127,7 +74,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
     setError('');
     setMessage('');
     try {
-      const result = await request<{ feed: Feed; verification: Verification }>('/admin/feeds', {
+      const result = await api<{ feed: Feed; verification: FeedVerification }>('/admin/feeds', {
         method: 'POST',
         body: JSON.stringify({ name, url, language }),
       });
@@ -148,7 +95,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
     setError('');
     setMessage('등록한 피드에서 새 글을 확인하고 있습니다.');
     try {
-      const result = await request<{
+      const result = await api<{
         discovered_count: number;
         feed_count: number;
         duration_ms: number;
@@ -170,7 +117,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
     setMessage('동일한 피드 목록을 순차·병렬 방식으로 비교하고 있습니다.');
     setStudy(null);
     try {
-      const result = await request<BatchStudy>('/admin/study', {
+      const result = await api<BatchStudy>('/admin/study', {
         method: 'POST',
         body: JSON.stringify({}),
       });
@@ -186,7 +133,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
   async function toggleFeed(feed: Feed) {
     setError('');
     try {
-      const result = await request<{ feed: Feed }>(`/admin/feeds/${encodeURIComponent(feed.id)}`, {
+      const result = await api<{ feed: Feed }>(`/admin/feeds/${encodeURIComponent(feed.id)}`, {
         method: 'PUT',
         body: JSON.stringify({ enabled: !feed.enabled }),
       });
@@ -201,7 +148,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
     setError('');
     setMessage(`${feed.name} RSS 주소를 확인하고 있습니다.`);
     try {
-      await request(`/admin/feeds/${encodeURIComponent(feed.id)}/verify`, { method: 'POST' });
+      await api(`/admin/feeds/${encodeURIComponent(feed.id)}/verify`, { method: 'POST' });
       await refresh();
       setMessage(`${feed.name} RSS 확인을 마쳤습니다. 이제 수집할 수 있습니다.`);
     } catch (cause) {
@@ -214,7 +161,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
   async function deleteFeed(feed: Feed) {
     setError('');
     try {
-      await request(`/admin/feeds/${encodeURIComponent(feed.id)}`, { method: 'DELETE' });
+      await api(`/admin/feeds/${encodeURIComponent(feed.id)}`, { method: 'DELETE' });
       setFeeds((current) => current.filter((item) => item.id !== feed.id));
       setArticles((current) => current.filter((item) => item.feed_id !== feed.id));
       setMessage(`“${feed.name}” 구독을 삭제했습니다.`);
@@ -228,6 +175,12 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
 
   return (
     <section className="admin-page">
+      <div className="admin-standalone-bar">
+        <a className="ds-button ds-button-secondary" href="/">
+          ← Daily Phrase
+        </a>
+        <span className="ds-eyebrow">PRIVATE WORKSPACE</span>
+      </div>
       <header className="admin-header">
         <div>
           <div className="eyebrow muted">LOCAL FEED MANAGER</div>
@@ -261,7 +214,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
       {message && <div className="admin-message">{message}</div>}
       {error && <div className="admin-error">{error}</div>}
       {study && (
-        <section className="admin-card admin-study-card">
+        <section className="admin-card admin-study-card ds-surface">
           <div className="admin-card-title">
             <div>
               <span className="panel-kicker">BATCH CONCURRENCY STUDY</span>
@@ -291,7 +244,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
       )}
 
       <div className="admin-layout">
-        <form className="admin-card admin-form" onSubmit={addSubscription}>
+        <form className="admin-card admin-form ds-surface" onSubmit={addSubscription}>
           <div className="admin-card-title">
             <div>
               <span className="panel-kicker">NEW SUBSCRIPTION</span>
@@ -364,7 +317,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
           </p>
         </form>
 
-        <section className="admin-card">
+        <section className="admin-card ds-surface">
           <div className="admin-card-title">
             <div>
               <span className="panel-kicker">SUBSCRIBED SOURCES</span>
@@ -389,11 +342,13 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
                       {feed.rss_url}
                     </a>
                     <small>
-                      {feed.last_error
-                        ? `오류: ${feed.last_error.message}`
-                        : feed.last_checked_at
-                          ? `마지막 확인 ${new Date(feed.last_checked_at).toLocaleString()}`
-                          : '아직 수집 전'}
+                      {!feed.verified
+                        ? 'RSS 확인 필요'
+                        : feed.last_error
+                          ? `오류: ${feed.last_error.message}`
+                          : feed.last_checked_at
+                            ? `마지막 확인 ${new Date(feed.last_checked_at).toLocaleString()}`
+                            : '아직 수집 전'}
                     </small>
                   </div>
                   <div className="admin-feed-actions">
@@ -416,7 +371,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
         </section>
       </div>
 
-      <section className="admin-card admin-inbox">
+      <section className="admin-card admin-inbox ds-surface">
         <div className="admin-card-title">
           <div>
             <span className="panel-kicker">DISCOVERED ARTICLES</span>
@@ -456,7 +411,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
         )}
       </section>
       {baselineArticles.length > 0 && (
-        <section className="admin-card admin-inbox">
+        <section className="admin-card admin-inbox ds-surface">
           <div className="admin-card-title">
             <div>
               <span className="panel-kicker">INITIAL IMPORT</span>

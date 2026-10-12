@@ -15,15 +15,17 @@ Open `http://localhost:5173` for the React + Vite dashboard. The dev script star
 
 The React UI uses React Router. With `npm run dev` running, open these page URLs:
 
-| Page         | URL                           | Purpose                                                                    |
-| ------------ | ----------------------------- | -------------------------------------------------------------------------- |
-| Daily Phrase | `http://localhost:5173/`      | Choose languages and load today's phrases.                                 |
-| Articles     | `http://localhost:5173/articles` | Browse discovered articles and open an article's original publication.    |
-| Admin        | `http://localhost:5173/admin` | Manage RSS/Atom subscriptions, poll feeds, and review discovered articles. |
+| Page         | URL                              | Purpose                                                                  |
+| ------------ | -------------------------------- | ------------------------------------------------------------------------ |
+| Daily Phrase | `http://localhost:5173/`         | Choose languages and study today's phrases.                              |
+| Articles     | `http://localhost:5173/articles` | Browse discovered articles and open an article's original publication.   |
+| Admin        | `http://localhost:5173/admin`    | Separate local workspace for feed subscriptions and collection controls. |
 
-The sidebar navigates between these routes. Unknown UI paths redirect to `/`. API endpoints remain under `/api/*` and are not React pages.
+The learner sidebar only links to Daily Phrase and Articles. Admin is intentionally omitted from learner navigation and is opened directly at `/admin`; it renders without the learner sidebar or top bar. Unknown UI paths redirect to `/`. API endpoints remain under `/api/*` and are not React pages.
 
-The UI is written in TypeScript (`ui/main.tsx`). Run `npm run lint` or `npm run lint:fix` for ESLint, `npm run format` to format supported files with Prettier, and `npm run typecheck` to check the UI types. The project includes `.editorconfig` and `.vscode/settings.json` for local editor defaults and format-on-save.
+The UI is written in TypeScript. `ui/main.tsx` is only the browser entry point; `ui/App.tsx` owns routing, `ui/pages/` contains route-specific screens, `ui/components/` contains reusable interface pieces, `ui/hooks/` owns page data and interactions, `ui/api.ts` centralizes API requests, and `ui/types.ts` defines shared response types. Admin stays outside the learner navigation. Shared visual tokens and primitives live in `ui/design-system.css`; page-specific layout rules live in `ui/style.css`. Use the `--dp-*` tokens and `.ds-*` primitives for new UI so colors, type, spacing, surfaces, controls, and focus states stay consistent. Run `npm run lint` or `npm run lint:fix` for ESLint, `npm run format` to format supported files with Prettier, and `npm run typecheck` to check the UI types. The project includes `.editorconfig` and `.vscode/settings.json` for local editor defaults and format-on-save.
+
+The API and feed crawler use Node's HTTPS/TLS stack with certificate verification enabled. Local commands enable Node's system CA support through `NODE_USE_SYSTEM_CA=1`, which trusts certificates installed in the Windows or macOS system keychain and requires Node.js 22.19 or newer. For a private company proxy CA, install the approved root certificate in the system trust store; do not disable TLS certificate checks.
 
 The dashboard can request a daily collection and study phrases one at a time with pronunciation, hidden/revealed meanings, and previous/next controls. Article titles link to their original sources. The Articles page lists discovered posts and opens an in-app reading panel with a link to the publication. The Admin view lets you add, verify, pause, and remove RSS/Atom subscriptions. It can scan feeds on demand, and the new-article inbox is used as the source queue for daily phrase requests. The first scan establishes a baseline; subsequent scans add unseen articles.
 

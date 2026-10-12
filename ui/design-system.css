@@ -1,0 +1,134 @@
+:root {
+  --dp-color-ink: #282923;
+  --dp-color-muted: #85867e;
+  --dp-color-subtle: #a2a39c;
+  --dp-color-canvas: #f7f6f3;
+  --dp-color-surface: #ffffff;
+  --dp-color-border: #e8e6e0;
+  --dp-color-accent: #7768d8;
+  --dp-color-accent-soft: #efedff;
+  --dp-color-peach: #f5b69f;
+  --dp-color-success: #6e9a5b;
+  --dp-color-danger: #bd6558;
+  --dp-color-focus: #9b8df0;
+  --dp-font-body: 'DM Sans', 'Noto Sans KR', sans-serif;
+  --dp-font-display: Manrope, 'Noto Sans KR', sans-serif;
+  --dp-font-mono: 'DM Mono', monospace;
+  --dp-space-1: 4px;
+  --dp-space-2: 8px;
+  --dp-space-3: 12px;
+  --dp-space-4: 16px;
+  --dp-space-5: 20px;
+  --dp-space-6: 24px;
+  --dp-space-8: 32px;
+  --dp-space-10: 40px;
+  --dp-radius-sm: 10px;
+  --dp-radius-md: 16px;
+  --dp-radius-lg: 24px;
+  --dp-radius-pill: 999px;
+  --dp-shadow-card: 0 12px 34px rgba(49, 45, 66, 0.08);
+  --dp-shadow-pop: 0 20px 55px rgba(49, 45, 66, 0.13);
+  --dp-motion-fast: 160ms ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--dp-color-focus);
+  outline-offset: 3px;
+}
+
+.ds-surface {
+  background: var(--dp-color-surface);
+  border: 1px solid var(--dp-color-border);
+  border-radius: var(--dp-radius-md);
+  box-shadow: var(--dp-shadow-card);
+}
+
+.ds-eyebrow {
+  color: var(--dp-color-accent);
+  font: 600 10px var(--dp-font-mono);
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.ds-button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dp-space-3);
+  padding: 0 var(--dp-space-5);
+  border: 1px solid transparent;
+  border-radius: var(--dp-radius-sm);
+  font: 600 13px var(--dp-font-body);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform var(--dp-motion-fast),
+    box-shadow var(--dp-motion-fast),
+    background var(--dp-motion-fast);
+}
+
+.ds-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--dp-shadow-card);
+}
+
+.ds-button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.ds-button-primary {
+  color: #fff;
+  background: var(--dp-color-accent);
+}
+
+.ds-button-secondary {
+  color: var(--dp-color-ink);
+  background: var(--dp-color-surface);
+  border-color: var(--dp-color-border);
+}
+
+.ds-input {
+  min-height: 42px;
+  padding: 0 var(--dp-space-3);
+  border: 1px solid var(--dp-color-border);
+  border-radius: var(--dp-radius-sm);
+  color: var(--dp-color-ink);
+  background: var(--dp-color-surface);
+  font: 13px var(--dp-font-body);
+}
+
+.ds-card {
+  padding: var(--dp-space-6);
+  border: 1px solid var(--dp-color-border);
+  border-radius: var(--dp-radius-md);
+  background: var(--dp-color-surface);
+  box-shadow: var(--dp-shadow-card);
+}
+
+.ds-muted {
+  color: var(--dp-color-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

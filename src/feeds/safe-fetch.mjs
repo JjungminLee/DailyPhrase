@@ -90,9 +90,10 @@ export async function safeFetch(input, domains) {
         },
       });
     } catch (error) {
+      const reason = error.cause?.code || error.name || 'network error';
       throw new AppError(
         error.name === 'AbortError' ? 'fetch_timeout' : 'feed_unavailable',
-        'Feed request failed',
+        `Feed request to ${url.hostname} failed (${reason})`,
         error.name === 'AbortError' ? 504 : 502,
       );
     } finally {
