@@ -28,7 +28,7 @@ const Brand = styled.a({
   color: '#fff',
   background: 'var(--dp-color-ink)',
   textDecoration: 'none',
-  font: '800 15px Manrope, sans-serif',
+  font: '800 15px var(--dp-font-body)',
   letterSpacing: '-1px',
   '& i': { position: 'absolute', top: '-4px', right: '-3px', color: '#bee95c', fontSize: '11px' },
 });

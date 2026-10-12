@@ -23,7 +23,9 @@ async function mapLimit(values, concurrency, task) {
 export async function scanFeed(feed) {
   if (!feed.enabled || !feed.verified) return { feed_id: feed.id, skipped: true, new_count: 0 };
   try {
-    const fetched = await safeFetch(feed.rss_url, feed.allowed_domains);
+    const fetched = await safeFetch(feed.rss_url, feed.allowed_domains, {
+      allowTruncate: feed.allow_truncated_feed === true,
+    });
     const entries = parseFeed(fetched.text).slice(0, 100);
     return {
       feed_id: feed.id,
@@ -75,14 +77,17 @@ export async function pollFeeds({ concurrency = 2, persist = true } = {}) {
     });
 
     await mutateArticles((items) => {
-      const known = new Set(items.map((item) => item.fingerprint));
+      const known = new Map(items.map((item) => [item.fingerprint, item]));
       for (const scan of scans) {
         if (scan.error) continue;
         for (const entry of scan.entries) {
           const key = fingerprint(entry.url);
-          if (known.has(key)) continue;
-          known.add(key);
-          newlyDiscovered.push({
+          const existing = known.get(key);
+          if (existing) {
+            delete existing.excerpt;
+            continue;
+          }
+          const article = {
             id: `article_${key.slice(0, 20)}`,
             fingerprint: key,
             feed_id: scan.feed_id,
@@ -93,7 +98,9 @@ export async function pollFeeds({ concurrency = 2, persist = true } = {}) {
             published_at: entry.published_at || null,
             discovered_at: checkedAt,
             status: firstScans.has(scan.feed_id) ? 'baseline' : 'new',
-          });
+          };
+          known.set(key, article);
+          newlyDiscovered.push(article);
         }
       }
       items.unshift(
@@ -199,8 +206,18 @@ export async function markArticleProcessed(articleId) {
 }
 
 export async function listArticles({ status, language } = {}) {
-  const items = await readArticles();
-  return items.filter(
-    (item) => (!status || item.status === status) && (!language || item.language === language),
-  );
+  const items = await mutateArticles((stored) => {
+    for (const article of stored) {
+      delete article.excerpt;
+      delete article.description;
+      delete article.content;
+      delete article.body;
+    }
+    return stored;
+  });
+  return items
+    .filter(
+      (item) => (!status || item.status === status) && (!language || item.language === language),
+    )
+    .map(({ excerpt, description, content, ...metadata }) => metadata);
 }

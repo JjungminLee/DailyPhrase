@@ -21,9 +21,7 @@ body {
   padding: 54px 0 40px;
 }
 .eyebrow {
-  font:
-    500 9px 'DM Mono',
-    monospace;
+  font: 500 9px var(--dp-font-body);
   letter-spacing: 1.65px;
   color: #788e4f;
   display: flex;
@@ -36,16 +34,13 @@ body {
   background: #96b25d;
 }
 h1 {
-  font:
-    600 clamp(34px, 4vw, 52px)/1.22 Manrope,
-    'Noto Sans KR',
-    sans-serif;
+  font: 600 clamp(34px, 4vw, 52px)/1.22 var(--dp-font-body);
   letter-spacing: -2.3px;
   margin: 19px 0 13px;
   color: #252620;
 }
 h1 em {
-  font-family: Georgia, serif;
+  font-family: var(--dp-font-body);
   font-weight: 400;
   color: #819b4e;
   letter-spacing: -2.7px;
@@ -83,16 +78,12 @@ h1 em {
   margin-bottom: 4px;
 }
 .hero-stamp span {
-  font:
-    500 7px 'DM Mono',
-    monospace;
+  font: 500 7px var(--dp-font-body);
   letter-spacing: 2px;
 }
 .hero-stamp b {
   text-align: center;
-  font:
-    600 8px/1.45 'DM Mono',
-    monospace;
+  font: 600 8px/1.45 var(--dp-font-body);
   letter-spacing: 1px;
   margin-top: 5px;
 }
@@ -138,17 +129,13 @@ h1 em {
 }
 .stat-card > strong {
   display: block;
-  font:
-    600 25px Manrope,
-    sans-serif;
+  font: 600 25px var(--dp-font-body);
   letter-spacing: -1px;
   margin-top: 5px;
   color: #282923;
 }
 .stat-card > strong small {
-  font:
-    400 11px 'DM Sans',
-    sans-serif;
+  font: 400 11px var(--dp-font-body);
   letter-spacing: 0;
   color: #8c8e86;
 }
@@ -182,17 +169,12 @@ h1 em {
   background: #adc96d;
 }
 .section-heading h2 {
-  font:
-    600 20px Manrope,
-    'Noto Sans KR',
-    sans-serif;
+  font: 600 20px var(--dp-font-body);
   letter-spacing: -0.7px;
   margin: 8px 0 0;
 }
 .collection-date {
-  font:
-    10px 'DM Mono',
-    monospace;
+  font: 10px var(--dp-font-body);
   color: #a3a49d;
 }
 .control-panel {
@@ -210,17 +192,12 @@ h1 em {
   margin-bottom: 24px;
 }
 .panel-kicker {
-  font:
-    500 8px 'DM Mono',
-    monospace;
+  font: 500 8px var(--dp-font-body);
   letter-spacing: 1.4px;
   color: #9da092;
 }
 .panel-heading h2 {
-  font:
-    600 20px/1.45 Manrope,
-    'Noto Sans KR',
-    sans-serif;
+  font: 600 20px/1.45 var(--dp-font-body);
   letter-spacing: -0.7px;
   margin: 9px 0 0;
 }
@@ -243,9 +220,7 @@ h1 em {
   color: #565950;
 }
 .field-label small {
-  font:
-    500 8px 'DM Mono',
-    monospace;
+  font: 500 8px var(--dp-font-body);
   letter-spacing: 0.6px;
   color: #a8aa9f;
 }
@@ -319,9 +294,7 @@ h1 em {
   border-radius: 8px;
   padding: 0 9px;
   color: #55584e;
-  font:
-    10px 'DM Sans',
-    sans-serif;
+  font: 10px var(--dp-font-body);
   min-width: 0;
 }
 .field-row select {
@@ -339,9 +312,7 @@ h1 em {
   justify-content: space-between;
   align-items: center;
   padding: 0 14px 0 16px;
-  font:
-    600 11px 'DM Sans',
-    sans-serif;
+  font: 600 11px var(--dp-font-body);
   cursor: pointer;
   transition: 0.18s;
 }
@@ -373,9 +344,7 @@ h1 em {
   display: grid;
   place-items: center;
   color: #7e974d;
-  font:
-    600 9px Georgia,
-    serif;
+  font: 600 9px var(--dp-font-body);
   flex-shrink: 0;
 }
 .panel-note p {
@@ -391,16 +360,12 @@ h1 em {
   padding-top: 13px;
 }
 .panel-bottom span {
-  font:
-    500 7px 'DM Mono',
-    monospace;
+  font: 500 7px var(--dp-font-body);
   letter-spacing: 0.7px;
   color: #b2b4ab;
 }
 .panel-bottom code {
-  font:
-    9px 'DM Mono',
-    monospace;
+  font: 9px var(--dp-font-body);
   color: #7d914e;
 }
 .empty-card {
@@ -427,10 +392,7 @@ h1 em {
   margin-bottom: 16px;
 }
 .empty-card h3 {
-  font:
-    600 16px Manrope,
-    'Noto Sans KR',
-    sans-serif;
+  font: 600 16px var(--dp-font-body);
   letter-spacing: -0.4px;
   margin: 9px 0 8px;
 }
@@ -447,14 +409,10 @@ h1 em {
   padding-top: 17px;
   border-top: 1px solid #f0f0eb;
   color: #adb0a5;
-  font:
-    8px 'DM Mono',
-    monospace;
+  font: 8px var(--dp-font-body);
 }
 .empty-steps b {
-  font:
-    500 8px 'DM Sans',
-    sans-serif;
+  font: 500 8px var(--dp-font-body);
   color: #73766b;
   margin-left: 4px;
 }
@@ -535,9 +493,7 @@ h1 em {
   color: #9a9c94;
 }
 .group-count {
-  font:
-    500 10px 'DM Mono',
-    monospace;
+  font: 500 10px var(--dp-font-body);
   color: #9eaa84;
 }
 .source-card {
@@ -586,9 +542,7 @@ h1 em {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font:
-    500 8px 'DM Mono',
-    monospace;
+  font: 500 8px var(--dp-font-body);
   letter-spacing: 0.7px;
   color: #a7a99f;
 }
@@ -600,9 +554,7 @@ h1 em {
   font-size: 8px;
 }
 .phrase-card h3 {
-  font:
-    600 19px Manrope,
-    serif;
+  font: 600 19px var(--dp-font-body);
   letter-spacing: -0.5px;
   margin: 12px 0 4px;
   color: #303128;
@@ -618,10 +570,7 @@ h1 em {
   border-left: 2px solid #c5d89c;
   background: #fafbf7;
   color: #73766d;
-  font:
-    italic 11px/1.7 Georgia,
-    'Noto Sans KR',
-    serif;
+  font: italic 11px/1.7 var(--dp-font-body);
 }
 .phrase-note {
   font-size: 9px;
@@ -657,9 +606,7 @@ h1 em {
   justify-content: space-between;
   padding: 28px 0 20px;
   color: #b4b5ae;
-  font:
-    8px 'DM Mono',
-    monospace;
+  font: 8px var(--dp-font-body);
   letter-spacing: 1px;
 }
 .main-footer b {
@@ -965,9 +912,7 @@ h1 em {
 }
 .study-progress {
   color: #514c46;
-  font:
-    600 12px 'DM Mono',
-    monospace;
+  font: 600 12px var(--dp-font-body);
 }
 .study-progress i {
   color: #aaa098;
@@ -1003,9 +948,7 @@ h1 em {
 .study-card-label,
 .article-source-name {
   color: #8f786d;
-  font:
-    600 9px 'DM Mono',
-    monospace;
+  font: 600 9px var(--dp-font-body);
   letter-spacing: 0.8px;
 }
 .study-source strong {
@@ -1022,10 +965,7 @@ h1 em {
 .study-word h2 {
   margin: 18px 0 8px;
   color: #24211e;
-  font:
-    700 clamp(32px, 5vw, 54px)/1.12 Manrope,
-    'Noto Sans KR',
-    sans-serif;
+  font: 700 clamp(32px, 5vw, 54px)/1.12 var(--dp-font-body);
   letter-spacing: -1.6px;
   overflow-wrap: anywhere;
 }
@@ -1148,9 +1088,7 @@ h1 em {
   border-radius: 7px;
   background: #f1f4e9;
   color: #75874f;
-  font:
-    600 9px 'DM Mono',
-    monospace;
+  font: 600 9px var(--dp-font-body);
   font-style: normal;
 }
 .article-tile strong {
@@ -1373,10 +1311,7 @@ h1 em {
 }
 .admin-header h1 {
   margin: 8px 0 6px;
-  font:
-    600 28px Manrope,
-    'Noto Sans KR',
-    sans-serif;
+  font: 600 28px var(--dp-font-body);
 }
 .admin-header p,
 .admin-help,
@@ -1397,9 +1332,7 @@ h1 em {
   background: #fff;
   color: #5f7040;
   cursor: pointer;
-  font:
-    600 10px 'DM Sans',
-    sans-serif;
+  font: 600 10px var(--dp-font-body);
   padding: 10px 13px;
 }
 .admin-poll-button:disabled,
@@ -1448,17 +1381,12 @@ h1 em {
   margin-bottom: 18px;
 }
 .admin-card-title h2 {
-  font:
-    600 16px Manrope,
-    'Noto Sans KR',
-    sans-serif;
+  font: 600 16px var(--dp-font-body);
   margin: 6px 0 0;
 }
 .admin-card-title h2 small {
   color: #9ca18e;
-  font:
-    500 10px 'DM Mono',
-    monospace;
+  font: 500 10px var(--dp-font-body);
 }
 .admin-card-icon {
   align-items: center;
@@ -1484,9 +1412,7 @@ h1 em {
   border: 1px solid #e9eae3;
   border-radius: 7px;
   color: #42443b;
-  font:
-    10px 'DM Sans',
-    sans-serif;
+  font: 10px var(--dp-font-body);
   min-width: 0;
   padding: 11px 10px;
   width: 100%;
@@ -1536,9 +1462,7 @@ h1 em {
   border-radius: 6px;
   color: #77894d;
   flex: 0 0 auto;
-  font:
-    600 9px 'DM Mono',
-    monospace;
+  font: 600 9px var(--dp-font-body);
   padding: 7px;
 }
 .admin-feed-info {
@@ -1598,9 +1522,7 @@ h1 em {
 }
 .admin-study-result span {
   color: #41443a;
-  font:
-    600 16px 'DM Mono',
-    monospace;
+  font: 600 16px var(--dp-font-body);
 }
 .admin-study-result small {
   color: #93968b;

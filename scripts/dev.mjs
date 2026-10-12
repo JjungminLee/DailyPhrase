@@ -20,7 +20,11 @@ function stop(code = 0) {
   setTimeout(() => process.exit(code), 150).unref();
 }
 
-const api = spawn(process.execPath, ['src/local.mjs'], { cwd: rootDir, env, stdio: 'inherit' });
+const api = spawn(
+  process.execPath,
+  ['--env-file-if-exists=.env', '--use-system-ca', 'src/local.mjs'],
+  { cwd: rootDir, env, stdio: 'inherit' },
+);
 children.push(api);
 api.on('error', (error) => {
   console.error('Could not start local API:', error.message);

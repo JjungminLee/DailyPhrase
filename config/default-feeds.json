@@ -14,6 +14,20 @@
       "initial_scan_complete": false
     },
     {
+      "id": "default-ted-talks-daily",
+      "name": "TED Talks Daily",
+      "language": "en",
+      "rss_url": "https://feeds.feedburner.com/TEDTalks_audio",
+      "homepage_url": "https://www.ted.com/podcasts/ted-talks-daily",
+      "source_type": "rss_or_atom",
+      "allowed_domains": ["feeds.feedburner.com", "feeds.acast.com", "ted.com", "www.ted.com"],
+      "enabled": true,
+      "verified": true,
+      "is_default": true,
+      "allow_truncated_feed": true,
+      "initial_scan_complete": false
+    },
+    {
       "id": "default-cna-culture",
       "name": "中央社 CNA — 文化",
       "language": "zh",

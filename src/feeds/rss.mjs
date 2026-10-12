@@ -45,6 +45,27 @@ export function parseFeed(xml) {
     .filter((item) => item.url);
 }
 
+function readableText(html) {
+  const main = html.match(/<(?:article|main)\b[^>]*>([\s\S]*?)<\/(?:article|main)>/i)?.[1] || html;
+  return main
+    .replace(/<!--([\s\S]*?)-->/g, ' ')
+    .replace(
+      /<(script|style|nav|footer|header|noscript|svg|form|aside)\b[^>]*>[\s\S]*?<\/\1>/gi,
+      ' ',
+    )
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;|&#160;|&#xA0;/gi, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;|&#34;/g, '"')
+    .replace(/&#39;|&apos;|&#x27;/g, "'")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([\da-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export async function latestArticle(feed, articleUrl) {
   if (!feed?.verified || !feed?.enabled || !feed.rss_url)
     throw new AppError(
@@ -54,20 +75,18 @@ export async function latestArticle(feed, articleUrl) {
     );
   const fetched = await safeFetch(articleUrl || feed.rss_url, feed.allowed_domains);
   if (articleUrl)
-    return { title: 'Article', url: fetched.url, published_at: null, description: fetched.text };
+    return {
+      title: 'Article',
+      url: fetched.url,
+      published_at: null,
+      description: readableText(fetched.text),
+    };
   const item = parseFeed(fetched.text)[0];
   if (!item) throw new AppError('feed_unavailable', 'RSS feed has no usable articles', 502);
   const url = new URL(item.url, fetched.url);
   if (!isAllowedHost(url.hostname, feed.allowed_domains))
     throw new AppError('feed_unavailable', 'Article URL is outside the allowed domains', 502);
   const articleBody = await safeFetch(url.href, feed.allowed_domains);
-  const readable = articleBody.text
-    .replace(/<(script|style|nav|footer|header|noscript)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
-    .replace(/\s+/g, ' ')
-    .trim();
+  const readable = readableText(articleBody.text);
   return { ...item, url: url.href, description: readable || item.description };
 }

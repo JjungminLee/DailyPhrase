@@ -66,13 +66,24 @@ async function validate(url, domains) {
       throw new AppError('invalid_request', 'Private or reserved addresses are blocked', 400);
     return;
   }
-  const records = await lookup(hostname, { all: true, verbatim: true }).catch(() => []);
+  let records;
+  try {
+    records = await lookup(hostname, { all: true, verbatim: true });
+  } catch (error) {
+    if (error.code === 'EACCES' || error.code === 'EPERM')
+      throw new AppError(
+        'feed_unavailable',
+        `Outbound network access to ${hostname} was denied while resolving DNS; allow the local Node.js process to use DNS and HTTPS`,
+        502,
+      );
+    records = [];
+  }
   if (!records.length) throw new AppError('feed_unavailable', 'Could not resolve feed host', 502);
   if (records.some(({ address }) => !publicIp(address)))
     throw new AppError('invalid_request', 'Private or reserved addresses are blocked', 400);
 }
 
-export async function safeFetch(input, domains) {
+export async function safeFetch(input, domains, { allowTruncate = false } = {}) {
   let url = new URL(input);
   for (let hop = 0; hop <= 3; hop++) {
     await validate(url, domains);
@@ -91,9 +102,15 @@ export async function safeFetch(input, domains) {
       });
     } catch (error) {
       const reason = error.cause?.code || error.name || 'network error';
+      const message =
+        reason === 'EACCES' || reason === 'EPERM'
+          ? `Outbound network access to ${url.hostname} was denied; allow the local Node.js process to connect over HTTPS`
+          : ['UNABLE_TO_GET_ISSUER_CERT_LOCALLY', 'CERT_AUTHORITY_INVALID'].includes(reason)
+            ? `TLS certificate verification failed for ${url.hostname}; start the app with the system CA store enabled`
+            : `Feed request to ${url.hostname} failed (${reason})`;
       throw new AppError(
         error.name === 'AbortError' ? 'fetch_timeout' : 'feed_unavailable',
-        `Feed request to ${url.hostname} failed (${reason})`,
+        message,
         error.name === 'AbortError' ? 504 : 502,
       );
     } finally {
@@ -107,8 +124,42 @@ export async function safeFetch(input, domains) {
       continue;
     }
     if (!res.ok) throw new AppError('feed_unavailable', `Feed returned HTTP ${res.status}`, 502);
-    if (Number(res.headers.get('content-length') || 0) > MAX_BYTES)
+    if (!allowTruncate && Number(res.headers.get('content-length') || 0) > MAX_BYTES)
       throw new AppError('feed_unavailable', 'Response exceeds size limit', 502);
+    if (allowTruncate && res.body) {
+      const reader = res.body.getReader();
+      const chunks = [];
+      let byteLength = 0;
+      let truncated = false;
+      try {
+        while (byteLength < MAX_BYTES) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const remaining = MAX_BYTES - byteLength;
+          const chunk = value.byteLength > remaining ? value.subarray(0, remaining) : value;
+          chunks.push(chunk);
+          byteLength += chunk.byteLength;
+          if (chunk.byteLength !== value.byteLength) {
+            truncated = true;
+            break;
+          }
+        }
+        if (!truncated && byteLength === MAX_BYTES) {
+          const { done } = await reader.read();
+          truncated = !done;
+        }
+      } finally {
+        if (truncated) await reader.cancel().catch(() => {});
+        reader.releaseLock();
+      }
+      const bytes = new Uint8Array(byteLength);
+      let offset = 0;
+      for (const chunk of chunks) {
+        bytes.set(chunk, offset);
+        offset += chunk.byteLength;
+      }
+      return { text: new TextDecoder('utf-8').decode(bytes), url: url.href, truncated };
+    }
     const bytes = new Uint8Array(await res.arrayBuffer());
     if (bytes.byteLength > MAX_BYTES)
       throw new AppError('feed_unavailable', 'Response exceeds size limit', 502);

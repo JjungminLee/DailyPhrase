@@ -11,9 +11,9 @@
   --dp-color-success: #6e9a5b;
   --dp-color-danger: #bd6558;
   --dp-color-focus: #9b8df0;
-  --dp-font-body: 'DM Sans', 'Noto Sans KR', sans-serif;
-  --dp-font-display: Manrope, 'Noto Sans KR', sans-serif;
-  --dp-font-mono: 'DM Mono', monospace;
+  --dp-font-body: 'Pretendard Variable', Pretendard, sans-serif;
+  --dp-font-display: var(--dp-font-body);
+  --dp-font-mono: var(--dp-font-body);
   --dp-space-1: 4px;
   --dp-space-2: 8px;
   --dp-space-3: 12px;

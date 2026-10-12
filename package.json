@@ -8,9 +8,9 @@
   },
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "dev:api": "node --use-system-ca src/local.mjs",
+    "dev:api": "node --env-file-if-exists=.env --use-system-ca src/local.mjs",
     "dev:ui": "vite --configLoader native --host 127.0.0.1",
-    "start": "node --use-system-ca src/local.mjs",
+    "start": "node --env-file-if-exists=.env --use-system-ca src/local.mjs",
     "build": "vite build --configLoader native && node scripts/build.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "lint": "eslint .",

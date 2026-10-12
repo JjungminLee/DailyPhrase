@@ -41,7 +41,6 @@ export function ArticleLibraryPage() {
             {selected.feed_name} · {selected.language.toUpperCase()}
           </span>
           <h2>{selected.title}</h2>
-          <p>원문은 발행 사이트에서 확인할 수 있습니다.</p>
           <a
             className="primary-button article-open"
             href={selected.url}
