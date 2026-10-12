@@ -1,175 +1,43 @@
-import { useEffect, useState } from 'react';
-import type { FormEvent } from 'react';
-import { api } from './api';
-import type { ArticleItem, BatchStudy, Feed, FeedVerification } from './types';
+import { useAdmin } from './hooks/useAdmin';
+import {
+  ActionButton,
+  Eyebrow,
+  FormSurface,
+  SelectField,
+  Surface,
+  TextField,
+} from './components/primitives';
+import type { LanguageConfig } from './types';
 
 type AdminProps = {
-  languages: Array<{ code: string; name: string }>;
+  languages: LanguageConfig[];
   onCollect: (language: string) => Promise<void>;
 };
 
 export function AdminPage({ languages, onCollect }: AdminProps) {
-  const [feeds, setFeeds] = useState<Feed[]>([]);
-  const [articles, setArticles] = useState<ArticleItem[]>([]);
-  const [url, setUrl] = useState('');
-  const [name, setName] = useState('');
-  const [language, setLanguage] = useState(languages[0]?.code ?? 'en');
-  const [verification, setVerification] = useState<FeedVerification | null>(null);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [study, setStudy] = useState<BatchStudy | null>(null);
-
-  async function refresh() {
-    const [feedResponse, articleResponse] = await Promise.all([
-      api<{ feeds: Feed[] }>('/admin/feeds'),
-      api<{ articles: ArticleItem[] }>('/admin/articles'),
-    ]);
-    setFeeds(feedResponse.feeds);
-    setArticles(articleResponse.articles);
-  }
-
-  useEffect(() => {
-    let active = true;
-    Promise.all([
-      api<{ feeds: Feed[] }>('/admin/feeds'),
-      api<{ articles: ArticleItem[] }>('/admin/articles'),
-    ])
-      .then(([feedResponse, articleResponse]) => {
-        if (!active) return;
-        setFeeds(feedResponse.feeds);
-        setArticles(articleResponse.articles);
-      })
-      .catch((cause: unknown) => {
-        if (active)
-          setError(cause instanceof Error ? cause.message : '관리자 데이터를 불러오지 못했습니다.');
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  async function verifyUrl() {
-    setBusy(true);
-    setError('');
-    setMessage('');
-    setVerification(null);
-    try {
-      const result = await api<{ verification: FeedVerification }>('/admin/feeds/verify', {
-        method: 'POST',
-        body: JSON.stringify({ url }),
-      });
-      setVerification(result.verification);
-      setMessage('RSS/Atom 피드를 확인했습니다. 아래에서 구독을 추가할 수 있어요.');
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '피드 주소 확인에 실패했습니다.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function addSubscription(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setBusy(true);
-    setError('');
-    setMessage('');
-    try {
-      const result = await api<{ feed: Feed; verification: FeedVerification }>('/admin/feeds', {
-        method: 'POST',
-        body: JSON.stringify({ name, url, language }),
-      });
-      setFeeds((current) => [result.feed, ...current]);
-      setUrl('');
-      setName('');
-      setVerification(result.verification);
-      setMessage('피드를 구독 목록에 추가했습니다.');
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '피드를 추가하지 못했습니다.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function pollNow() {
-    setBusy(true);
-    setError('');
-    setMessage('등록한 피드에서 새 글을 확인하고 있습니다.');
-    try {
-      const result = await api<{
-        discovered_count: number;
-        feed_count: number;
-        duration_ms: number;
-      }>('/admin/poll', { method: 'POST', body: JSON.stringify({ concurrency: 2 }) });
-      setMessage(
-        `${result.feed_count}개 피드 확인 완료 · 새 글 ${result.discovered_count}개 · ${result.duration_ms}ms`,
-      );
-      await refresh();
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '새 글 확인에 실패했습니다.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function compareBatch() {
-    setBusy(true);
-    setError('');
-    setMessage('동일한 피드 목록을 순차·병렬 방식으로 비교하고 있습니다.');
-    setStudy(null);
-    try {
-      const result = await api<BatchStudy>('/admin/study', {
-        method: 'POST',
-        body: JSON.stringify({}),
-      });
-      setStudy(result);
-      setMessage('비교가 끝났습니다. 각 방식의 처리 시간과 실패 건수를 확인하세요.');
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '배치 비교에 실패했습니다.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function toggleFeed(feed: Feed) {
-    setError('');
-    try {
-      const result = await api<{ feed: Feed }>(`/admin/feeds/${encodeURIComponent(feed.id)}`, {
-        method: 'PUT',
-        body: JSON.stringify({ enabled: !feed.enabled }),
-      });
-      setFeeds((current) => current.map((item) => (item.id === feed.id ? result.feed : item)));
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '구독 상태를 바꾸지 못했습니다.');
-    }
-  }
-
-  async function verifyFeed(feed: Feed) {
-    setBusy(true);
-    setError('');
-    setMessage(`${feed.name} RSS 주소를 확인하고 있습니다.`);
-    try {
-      await api(`/admin/feeds/${encodeURIComponent(feed.id)}/verify`, { method: 'POST' });
-      await refresh();
-      setMessage(`${feed.name} RSS 확인을 마쳤습니다. 이제 수집할 수 있습니다.`);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'RSS 확인에 실패했습니다.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function deleteFeed(feed: Feed) {
-    setError('');
-    try {
-      await api(`/admin/feeds/${encodeURIComponent(feed.id)}`, { method: 'DELETE' });
-      setFeeds((current) => current.filter((item) => item.id !== feed.id));
-      setArticles((current) => current.filter((item) => item.feed_id !== feed.id));
-      setMessage(`“${feed.name}” 구독을 삭제했습니다.`);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '구독을 삭제하지 못했습니다.');
-    }
-  }
-
+  const {
+    feeds,
+    articles,
+    url,
+    setUrl,
+    name,
+    setName,
+    language,
+    setLanguage,
+    verification,
+    setVerification,
+    message,
+    error,
+    busy,
+    study,
+    verifyUrl,
+    addSubscription,
+    pollNow,
+    compareBatch,
+    toggleFeed,
+    verifyFeed,
+    deleteFeed,
+  } = useAdmin(languages[0]?.code ?? 'en');
   const newArticles = articles.filter((article) => article.status === 'new');
   const baselineArticles = articles.filter((article) => article.status === 'baseline');
 
@@ -179,7 +47,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
         <a className="ds-button ds-button-secondary" href="/">
           ← Daily Phrase
         </a>
-        <span className="ds-eyebrow">PRIVATE WORKSPACE</span>
+        <Eyebrow>PRIVATE WORKSPACE</Eyebrow>
       </div>
       <header className="admin-header">
         <div>
@@ -188,22 +56,24 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
           <p>RSS 또는 Atom 주소를 등록하면 새 글을 확인해 오늘의 표현 후보로 모읍니다.</p>
         </div>
         <div className="admin-header-actions">
-          <button
+          <ActionButton
+            tone="secondary"
             className="admin-poll-button"
             disabled={busy || feeds.length === 0}
             onClick={compareBatch}
             type="button"
           >
             배치 비교
-          </button>
-          <button
+          </ActionButton>
+          <ActionButton
+            tone="secondary"
             className="admin-poll-button"
             disabled={busy || feeds.length === 0}
             onClick={pollNow}
             type="button"
           >
             ↻ 새 글 확인
-          </button>
+          </ActionButton>
         </div>
       </header>
 
@@ -214,7 +84,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
       {message && <div className="admin-message">{message}</div>}
       {error && <div className="admin-error">{error}</div>}
       {study && (
-        <section className="admin-card admin-study-card ds-surface">
+        <Surface className="admin-study-card">
           <div className="admin-card-title">
             <div>
               <span className="panel-kicker">BATCH CONCURRENCY STUDY</span>
@@ -240,11 +110,11 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
             네트워크 상태와 원격 피드 응답시간이 결과에 포함됩니다. 자세한 반복 측정은{' '}
             <code>npm run study:batch</code>를 사용하세요.
           </p>
-        </section>
+        </Surface>
       )}
 
       <div className="admin-layout">
-        <form className="admin-card admin-form ds-surface" onSubmit={addSubscription}>
+        <FormSurface className="admin-form" onSubmit={addSubscription}>
           <div className="admin-card-title">
             <div>
               <span className="panel-kicker">NEW SUBSCRIPTION</span>
@@ -254,7 +124,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
           </div>
           <label>
             소스 URL
-            <input
+            <TextField
               autoComplete="url"
               placeholder="https://example.com/feed.xml 또는 블로그 주소"
               required
@@ -269,7 +139,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
           <div className="admin-form-row">
             <label>
               표시 이름
-              <input
+              <TextField
                 maxLength={100}
                 placeholder="예: VOA Learning English"
                 value={name}
@@ -278,27 +148,33 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
             </label>
             <label>
               학습 언어
-              <select value={language} onChange={(event) => setLanguage(event.target.value)}>
+              <SelectField value={language} onChange={(event) => setLanguage(event.target.value)}>
                 {languages.map((item) => (
                   <option value={item.code} key={item.code}>
                     {item.name} ({item.code})
                   </option>
                 ))}
-              </select>
+              </SelectField>
             </label>
           </div>
           <div className="admin-form-actions">
-            <button
+            <ActionButton
+              tone="secondary"
               className="admin-secondary-button"
               disabled={busy || !url}
               onClick={verifyUrl}
               type="button"
             >
               주소 확인
-            </button>
-            <button className="primary-button" disabled={busy || !url} type="submit">
+            </ActionButton>
+            <ActionButton
+              className="primary-button"
+              tone="primary"
+              disabled={busy || !url}
+              type="submit"
+            >
               구독 추가 <b>↗</b>
-            </button>
+            </ActionButton>
           </div>
           {verification && (
             <div className="verification-result">
@@ -315,9 +191,9 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
             RSS/Atom 주소를 직접 넣거나, 해당 피드가 연결된 블로그 페이지 주소를 넣으세요. 페이지에
             피드 자동 발견 정보가 있어야 합니다.
           </p>
-        </form>
+        </FormSurface>
 
-        <section className="admin-card ds-surface">
+        <Surface className="admin-subscribed-sources">
           <div className="admin-card-title">
             <div>
               <span className="panel-kicker">SUBSCRIBED SOURCES</span>
@@ -368,10 +244,10 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
               ))}
             </div>
           )}
-        </section>
+        </Surface>
       </div>
 
-      <section className="admin-card admin-inbox ds-surface">
+      <Surface className="admin-inbox">
         <div className="admin-card-title">
           <div>
             <span className="panel-kicker">DISCOVERED ARTICLES</span>
@@ -409,9 +285,9 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
             ))}
           </div>
         )}
-      </section>
+      </Surface>
       {baselineArticles.length > 0 && (
-        <section className="admin-card admin-inbox ds-surface">
+        <Surface className="admin-inbox">
           <div className="admin-card-title">
             <div>
               <span className="panel-kicker">INITIAL IMPORT</span>
@@ -439,7 +315,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
               </article>
             ))}
           </div>
-        </section>
+        </Surface>
       )}
     </section>
   );

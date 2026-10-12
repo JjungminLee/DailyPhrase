@@ -14,136 +14,6 @@ body {
   color: var(--dp-color-ink);
   background: var(--dp-color-canvas);
 }
-.app-shell {
-  min-height: 100vh;
-}
-.rail {
-  position: fixed;
-  inset: 0 auto 0 0;
-  width: 76px;
-  background: #fff;
-  border-right: 1px solid #e9e9e3;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding: 25px 0 20px;
-  z-index: 2;
-}
-.brand-mark {
-  position: relative;
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  background: #242522;
-  color: #fff;
-  text-decoration: none;
-  display: grid;
-  place-items: center;
-  font:
-    800 15px Manrope,
-    sans-serif;
-  letter-spacing: -1px;
-}
-.brand-mark i {
-  position: absolute;
-  color: #bee95c;
-  font-style: normal;
-  font-size: 11px;
-  right: -3px;
-  top: -4px;
-}
-.rail-divider {
-  width: 30px;
-  height: 1px;
-  background: #ededeb;
-  margin: 25px 0 18px;
-}
-.rail-button {
-  width: 42px;
-  height: 42px;
-  border: 0;
-  background: transparent;
-  border-radius: 13px;
-  color: #a4a69e;
-  font-size: 21px;
-  margin: 3px 0;
-  cursor: pointer;
-}
-.rail-button.active {
-  background: #f1f6e6;
-  color: #4a6422;
-}
-.rail-spacer {
-  flex: 1;
-}
-.rail-avatar {
-  width: 32px;
-  height: 32px;
-  background: #f2e5d7;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: #805935;
-  font-weight: 700;
-  font-size: 12px;
-}
-.main-content {
-  max-width: 1480px;
-  margin: 0 auto;
-  padding: 0 5.5% 0 calc(76px + 5.5%);
-}
-.topbar {
-  height: 76px;
-  border-bottom: 1px solid #e8e8e2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.breadcrumb {
-  font:
-    500 10px 'DM Mono',
-    monospace;
-  letter-spacing: 1.2px;
-  color: #a2a39c;
-}
-.breadcrumb b {
-  font-weight: 400;
-  margin: 0 11px;
-  color: #d1d2ca;
-}
-.breadcrumb strong {
-  color: #5d6058;
-  font-weight: 500;
-}
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-.api-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font:
-    500 9px 'DM Mono',
-    monospace;
-  letter-spacing: 0.7px;
-  color: #8e9188;
-}
-.api-status span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #d6a747;
-}
-.api-status.online span {
-  background: #86bb44;
-  box-shadow: 0 0 0 3px #edf4df;
-}
-.top-date {
-  font-size: 11px;
-  color: #8a8c85;
-}
 .hero-row {
   display: flex;
   justify-content: space-between;
@@ -1349,10 +1219,6 @@ h1 em {
   }
 }
 @media (max-width: 1000px) {
-  .main-content {
-    padding-right: 4%;
-    padding-left: calc(76px + 4%);
-  }
   .workspace-grid {
     grid-template-columns: minmax(0, 1fr) 280px;
     gap: 22px;
@@ -1362,27 +1228,6 @@ h1 em {
   }
 }
 @media (max-width: 760px) {
-  .rail {
-    width: 58px;
-  }
-  .main-content {
-    padding: 0 18px 0 76px;
-  }
-  .topbar {
-    height: 63px;
-  }
-  .breadcrumb {
-    font-size: 8px;
-  }
-  .topbar-right {
-    gap: 12px;
-  }
-  .api-status {
-    font-size: 7px;
-  }
-  .top-date {
-    font-size: 9px;
-  }
   .hero-row {
     padding: 38px 0 28px;
   }
@@ -1469,13 +1314,6 @@ h1 em {
   }
 }
 @media (max-width: 430px) {
-  .main-content {
-    padding-left: 70px;
-    padding-right: 13px;
-  }
-  .rail {
-    width: 54px;
-  }
   .hero-stamp {
     width: 74px;
     height: 74px;
