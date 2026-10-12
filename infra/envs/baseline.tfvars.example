@@ -1,0 +1,8 @@
+aws_region = "<choose-region>"
+owner = "<owner-tag>"
+lambda_memory_mb = 512
+lambda_timeout_seconds = 25
+lambda_reserved_concurrency = 5
+api_throttle_rate_limit = 5
+api_throttle_burst_limit = 10
+log_retention_days = 14

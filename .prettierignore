@@ -1,0 +1,6 @@
+node_modules/
+dist/
+results/
+infra/.terraform/
+infra/**/*.tf
+package-lock.json

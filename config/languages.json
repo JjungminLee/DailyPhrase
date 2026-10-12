@@ -1,0 +1,9 @@
+{
+  "default_languages": ["en", "zh", "fr", "ja"],
+  "languages": {
+    "en": { "name": "English", "phrase_unit": "words", "min": 2, "max": 6, "level_scale": "CEFR" },
+    "zh": { "name": "Chinese", "phrase_unit": "chars", "min": 2, "max": 8, "level_scale": "HSK" },
+    "fr": { "name": "French", "phrase_unit": "words", "min": 2, "max": 6, "level_scale": "CEFR" },
+    "ja": { "name": "Japanese", "phrase_unit": "chars", "min": 3, "max": 12, "level_scale": "JLPT" }
+  }
+}
