@@ -1233,6 +1233,12 @@ h1 em {
   color: #77796f;
   font-size: 13px;
 }
+.article-expression-pronunciation {
+  margin: 7px 0 0;
+  color: #8b765e;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
 .article-expression-card blockquote {
   margin: 0;
   padding-left: 12px;

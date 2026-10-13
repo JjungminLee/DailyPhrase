@@ -27,6 +27,8 @@ export type Phrase = {
   context_sentence: string;
   level: string;
   type?: 'collocation' | 'idiom' | 'phrasal_verb' | 'sentence_pattern' | 'other';
+  pinyin?: string;
+  reading?: string;
   note_ko?: string;
 };
 

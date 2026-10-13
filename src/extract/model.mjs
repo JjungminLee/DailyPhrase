@@ -10,7 +10,16 @@ const phraseSchema = {
       items: {
         type: 'object',
         additionalProperties: false,
-        required: ['text', 'meaning_ko', 'context_sentence', 'level', 'type', 'note_ko'],
+        required: [
+          'text',
+          'meaning_ko',
+          'context_sentence',
+          'level',
+          'type',
+          'note_ko',
+          'pinyin',
+          'reading',
+        ],
         properties: {
           text: { type: 'string' },
           meaning_ko: { type: 'string' },
@@ -21,6 +30,8 @@ const phraseSchema = {
             enum: ['collocation', 'idiom', 'phrasal_verb', 'sentence_pattern', 'other'],
           },
           note_ko: { type: 'string' },
+          pinyin: { type: 'string' },
+          reading: { type: 'string' },
         },
       },
     },
@@ -35,6 +46,7 @@ function instructions({ language, limits }) {
     'Prefer reusable collocations, idioms, phrasal verbs, and sentence patterns over isolated basic vocabulary.',
     'Do not reproduce the article or provide long quotations. Each context_sentence must be one short sentence (maximum 200 characters).',
     'Write meaning_ko and note_ko in Korean. Do not invent examples or translations as if they were in the source.',
+    'For Chinese (zh), provide pinyin with tone marks in pinyin and an empty reading. For Japanese (ja), provide the full pronunciation in hiragana or katakana in reading and an empty pinyin. For other languages, set both pinyin and reading to empty strings.',
     `The article language is ${language}. Choose expressions containing ${limits.min} to ${limits.max} ${limits.phrase_unit}.`,
     `Use levels from ${limits.level_scale}: ${limits.level_scale === 'CEFR' ? 'A2, B1, B2, or C1' : limits.level_scale === 'HSK' ? '1 to 6' : 'N1 to N5'}.`,
   ].join(' ');

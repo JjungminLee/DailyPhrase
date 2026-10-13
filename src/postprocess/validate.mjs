@@ -12,10 +12,18 @@ const count = (text, unit) =>
         .length;
 const normalize = (s) => clean(s).toLocaleLowerCase();
 
+function sourceSentence(sourceText, phrase) {
+  const sentences = sourceText.match(/[^.!?]+[.!?]?(?:["'”’)]*)/gu) || [sourceText];
+  return (
+    sentences.find((sentence) => normalize(sentence).includes(normalize(phrase))) || sourceText
+  ).trim();
+}
+
 export function validatePhrases(raw, article, language, limits, requestedMax = 10) {
   if (!Array.isArray(raw))
     throw new AppError('extract_failed', 'Model output must contain a phrases array');
-  const source = normalize(article.description || '');
+  const sourceText = clean(article.description || '');
+  const source = normalize(sourceText);
   const seen = new Set();
   const phrases = [];
   let droppedNotInSource = 0;
@@ -32,8 +40,7 @@ export function validatePhrases(raw, article, language, limits, requestedMax = 1
     const context = clean(item.context_sentence);
     const key = normalize(text);
     if (item.language !== undefined && item.language !== language) continue;
-    if (!key || !normalize(context).includes(key)) continue;
-    if (!source.includes(normalize(context))) {
+    if (!key || !source.includes(key)) {
       droppedNotInSource += 1;
       continue;
     }
@@ -53,14 +60,20 @@ export function validatePhrases(raw, article, language, limits, requestedMax = 1
           ? /^[1-6]$/.test(level)
           : /^N[1-5]$/.test(level);
     if (!validLevel || !clean(item.meaning_ko)) continue;
+    const sourceContext =
+      normalize(context).includes(key) && source.includes(normalize(context))
+        ? context
+        : sourceSentence(sourceText, text);
     seen.add(key);
     phrases.push({
       text,
       language,
       meaning_ko: clean(item.meaning_ko),
-      context_sentence: context.slice(0, 200),
+      context_sentence: sourceContext.slice(0, 200),
       level,
       type: item.type,
+      ...(language === 'zh' && item.pinyin ? { pinyin: clean(item.pinyin) } : {}),
+      ...(language === 'ja' && item.reading ? { reading: clean(item.reading) } : {}),
       ...(item.note_ko ? { note_ko: clean(item.note_ko).slice(0, 200) } : {}),
     });
     if (phrases.length >= requestedMax) break;

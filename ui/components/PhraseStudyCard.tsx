@@ -61,7 +61,13 @@ export function PhraseStudyCard({ code, data }: { code: string; data: LanguageRe
           <h2>{phrase.text}</h2>
           <div className="study-meaning-row">
             <span>{language.label}</span>
-            <span className="study-pronunciation">Tap the speaker to listen</span>
+            <span className="study-pronunciation">
+              {code === 'zh' && phrase.pinyin
+                ? `병음 ${phrase.pinyin}`
+                : code === 'ja' && phrase.reading
+                  ? `읽기 ${phrase.reading}`
+                  : 'Tap the speaker to listen'}
+            </span>
           </div>
           {showMeaning && <p className="study-translation">{phrase.meaning_ko}</p>}
         </div>

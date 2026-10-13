@@ -216,6 +216,12 @@ export function ArticleLibraryPage() {
                       <h4>{phrase.text}</h4>
                       <span>{phrase.level}</span>
                     </div>
+                    {phrase.pinyin && (
+                      <p className="article-expression-pronunciation">병음 {phrase.pinyin}</p>
+                    )}
+                    {phrase.reading && (
+                      <p className="article-expression-pronunciation">읽기 {phrase.reading}</p>
+                    )}
                     <p className="article-expression-meaning">{phrase.meaning_ko}</p>
                     <blockquote>{phrase.context_sentence}</blockquote>
                     {phrase.note_ko && <small>{phrase.note_ko}</small>}
