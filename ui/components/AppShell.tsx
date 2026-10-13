@@ -150,7 +150,13 @@ export function AppShell({
         >
           ◉
         </NavButton>
-        <NavButton aria-label="Settings" title="설정" type="button">
+        <NavButton
+          $active={pathname === '/admin'}
+          onClick={() => navigate('/admin')}
+          aria-label="Settings"
+          title="설정"
+          type="button"
+        >
           ⚙
         </NavButton>
         <Spacer />
