@@ -1,5 +1,7 @@
 aws_region = "<choose-region>"
 owner = "<owner-tag>"
+ollama_base_url = "<reachable-ollama-service-url>"
+ollama_model = "qwen3.5:9b"
 lambda_memory_mb = 512
 lambda_timeout_seconds = 25
 lambda_reserved_concurrency = 5

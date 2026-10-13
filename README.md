@@ -8,7 +8,7 @@ Local-first Node.js 22 API scaffold for extracting short, source-grounded langua
 npm install
 ```
 
-Before requesting phrases, copy `.env.example` to `.env` and set `OPENAI_API_KEY` to an OpenAI API key available to your project. Keep `.env` private; it is ignored by Git. `OPENAI_MODEL` defaults to `gpt-6-astra` and can be changed to a model enabled for your API project.
+Before requesting phrases, install Qwen in Ollama (`ollama pull qwen3.5:9b`), copy `.env.example` to `.env`, and set `OLLAMA_BASE_URL` if Ollama is not listening at `http://127.0.0.1:11434`. The default model is `qwen3.5:9b`; set `OLLAMA_MODEL` to `richardyoung/kimi-vl-a3b-thinking:iq4_xs` to use a locally quantized Kimi-VL model instead. `MODEL_TIMEOUT_MS` controls the request timeout. Keep `.env` private; it is ignored by Git.
 
 ```sh
 npm run dev
@@ -32,7 +32,7 @@ The UI is written in TypeScript. `ui/main.tsx` is only the browser entry point; 
 
 The API and feed crawler use Node's HTTPS/TLS stack with certificate verification enabled. Local commands enable Node's system CA support through `NODE_USE_SYSTEM_CA=1`, which trusts certificates installed in the Windows or macOS system keychain and requires Node.js 22.19 or newer. For a private company proxy CA, install the approved root certificate in the system trust store; do not disable TLS certificate checks.
 
-The dashboard can request a daily collection and study phrases one at a time with pronunciation, hidden/revealed meanings, and previous/next controls. When generating phrases, the API fetches article text temporarily, sends it to OpenAI with response storage disabled, validates that phrases and context sentences occur in the source, and returns only the phrases plus article metadata. Full article text and RSS preview descriptions are not stored or shown in the app. The Articles page lists titles and links to publications. The Admin view lets you add, verify, pause, and remove RSS/Atom subscriptions. It can scan feeds on demand, and the new-article inbox is used as the source queue for daily phrase requests. The first scan establishes a baseline; subsequent scans add unseen articles.
+The dashboard can request a daily collection and study phrases one at a time with pronunciation, hidden/revealed meanings, and previous/next controls. When generating phrases, the API fetches article text temporarily, sends it to the configured Ollama Qwen model, validates that phrases and context sentences occur in the source, and returns only the phrases plus article metadata. Full article text and RSS preview descriptions are not stored or shown in the app. The Articles page lists titles and links to publications. The Admin view lets you add, verify, pause, and remove RSS/Atom subscriptions. It can scan feeds on demand, and the new-article inbox is used as the source queue for daily phrase requests. The first scan establishes a baseline; subsequent scans add unseen articles.
 
 `npm run batch:poll` runs a one-time poll. `npm run crawler` runs a local polling loop (default 15 minutes; set `CRAWL_INTERVAL_SECONDS` to change it). `npm run study:batch` compares polling concurrency 1, 2, and 4 over configured subscriptions and saves a read-only report under `results/`. The Admin comparison button runs one sample per concurrency level. These timings include network conditions and are a learning benchmark, not a cloud batch-service benchmark.
 
@@ -45,7 +45,7 @@ Subscriptions and the article inbox are stored in ignored local files (`data/sub
 - `data/subscriptions.json` and `data/articles.json` are local, ignored state managed by the Admin view and crawler.
 - Admin accepts RSS/Atom URLs or website URLs that advertise an RSS/Atom feed using HTML autodiscovery. It does not scrape arbitrary website pages without a feed.
 - `MAX_INPUT_CHARS`, `MAX_FETCH_BYTES`, `FETCH_TIMEOUT_MS`, and `DAILY_CONCURRENCY` can be set in the environment.
-- `OPENAI_API_KEY`, `OPENAI_MODEL`, and `OPENAI_TIMEOUT_MS` configure phrase extraction. The API uses OpenAI's Responses API with `store: false`.
+- `OLLAMA_BASE_URL`, `OLLAMA_MODEL`, and `MODEL_TIMEOUT_MS` configure phrase extraction. Local defaults target Ollama at `http://127.0.0.1:11434` with `qwen3.5:9b`; `OLLAMA_MODEL` can select another installed local model such as `richardyoung/kimi-vl-a3b-thinking:iq4_xs`. Terraform passes a separately configured, network-reachable Ollama URL and Qwen model tag to Lambda.
 
 The app enables Node's system certificate store for HTTPS. `EACCES`/`EPERM` means the operating system or execution environment denied outbound networking; changing TLS settings cannot fix that permission. If it recurs, start `npm run dev` in a terminal that has outbound HTTPS access and allow that Node process through local endpoint/firewall controls. The API reports denied network access separately from TLS certificate errors.
 
@@ -53,4 +53,4 @@ The app enables Node's system certificate store for HTTPS. `EACCES`/`EPERM` mean
 
 `npm run quality` checks the 20 input cases once they are populated. `npm run baseline` and `npm run load` currently exercise the local handler and write JSON under `results/`; these are harness smoke measurements, not AWS Lambda performance results. `npm run build` packages `src/` and `config/` into `dist/lambda.zip` using Windows `tar` ZIP support.
 
-Terraform files are an un-applied deployment scaffold. Do not run `deploy` or `destroy` until the open deployment questions are answered and a reviewed plan is available.
+Terraform files are an un-applied deployment scaffold. The current API scaffold uses Lambda and expects Ollama to be reachable at `ollama_base_url`; the Ollama/Qwen inference service itself is not provisioned by Terraform yet. An EC2 Ollama host is one possible deployment, but the infrastructure topology and networking/authentication for that endpoint still need to be selected. Do not run `deploy` or `destroy` until the open deployment questions are answered and a reviewed plan is available.

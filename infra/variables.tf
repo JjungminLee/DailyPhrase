@@ -39,3 +39,12 @@ variable "lambda_env" {
   }
   sensitive = true
 }
+variable "ollama_base_url" {
+  type        = string
+  description = "Reachable Ollama service URL for the Lambda runtime (for example, an Ollama service hosted on EC2)."
+}
+variable "ollama_model" {
+  type        = string
+  description = "Qwen model tag already available to the configured Ollama service."
+  default     = "qwen3.5:9b"
+}

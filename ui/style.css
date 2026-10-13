@@ -1121,6 +1121,98 @@ h1 em {
   gap: 18px;
   text-decoration: none;
 }
+.article-expressions {
+  margin-top: 32px;
+  padding-top: 25px;
+  border-top: 1px solid var(--dp-color-border);
+}
+.article-expressions-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+.article-expressions-heading h3 {
+  margin: 12px 0 7px;
+  font-size: 20px;
+}
+.article-expressions-heading p,
+.article-expression-state {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.article-retry {
+  flex: 0 0 auto;
+  padding: 9px 13px;
+  border: 1px solid var(--dp-color-border);
+  border-radius: 10px;
+  background: white;
+  color: var(--dp-color-ink);
+  cursor: pointer;
+}
+.article-expression-list {
+  display: grid;
+  gap: 10px;
+}
+.article-expression-card {
+  padding: 16px 18px;
+  border: 1px solid var(--dp-color-border);
+  border-radius: 13px;
+  background: #fff;
+}
+.article-expression-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+.article-expression-card-heading h4 {
+  margin: 0;
+  font-size: 16px;
+}
+.article-expression-card-heading span {
+  padding: 4px 7px;
+  border-radius: 7px;
+  background: #f1f4e9;
+  color: #75874f;
+  font-size: 10px;
+}
+.article-expression-meaning {
+  margin: 7px 0 10px;
+  color: #77796f;
+  font-size: 13px;
+}
+.article-expression-card blockquote {
+  margin: 0;
+  padding-left: 12px;
+  border-left: 2px solid #d7e1c2;
+  color: #4e5048;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.article-expression-card > small,
+.article-expression-error small {
+  display: block;
+  margin-top: 8px;
+  color: #8b8d83;
+  line-height: 1.6;
+}
+.article-expression-error {
+  padding: 13px 15px;
+  border: 1px solid #efd6d1;
+  border-radius: 12px;
+  background: #fff9f7;
+  color: #a55347;
+}
+.article-expression-error p {
+  margin: 0;
+  font-size: 13px;
+}
+.article-expression-error small {
+  color: #8b6a62;
+}
 .article-empty {
   grid-column: 1/-1;
   padding: 38px;
@@ -1154,6 +1246,10 @@ h1 em {
   }
   .article-library-grid {
     grid-template-columns: 1fr;
+  }
+  .article-expressions-heading {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 @media (max-width: 1000px) {

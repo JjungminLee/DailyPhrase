@@ -25,7 +25,12 @@ resource "aws_lambda_function" "api" {
   timeout = var.lambda_timeout_seconds
   reserved_concurrent_executions = var.lambda_reserved_concurrency
   environment {
-    variables = merge(var.lambda_env, { BUILD_VERSION = filebase64sha256("${path.root}/../dist/lambda.zip") })
+    variables = merge(var.lambda_env, {
+      OLLAMA_BASE_URL  = var.ollama_base_url
+      OLLAMA_MODEL     = var.ollama_model
+      MODEL_TIMEOUT_MS = tostring(var.lambda_timeout_seconds * 1000)
+      BUILD_VERSION    = filebase64sha256("${path.root}/../dist/lambda.zip")
+    })
   }
   depends_on = [aws_iam_role_policy.lambda_logs, aws_cloudwatch_log_group.lambda]
 }

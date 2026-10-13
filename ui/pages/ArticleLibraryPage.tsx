@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
-import type { ArticleItem } from '../types';
+import type { ArticleItem, Phrase } from '../types';
+
+type ArticlePhraseResponse = { phrases: Phrase[] };
 
 export function ArticleLibraryPage() {
   const [articles, setArticles] = useState<ArticleItem[]>([]);
   const [selected, setSelected] = useState<ArticleItem | null>(null);
+  const [phrases, setPhrases] = useState<Phrase[]>([]);
+  const [extracting, setExtracting] = useState(false);
+  const [extractError, setExtractError] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -21,6 +27,40 @@ export function ArticleLibraryPage() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!selected) return;
+    let active = true;
+    setPhrases([]);
+    setExtractError('');
+    setExtracting(true);
+
+    api<ArticlePhraseResponse>('/phrases', {
+      method: 'POST',
+      body: JSON.stringify({
+        feed_id: selected.feed_id,
+        article_url: selected.url,
+        max_phrases: 6,
+        purpose: 'article_detail',
+      }),
+    })
+      .then((result) => {
+        if (active) setPhrases(result.phrases);
+      })
+      .catch((reason: unknown) => {
+        if (active)
+          setExtractError(
+            reason instanceof Error ? reason.message : '표현을 추출하지 못했습니다.',
+          );
+      })
+      .finally(() => {
+        if (active) setExtracting(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [selected, retryCount]);
 
   return (
     <section className="article-library">
@@ -50,6 +90,57 @@ export function ArticleLibraryPage() {
             원문 읽기 ↗
           </a>
           <small>{selected.published_at || selected.discovered_at}</small>
+          <section className="article-expressions" aria-live="polite">
+            <div className="article-expressions-heading">
+              <div>
+                <span className="eyebrow">
+                  <span className="eyebrow-line" /> NATIVE EXPRESSIONS
+                </span>
+                <h3>이 아티클에서 배우는 자주 쓰는 표현</h3>
+                <p>모델이 원문을 읽고 실제 원어민이 자주 쓰는 자연스러운 표현을 골랐어요.</p>
+              </div>
+              {!extracting && (
+                <button
+                  className="article-retry"
+                  type="button"
+                  onClick={() => setRetryCount((count) => count + 1)}
+                >
+                  다시 추출
+                </button>
+              )}
+            </div>
+            {extracting && (
+              <p className="article-expression-state" role="status">
+                아티클을 읽고 표현을 고르는 중이에요…
+              </p>
+            )}
+            {extractError && (
+              <div className="article-expression-error" role="alert">
+                <p>{extractError}</p>
+                <small>원문이 공개되어 있고 로컬 Ollama가 실행 중인지 확인한 뒤 다시 시도해 주세요.</small>
+              </div>
+            )}
+            {!extracting && !extractError && phrases.length === 0 && (
+              <p className="article-expression-state">
+                원문에서 학습하기 좋은 표현을 찾지 못했어요. 다시 추출해 볼 수 있어요.
+              </p>
+            )}
+            {phrases.length > 0 && (
+              <div className="article-expression-list">
+                {phrases.map((phrase) => (
+                  <article className="article-expression-card" key={phrase.text}>
+                    <div className="article-expression-card-heading">
+                      <h4>{phrase.text}</h4>
+                      <span>{phrase.level}</span>
+                    </div>
+                    <p className="article-expression-meaning">{phrase.meaning_ko}</p>
+                    <blockquote>{phrase.context_sentence}</blockquote>
+                    {phrase.note_ko && <small>{phrase.note_ko}</small>}
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
         </article>
       ) : (
         <div className="article-library-grid">

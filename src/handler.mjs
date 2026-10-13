@@ -47,6 +47,8 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
     throw new AppError('invalid_request', 'feed_id is required', 400);
   if (body.article_url !== undefined && typeof body.article_url !== 'string')
     throw new AppError('invalid_request', 'article_url must be a URL string', 400);
+  if (body.purpose !== undefined && body.purpose !== 'article_detail')
+    throw new AppError('invalid_request', 'Unsupported phrase extraction purpose', 400);
   const max = body.max_phrases ?? 10;
   if (!Number.isInteger(max) || max < 1 || max > 30)
     throw new AppError('invalid_request', 'max_phrases must be an integer from 1 to 30', 400);
@@ -65,7 +67,8 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
     Number.isFinite(configuredMaxChars) && configuredMaxChars > 0
       ? Math.floor(configuredMaxChars)
       : 120000;
-  article.description = article.description.slice(0, maxChars);
+  const phraseInputLimit = body.purpose === 'article_detail' ? Math.min(maxChars, 12000) : maxChars;
+  article.description = article.description.slice(0, phraseInputLimit);
   const languages = await getLanguages([feed.language]);
   const limits = languages.config.languages[feed.language];
   const generated = await extractPhrases({
@@ -73,6 +76,11 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
     language: feed.language,
     limits,
     maxPhrases: max,
+    timeoutMs:
+      body.purpose === 'article_detail' && process.env.DAILY_PHRASE_LOCAL === '1'
+        ? Math.min(300000, Math.max(30000, Number(process.env.ARTICLE_MODEL_TIMEOUT_MS) || 240000))
+        : undefined,
+    maxTokens: body.purpose === 'article_detail' ? 1200 : undefined,
   });
   const validated = validatePhrases(generated, article, feed.language, limits, max);
   return {
