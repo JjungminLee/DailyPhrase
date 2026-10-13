@@ -40,9 +40,18 @@ function instructions({ language, limits }) {
   ].join(' ');
 }
 
-export async function extractPhrases({ article, language, limits, maxPhrases, timeoutMs, maxTokens }) {
+export async function extractPhrases({
+  article,
+  language,
+  limits,
+  maxPhrases,
+  timeoutMs,
+  maxTokens,
+  model: requestedModel,
+}) {
   const baseUrl = (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434').replace(/\/+$/, '');
-  const model = process.env.OLLAMA_MODEL || 'qwen3.5:9b';
+  const model = requestedModel || process.env.OLLAMA_MODEL || 'qwen3.5:9b';
+  const requestTimeoutMs = timeoutMs ?? Number(process.env.MODEL_TIMEOUT_MS || 120000);
   let result;
   try {
     result = await fetch(`${baseUrl}/api/chat`, {
@@ -55,18 +64,23 @@ export async function extractPhrases({ article, language, limits, maxPhrases, ti
         format: phraseSchema,
         messages: [
           { role: 'system', content: instructions({ language, limits }) },
-          { role: 'user', content: `Article title: ${article.title}\nArticle text:\n${article.description}` },
+          {
+            role: 'user',
+            content: `Article title: ${article.title}\nArticle text:\n${article.description}`,
+          },
         ],
         options: { num_predict: maxTokens ?? Math.min(6000, 500 + maxPhrases * 180) },
       }),
-      signal: AbortSignal.timeout(timeoutMs ?? Number(process.env.MODEL_TIMEOUT_MS || 30000)),
+      signal: AbortSignal.timeout(requestTimeoutMs),
     });
   } catch (error) {
     const reason = error.cause?.code || error.name || 'network error';
     const message =
-      reason === 'ECONNREFUSED'
-        ? `Could not connect to Ollama at ${baseUrl}. Start Ollama and verify OLLAMA_BASE_URL.`
-        : `Ollama request failed (${reason})`;
+      error.name === 'TimeoutError'
+        ? `Ollama request timed out after ${requestTimeoutMs}ms. Increase MODEL_TIMEOUT_MS or use a smaller model.`
+        : reason === 'ECONNREFUSED'
+          ? `Could not connect to Ollama at ${baseUrl}. Start Ollama and verify OLLAMA_BASE_URL.`
+          : `Ollama request failed (${reason})`;
     throw new AppError('model_error', message, error.name === 'TimeoutError' ? 504 : 502);
   }
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
 import type { ArticleItem, Phrase } from '../types';
 
@@ -6,18 +7,39 @@ type ArticlePhraseResponse = { phrases: Phrase[] };
 
 export function ArticleLibraryPage() {
   const [articles, setArticles] = useState<ArticleItem[]>([]);
-  const [selected, setSelected] = useState<ArticleItem | null>(null);
-  const [phrases, setPhrases] = useState<Phrase[]>([]);
-  const [extracting, setExtracting] = useState(false);
-  const [extractError, setExtractError] = useState('');
+  const [articlesLoaded, setArticlesLoaded] = useState(false);
+  const [phraseResult, setPhraseResult] = useState<{ key: string; phrases: Phrase[] } | null>(null);
+  const [extractFailure, setExtractFailure] = useState<{ key: string; message: string } | null>(
+    null,
+  );
+  const [completedRequest, setCompletedRequest] = useState('');
+  const [manualArticleText, setManualArticleText] = useState<{
+    articleId: string;
+    text: string;
+  } | null>(null);
+  const [manualSubmitting, setManualSubmitting] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { articleId } = useParams();
+  const selected = articles.find((article) => article.id === articleId) ?? null;
+  const requestKey = selected ? `${selected.id}:${retryCount}` : '';
+  const pastedText =
+    manualArticleText && selected && manualArticleText.articleId === selected.id
+      ? manualArticleText.text
+      : '';
+  const phrases = phraseResult?.key === requestKey ? phraseResult.phrases : [];
+  const extractError = extractFailure?.key === requestKey ? extractFailure.message : '';
+  const extracting = Boolean(requestKey && completedRequest !== requestKey) || manualSubmitting;
 
   useEffect(() => {
     let active = true;
     api<{ articles: ArticleItem[] }>('/admin/articles')
       .then(({ articles: items }) => {
-        if (active) setArticles(items);
+        if (active) {
+          setArticles(items);
+          setArticlesLoaded(true);
+        }
       })
       .catch((reason: unknown) => {
         if (active)
@@ -31,36 +53,65 @@ export function ArticleLibraryPage() {
   useEffect(() => {
     if (!selected) return;
     let active = true;
-    setPhrases([]);
-    setExtractError('');
-    setExtracting(true);
+    const key = `${selected.id}:${retryCount}`;
 
     api<ArticlePhraseResponse>('/phrases', {
       method: 'POST',
       body: JSON.stringify({
         feed_id: selected.feed_id,
         article_url: selected.url,
+        article_title: selected.title,
         max_phrases: 6,
         purpose: 'article_detail',
       }),
     })
       .then((result) => {
-        if (active) setPhrases(result.phrases);
+        if (active) setPhraseResult({ key, phrases: result.phrases });
       })
       .catch((reason: unknown) => {
         if (active)
-          setExtractError(
-            reason instanceof Error ? reason.message : '표현을 추출하지 못했습니다.',
-          );
+          setExtractFailure({
+            key,
+            message: reason instanceof Error ? reason.message : 'Extraction failed.',
+          });
       })
       .finally(() => {
-        if (active) setExtracting(false);
+        if (active) setCompletedRequest(key);
       });
 
     return () => {
       active = false;
     };
   }, [selected, retryCount]);
+
+  async function extractPastedText() {
+    if (!selected || !pastedText.trim()) return;
+    const article = selected;
+    const key = requestKey;
+    setManualSubmitting(true);
+    setExtractFailure(null);
+    try {
+      const result = await api<ArticlePhraseResponse>('/phrases', {
+        method: 'POST',
+        body: JSON.stringify({
+          feed_id: article.feed_id,
+          article_url: article.url,
+          article_title: article.title,
+          article_text: pastedText,
+          max_phrases: 6,
+          purpose: 'article_detail',
+        }),
+      });
+      setPhraseResult({ key, phrases: result.phrases });
+    } catch (reason: unknown) {
+      setExtractFailure({
+        key,
+        message: reason instanceof Error ? reason.message : 'Extraction failed.',
+      });
+    } finally {
+      setManualSubmitting(false);
+    }
+  }
 
   return (
     <section className="article-library">
@@ -72,9 +123,13 @@ export function ArticleLibraryPage() {
         <p>구독 중인 소스에서 모은 글을 읽고, 문맥 속 표현을 발견해 보세요.</p>
       </div>
       {error && <div className="notice error-notice">{error}</div>}
-      {selected ? (
+      {articleId && !selected ? (
+        <div className="article-empty">
+          {articlesLoaded || error ? '아티클을 찾을 수 없습니다.' : '아티클을 불러오는 중이에요…'}
+        </div>
+      ) : selected ? (
         <article className="article-reader ds-surface">
-          <button className="article-back" type="button" onClick={() => setSelected(null)}>
+          <button className="article-back" type="button" onClick={() => navigate('/articles')}>
             ← 아티클 목록
           </button>
           <span className="article-source-name">
@@ -117,7 +172,35 @@ export function ArticleLibraryPage() {
             {extractError && (
               <div className="article-expression-error" role="alert">
                 <p>{extractError}</p>
-                <small>원문이 공개되어 있고 로컬 Ollama가 실행 중인지 확인한 뒤 다시 시도해 주세요.</small>
+                <small>
+                  표현을 추출하려면 원문 본문을 가져올 수 있어야 합니다. 원문 접근이 계속 막히면
+                  다른 아티클을 시도해 주세요.
+                </small>
+              </div>
+            )}
+            {extractError && (
+              <div className="article-manual-extraction">
+                <label htmlFor="article-text-input">
+                  본문을 복사해서 붙여넣으면 로컬 모델로 표현을 추출할 수 있어요.
+                </label>
+                <textarea
+                  id="article-text-input"
+                  value={pastedText}
+                  onChange={(event) =>
+                    setManualArticleText({ articleId: selected.id, text: event.target.value })
+                  }
+                  maxLength={8000}
+                  rows={7}
+                  placeholder="원문 페이지에서 기사 본문을 복사해 붙여넣으세요. 최대 8,000자까지 사용하며 입력한 본문은 저장하지 않습니다."
+                />
+                <button
+                  className="article-retry"
+                  type="button"
+                  disabled={!pastedText.trim() || manualSubmitting}
+                  onClick={extractPastedText}
+                >
+                  {manualSubmitting ? '표현 추출 중…' : '붙여넣은 본문에서 추출'}
+                </button>
               </div>
             )}
             {!extracting && !extractError && phrases.length === 0 && (
@@ -145,22 +228,32 @@ export function ArticleLibraryPage() {
       ) : (
         <div className="article-library-grid">
           {articles.map((article) => (
-            <button
-              className="article-tile ds-surface"
-              type="button"
-              key={article.id}
-              onClick={() => setSelected(article)}
-            >
-              <span className="article-tile-meta">
-                {article.feed_name}
-                <i>{article.language.toUpperCase()}</i>
-              </span>
-              <strong>{article.title}</strong>
-              <span className="article-tile-footer">
-                {article.published_at || article.discovered_at}
-                <b>읽기 →</b>
-              </span>
-            </button>
+            <div className="article-tile-wrap" key={article.id}>
+              <button
+                className="article-tile ds-surface"
+                type="button"
+                onClick={() => navigate(`/articles/${encodeURIComponent(article.id)}`)}
+              >
+                <span className="article-tile-meta">
+                  {article.feed_name}
+                  <i>{article.language.toUpperCase()}</i>
+                </span>
+                <strong>{article.title}</strong>
+                <span className="article-tile-footer">
+                  {article.published_at || article.discovered_at}
+                  <b>읽기 →</b>
+                </span>
+              </button>
+              <a
+                className="article-tile-new-tab"
+                href={`/articles/${encodeURIComponent(article.id)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`새 탭에서 ${article.title} 상세 보기`}
+              >
+                새 탭에서 보기 ↗
+              </a>
+            </div>
           ))}
           {!articles.length && !error && (
             <div className="article-empty">

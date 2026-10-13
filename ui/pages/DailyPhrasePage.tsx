@@ -103,11 +103,7 @@ export function DailyPhrasePage({ state }: { state: DailyPhraseState }) {
         {result?.errors.map((error) => (
           <div className="home-message home-error" key={error.language}>
             <b>{languageMeta[error.language]?.label ?? error.language} 수집 오류</b>
-            <span>
-              {error.type === 'model_error'
-                ? 'RSS 아티클은 수집했지만 표현을 만들 모델이 아직 설정되지 않았습니다.'
-                : error.message}
-            </span>
+            <span>{error.message}</span>
             {error.type === 'model_error' && <a href="/articles">수집된 아티클 보기</a>}
           </div>
         ))}

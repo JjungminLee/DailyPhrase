@@ -66,7 +66,18 @@ function readableText(html) {
     .trim();
 }
 
-export async function latestArticle(feed, articleUrl) {
+function assertArticleText(text) {
+  const accessChallenge =
+    /client challenge|please check your connection|disable any ad blockers|try using a different browser|verify (?:that )?you are human|access denied|attention required|captcha/i;
+  if (accessChallenge.test(text))
+    throw new AppError(
+      'source_unavailable',
+      '원문 사이트가 기사 본문 대신 접근 확인 페이지를 반환했습니다. 원문을 브라우저에서 확인하고 다른 아티클을 시도해 주세요.',
+      502,
+    );
+}
+
+export async function latestArticle(feed, articleUrl, articleTitle) {
   if (!feed?.verified || !feed?.enabled || !feed.rss_url)
     throw new AppError(
       'feed_unavailable',
@@ -74,13 +85,16 @@ export async function latestArticle(feed, articleUrl) {
       503,
     );
   const fetched = await safeFetch(articleUrl || feed.rss_url, feed.allowed_domains);
-  if (articleUrl)
+  if (articleUrl) {
+    const description = readableText(fetched.text);
+    assertArticleText(description);
     return {
-      title: 'Article',
+      title: articleTitle || 'Article',
       url: fetched.url,
       published_at: null,
-      description: readableText(fetched.text),
+      description,
     };
+  }
   const item = parseFeed(fetched.text)[0];
   if (!item) throw new AppError('feed_unavailable', 'RSS feed has no usable articles', 502);
   const url = new URL(item.url, fetched.url);
@@ -88,5 +102,6 @@ export async function latestArticle(feed, articleUrl) {
     throw new AppError('feed_unavailable', 'Article URL is outside the allowed domains', 502);
   const articleBody = await safeFetch(url.href, feed.allowed_domains);
   const readable = readableText(articleBody.text);
+  if (readable) assertArticleText(readable);
   return { ...item, url: url.href, description: readable || item.description };
 }

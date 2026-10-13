@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { getLanguages } from './config.mjs';
 import { AppError, response } from './errors.mjs';
 import { latestArticle } from './feeds/rss.mjs';
+import { isAllowedHost } from './feeds/safe-fetch.mjs';
 import { extractPhrases } from './extract/model.mjs';
 import { validatePhrases } from './postprocess/validate.mjs';
 import {
@@ -47,6 +48,31 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
     throw new AppError('invalid_request', 'feed_id is required', 400);
   if (body.article_url !== undefined && typeof body.article_url !== 'string')
     throw new AppError('invalid_request', 'article_url must be a URL string', 400);
+  if (
+    body.article_title !== undefined &&
+    (typeof body.article_title !== 'string' || body.article_title.length > 500)
+  )
+    throw new AppError(
+      'invalid_request',
+      'article_title must be a string up to 500 characters',
+      400,
+    );
+  if (body.article_text !== undefined) {
+    if (body.purpose !== 'article_detail')
+      throw new AppError(
+        'invalid_request',
+        'article_text is only supported for article_detail',
+        400,
+      );
+    if (
+      typeof body.article_text !== 'string' ||
+      !body.article_text.trim() ||
+      body.article_text.length > 40000
+    )
+      throw new AppError('invalid_request', 'article_text must contain 1 to 40000 characters', 400);
+    if (typeof body.article_url !== 'string' || !body.article_url)
+      throw new AppError('invalid_request', 'article_url is required with article_text', 400);
+  }
   if (body.purpose !== undefined && body.purpose !== 'article_detail')
     throw new AppError('invalid_request', 'Unsupported phrase extraction purpose', 400);
   const max = body.max_phrases ?? 10;
@@ -57,7 +83,25 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
   if (!feed) throw new AppError('invalid_request', 'Unknown feed_id', 400);
   if (forcedLanguage && feed.language !== forcedLanguage)
     throw new AppError('invalid_request', 'feed_id language does not match request language', 400);
-  const article = await latestArticle(feed, queuedArticle?.url || body.article_url);
+  let article;
+  if (body.article_text !== undefined) {
+    let articleUrl;
+    try {
+      articleUrl = new URL(body.article_url);
+    } catch {
+      throw new AppError('invalid_request', 'article_url must be a valid URL', 400);
+    }
+    if (!isAllowedHost(articleUrl.hostname, feed.allowed_domains))
+      throw new AppError('invalid_request', 'article_url is outside the feed domains', 400);
+    article = {
+      title: body.article_title || 'Article',
+      url: articleUrl.href,
+      published_at: null,
+      description: body.article_text.trim(),
+    };
+  } else {
+    article = await latestArticle(feed, queuedArticle?.url || body.article_url, body.article_title);
+  }
   if (queuedArticle) {
     article.title = queuedArticle.title;
     article.published_at = queuedArticle.published_at;
@@ -67,7 +111,7 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
     Number.isFinite(configuredMaxChars) && configuredMaxChars > 0
       ? Math.floor(configuredMaxChars)
       : 120000;
-  const phraseInputLimit = body.purpose === 'article_detail' ? Math.min(maxChars, 12000) : maxChars;
+  const phraseInputLimit = body.purpose === 'article_detail' ? Math.min(maxChars, 8000) : maxChars;
   article.description = article.description.slice(0, phraseInputLimit);
   const languages = await getLanguages([feed.language]);
   const limits = languages.config.languages[feed.language];
@@ -76,11 +120,15 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
     language: feed.language,
     limits,
     maxPhrases: max,
+    model:
+      body.purpose === 'article_detail' && process.env.DAILY_PHRASE_LOCAL === '1'
+        ? process.env.OLLAMA_ARTICLE_MODEL || process.env.OLLAMA_MODEL
+        : undefined,
     timeoutMs:
       body.purpose === 'article_detail' && process.env.DAILY_PHRASE_LOCAL === '1'
         ? Math.min(300000, Math.max(30000, Number(process.env.ARTICLE_MODEL_TIMEOUT_MS) || 240000))
         : undefined,
-    maxTokens: body.purpose === 'article_detail' ? 1200 : undefined,
+    maxTokens: body.purpose === 'article_detail' ? 800 : undefined,
   });
   const validated = validatePhrases(generated, article, feed.language, limits, max);
   return {

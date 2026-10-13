@@ -40,6 +40,7 @@ function ApplicationRoutes() {
       <Routes>
         <Route path="/" element={<DailyPhrasePage state={dailyPhrase} />} />
         <Route path="/articles" element={<ArticleLibraryPage />} />
+        <Route path="/articles/:articleId" element={<ArticleLibraryPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppShell>

@@ -1057,6 +1057,13 @@ h1 em {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
+.article-tile-wrap {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
 .article-tile {
   min-height: 170px;
   display: flex;
@@ -1071,6 +1078,19 @@ h1 em {
   color: var(--dp-color-ink);
   cursor: pointer;
   text-align: left;
+}
+.article-tile-wrap .article-tile {
+  width: 100%;
+  flex: 1;
+}
+.article-tile-new-tab {
+  align-self: flex-end;
+  color: #708546;
+  font-size: 11px;
+  text-decoration: none;
+}
+.article-tile-new-tab:hover {
+  text-decoration: underline;
 }
 .article-tile:hover {
   border-color: #cbd8ae;
@@ -1151,6 +1171,35 @@ h1 em {
   background: white;
   color: var(--dp-color-ink);
   cursor: pointer;
+}
+.article-manual-extraction {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+.article-manual-extraction label {
+  color: #6f706a;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.article-manual-extraction textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 12px;
+  border: 1px solid var(--dp-color-border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--dp-color-ink);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.article-manual-extraction button {
+  justify-self: end;
+}
+.article-manual-extraction button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 .article-expression-list {
   display: grid;
