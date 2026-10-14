@@ -1,0 +1,25 @@
+name: 기능 개선 및 제안
+description: 개선하고 싶은 점과 원하는 결과를 간단히 적습니다.
+title: "[개선] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 문제 또는 개선할 점
+      placeholder: 어떤 점을 개선하고 싶나요?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: 원하는 결과
+      placeholder: 어떻게 바뀌면 좋을까요?
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 기준 (선택)
+      placeholder: 완료 여부를 어떤 기준으로 확인할까요?
+    validations:
+      required: false

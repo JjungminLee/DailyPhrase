@@ -31,7 +31,9 @@ export async function translateArticleTitle({ title, language }) {
           {
             role: 'system',
             content: [
-              `The title language is ${language}. Translate the entire title into concise, natural Korean, preserving its meaning and proper names.`,
+              `The title language is ${language}. Translate the entire title into concise, idiomatic Korean, as a Korean reader would naturally phrase the same headline. Reorder or paraphrase wording freely instead of translating word for word.`,
+              'Preserve all important facts, the people or organizations involved, numbers, time references, and the certainty or uncertainty in the original. Keep proper names accurate. Do not add an explanation, opinion, or fact that is not in the title.',
+              'Prefer a clear, natural Korean headline over source-language word order. Keep the translation concise without dropping meaningful details.',
               'For Japanese (ja), provide the complete title reading in hiragana in title_reading. Do not leave kanji unread.',
               'For Chinese (zh), provide the complete title pronunciation in standard tone-marked pinyin in title_pinyin.',
               'For languages without a requested pronunciation, return an empty string for that field.',

@@ -69,7 +69,12 @@ export function PhraseStudyCard({ code, data }: { code: string; data: LanguageRe
                   : 'Tap the speaker to listen'}
             </span>
           </div>
-          {showMeaning && <p className="study-translation">{phrase.meaning_ko}</p>}
+          {showMeaning && (
+            <p className="study-translation">
+              <span className="phrase-meaning-label">문맥에 맞는 의역</span>
+              {phrase.meaning_ko}
+            </p>
+          )}
         </div>
         <article className="study-example">
           <span className="study-card-label">IN CONTEXT</span>

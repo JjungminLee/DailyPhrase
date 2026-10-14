@@ -334,7 +334,10 @@ export function ArticleLibraryPage() {
                     {phrase.reading && (
                       <p className="article-expression-pronunciation">읽기 {phrase.reading}</p>
                     )}
-                    <p className="article-expression-meaning">{phrase.meaning_ko}</p>
+                    <p className="article-expression-meaning">
+                      <span className="phrase-meaning-label">문맥에 맞는 의역</span>
+                      {phrase.meaning_ko}
+                    </p>
                     <blockquote>{phrase.context_sentence}</blockquote>
                     {phrase.note_ko && <small>{phrase.note_ko}</small>}
                   </article>

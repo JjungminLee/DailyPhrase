@@ -44,12 +44,14 @@ function phraseSchema(language) {
 
 function instructions({ language, limits }) {
   return [
-    'Read the supplied article text and select useful, natural expressions a fluent native speaker would actually use.',
-    'Prioritize expressions native speakers use frequently in everyday or general contexts; prefer reusable, high-frequency phrasing over rare or article-specific jargon.',
+    'Read the supplied article and select expressions that fluent native speakers naturally use in real conversations and writing.',
+    'Rank the results from most broadly useful and commonly used to less common. Prefer expressions that learners can reuse in many everyday or general situations, not merely expressions that are interesting in this one article.',
+    'Favor natural collocations, idioms, phrasal verbs, and sentence patterns. Avoid isolated basic words, proper nouns, headline fragments, stiff bureaucratic wording, and specialist or one-off jargon unless the expression itself is widely useful.',
     'Return only expressions that appear verbatim in the article and an exact sentence from the article containing each expression.',
-    'Prefer reusable collocations, idioms, phrasal verbs, and sentence patterns over isolated basic vocabulary.',
     'Do not reproduce the article or provide long quotations. Each context_sentence must be one short sentence (maximum 200 characters).',
-    'Write meaning_ko and note_ko in Korean. Do not invent examples or translations as if they were in the source.',
+    'Write meaning_ko as a concise, natural Korean paraphrase of what the expression means in this exact context. Translate the intent and pragmatic meaning, not each word literally; use the Korean expression a learner would actually say. For example, explain “break the ice” as “어색한 분위기를 풀다,” not “얼음을 깨다.”',
+    'Write note_ko in Korean as a short learning tip about nuance, register, or a common situation where the expression is used. Do not simply repeat meaning_ko. Use an empty string only when no additional useful tip applies. Never invent source context or claim unsupported frequency statistics.',
+    'Return the strongest, most reusable expressions first. Do not claim an expression is common unless it is broadly established in natural native usage.',
     'For Chinese (zh), pinyin is required for every expression: write the full pronunciation in standard pinyin, using tone marks on the syllable vowels and no tone numbers. Never leave it empty, and set reading to an empty string. For Japanese (ja), reading is required: write the complete pronunciation of every expression in hiragana (use katakana only where standard), never leave it empty, and set pinyin to an empty string. For other languages, set both pinyin and reading to empty strings.',
     `The article language is ${language}. Choose expressions containing ${limits.min} to ${limits.max} ${limits.phrase_unit}.`,
     `Use levels from ${limits.level_scale}: ${limits.level_scale === 'CEFR' ? 'A2, B1, B2, or C1' : limits.level_scale === 'HSK' ? '1 to 6' : 'N1 to N5'}.`,

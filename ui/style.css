@@ -984,6 +984,14 @@ h1 em {
   font-size: 19px;
   line-height: 1.6;
 }
+.phrase-meaning-label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--dp-color-subtle);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
 .study-example,
 .study-bottom-card {
   border: 1px solid rgba(255, 255, 255, 0.7);

@@ -1,21 +1,6 @@
 {
   "feeds": [
     {
-      "id": "default-voa-words-stories",
-      "name": "VOA Learning English — Words and Their Stories",
-      "language": "en",
-      "rss_url": "https://learningenglish.voanews.com/api/zmypyl-vomx-tpeyry_",
-      "homepage_url": "https://learningenglish.voanews.com/rssfeeds",
-      "source_type": "rss_or_atom",
-      "allowed_domains": [
-        "learningenglish.voanews.com"
-      ],
-      "enabled": true,
-      "verified": false,
-      "is_default": true,
-      "initial_scan_complete": false
-    },
-    {
       "id": "default-ted-talks-daily",
       "name": "TED Talks Daily",
       "language": "en",
