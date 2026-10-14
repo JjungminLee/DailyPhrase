@@ -49,6 +49,7 @@ Copy-Item .env.example .env
 OLLAMA_BASE_URL=http://127.0.0.1:11434
 OLLAMA_MODEL=qwen3.5:9b
 OLLAMA_ARTICLE_MODEL=qwen3.5:4b
+OLLAMA_TITLE_MODEL=qwen3.5:4b
 MODEL_TIMEOUT_MS=120000
 ```
 
@@ -64,6 +65,7 @@ Open the app at [http://localhost:5173](http://localhost:5173). The API health e
 
 - `OLLAMA_MODEL` is the default local model for daily phrase generation.
 - `OLLAMA_ARTICLE_MODEL` is used to extract expressions from article details. It defaults to the smaller `qwen3.5:4b` model.
+- `OLLAMA_TITLE_MODEL` handles article title translation and pronunciation. Set it to an installed faster model to compare latency and quality; it defaults to `OLLAMA_ARTICLE_MODEL`.
 - To use Kimi or another Ollama model, pull it with Ollama and set `OLLAMA_MODEL` or `OLLAMA_ARTICLE_MODEL` to its installed tag.
 - Model downloads use disk space. Local Ollama inference has no per-request model API fee; power and memory use depend on your computer.
 

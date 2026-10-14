@@ -136,9 +136,9 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
       body.purpose === 'article_detail' && process.env.DAILY_PHRASE_LOCAL === '1'
         ? Math.min(300000, Math.max(30000, Number(process.env.ARTICLE_MODEL_TIMEOUT_MS) || 240000))
         : undefined,
-    maxTokens: body.purpose === 'article_detail' ? 800 : undefined,
+    maxTokens: body.purpose === 'article_detail' ? Math.min(800, 180 + max * 110) : undefined,
   });
-  const validated = validatePhrases(generated, article, feed.language, limits, max);
+  const validated = validatePhrases(generated.phrases, article, feed.language, limits, max);
   return {
     language: feed.language,
     source: {
@@ -149,6 +149,7 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
     },
     phrases: validated.phrases,
     stats: {
+      ...generated.model_stats,
       input_chars: article.description.length,
       phrase_count: validated.phrases.length,
       dropped_not_in_source: validated.droppedNotInSource,

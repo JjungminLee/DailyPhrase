@@ -10,6 +10,35 @@ type ArticleTitleResponse = {
   title_reading?: string;
 };
 
+type Cached<T> = { value: T; storedAt: number };
+const responseCacheTtlMs = 30 * 60 * 1000;
+const responseCacheLimit = 40;
+const phraseResponseCache = new Map<string, Cached<ArticlePhraseResponse>>();
+const titleResponseCache = new Map<string, Cached<ArticleTitleResponse>>();
+
+function readCache<T>(cache: Map<string, Cached<T>>, key: string): T | null {
+  const cached = cache.get(key);
+  if (!cached) return null;
+  if (Date.now() - cached.storedAt > responseCacheTtlMs) {
+    cache.delete(key);
+    return null;
+  }
+  return cached.value;
+}
+
+function peekCache<T>(cache: Map<string, Cached<T>>, key: string): T | null {
+  const cached = cache.get(key);
+  return cached && Date.now() - cached.storedAt <= responseCacheTtlMs ? cached.value : null;
+}
+
+function writeCache<T>(cache: Map<string, Cached<T>>, key: string, value: T) {
+  if (cache.size >= responseCacheLimit) {
+    const oldestKey = cache.keys().next().value;
+    if (oldestKey) cache.delete(oldestKey);
+  }
+  cache.set(key, { value, storedAt: Date.now() });
+}
+
 export function ArticleLibraryPage() {
   const [articles, setArticles] = useState<ArticleItem[]>([]);
   const [languageFilter, setLanguageFilter] = useState('all');
@@ -43,16 +72,23 @@ export function ArticleLibraryPage() {
       : articles.filter((article) => article.language === languageFilter);
   const requestKey = selected ? `${selected.id}:${retryCount}` : '';
   const titleRequestKey = selected ? `${selected.id}:${titleRetryCount}` : '';
+  const cacheKey = selected
+    ? JSON.stringify([selected.id, selected.url, selected.title, selected.language, selected.feed_id])
+    : '';
   const pastedText =
     manualArticleText && selected && manualArticleText.articleId === selected.id
       ? manualArticleText.text
       : '';
-  const phrases = phraseResult?.key === requestKey ? phraseResult.phrases : [];
-  const titleData = titleResult?.key === titleRequestKey ? titleResult.data : null;
+  const cachedPhrases = peekCache(phraseResponseCache, cacheKey);
+  const cachedTitle = peekCache(titleResponseCache, cacheKey);
+  const phrases =
+    phraseResult?.key === requestKey ? phraseResult.phrases : (cachedPhrases?.phrases ?? []);
+  const titleData = titleResult?.key === titleRequestKey ? titleResult.data : cachedTitle;
   const titleError = titleFailure?.key === titleRequestKey ? titleFailure.message : '';
   const titleLoading = Boolean(titleRequestKey && !titleData && !titleError);
   const extractError = extractFailure?.key === requestKey ? extractFailure.message : '';
-  const extracting = Boolean(requestKey && completedRequest !== requestKey) || manualSubmitting;
+  const extracting =
+    (Boolean(requestKey && completedRequest !== requestKey) && !cachedPhrases) || manualSubmitting;
 
   useEffect(() => {
     let active = true;
@@ -76,12 +112,17 @@ export function ArticleLibraryPage() {
     if (!selected) return;
     let active = true;
     const key = `${selected.id}:${titleRetryCount}`;
+    const cached = readCache(titleResponseCache, cacheKey);
+    if (cached) return;
     api<ArticleTitleResponse>('/article-title', {
       method: 'POST',
       body: JSON.stringify({ title: selected.title, language: selected.language }),
     })
       .then((data) => {
-        if (active) setTitleResult({ key, data });
+        if (active) {
+          writeCache(titleResponseCache, cacheKey, data);
+          setTitleResult({ key, data });
+        }
       })
       .catch((reason: unknown) => {
         if (active)
@@ -90,12 +131,14 @@ export function ArticleLibraryPage() {
     return () => {
       active = false;
     };
-  }, [selected, titleRetryCount]);
+  }, [selected, titleRetryCount, cacheKey]);
 
   useEffect(() => {
     if (!selected) return;
     let active = true;
     const key = `${selected.id}:${retryCount}`;
+    const cached = readCache(phraseResponseCache, cacheKey);
+    if (cached) return;
 
     api<ArticlePhraseResponse>('/phrases', {
       method: 'POST',
@@ -103,12 +146,15 @@ export function ArticleLibraryPage() {
         feed_id: selected.feed_id,
         article_url: selected.url,
         article_title: selected.title,
-        max_phrases: 6,
+        max_phrases: 4,
         purpose: 'article_detail',
       }),
     })
       .then((result) => {
-        if (active) setPhraseResult({ key, phrases: result.phrases });
+        if (active) {
+          writeCache(phraseResponseCache, cacheKey, result);
+          setPhraseResult({ key, phrases: result.phrases });
+        }
       })
       .catch((reason: unknown) => {
         if (active)
@@ -124,7 +170,7 @@ export function ArticleLibraryPage() {
     return () => {
       active = false;
     };
-  }, [selected, retryCount]);
+  }, [selected, retryCount, cacheKey]);
 
   async function extractPastedText() {
     if (!selected || !pastedText.trim()) return;
@@ -140,7 +186,7 @@ export function ArticleLibraryPage() {
           article_url: article.url,
           article_title: article.title,
           article_text: pastedText,
-          max_phrases: 6,
+          max_phrases: 4,
           purpose: 'article_detail',
         }),
       });
@@ -227,7 +273,10 @@ export function ArticleLibraryPage() {
               <button
                 className="article-retry"
                 type="button"
-                onClick={() => setTitleRetryCount((count) => count + 1)}
+                onClick={() => {
+                  titleResponseCache.delete(cacheKey);
+                  setTitleRetryCount((count) => count + 1);
+                }}
               >
                 {'\uC81C\uBAA9 \uB2E4\uC2DC \uC2DC\uB3C4'}
               </button>
@@ -255,7 +304,10 @@ export function ArticleLibraryPage() {
                 <button
                   className="article-retry"
                   type="button"
-                  onClick={() => setRetryCount((count) => count + 1)}
+                  onClick={() => {
+                    phraseResponseCache.delete(cacheKey);
+                    setRetryCount((count) => count + 1);
+                  }}
                 >
                   다시 추출
                 </button>

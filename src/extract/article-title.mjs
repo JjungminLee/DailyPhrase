@@ -15,7 +15,11 @@ function titleSchema(language) {
 
 export async function translateArticleTitle({ title, language }) {
   const baseUrl = (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434').replace(/\/+$/, '');
-  const model = process.env.OLLAMA_ARTICLE_MODEL || process.env.OLLAMA_MODEL || 'qwen3.5:9b';
+  const model =
+    process.env.OLLAMA_TITLE_MODEL ||
+    process.env.OLLAMA_ARTICLE_MODEL ||
+    process.env.OLLAMA_MODEL ||
+    'qwen3.5:9b';
   const timeoutMs = Number(process.env.TITLE_MODEL_TIMEOUT_MS || 60000);
   let response;
   try {
@@ -86,5 +90,12 @@ export async function translateArticleTitle({ title, language }) {
     title_translation_ko: result.title_translation_ko.trim(),
     ...(language === 'zh' ? { title_pinyin: pinyin } : {}),
     ...(language === 'ja' ? { title_reading: reading } : {}),
+    model_stats: {
+      duration_ms: Number.isFinite(payload.total_duration)
+        ? Math.round(payload.total_duration / 1_000_000)
+        : null,
+      prompt_tokens: Number.isInteger(payload.prompt_eval_count) ? payload.prompt_eval_count : null,
+      generated_tokens: Number.isInteger(payload.eval_count) ? payload.eval_count : null,
+    },
   };
 }

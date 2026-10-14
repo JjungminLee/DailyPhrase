@@ -42,17 +42,12 @@ function phraseSchema(language) {
   };
 }
 
-function instructions({ language, limits }) {
+function instructions({ language, limits, maxPhrases }) {
   return [
-    'Read the supplied article and select expressions that fluent native speakers naturally use in real conversations and writing.',
-    'Rank the results from most broadly useful and commonly used to less common. Prefer expressions that learners can reuse in many everyday or general situations, not merely expressions that are interesting in this one article.',
-    'Favor natural collocations, idioms, phrasal verbs, and sentence patterns. Avoid isolated basic words, proper nouns, headline fragments, stiff bureaucratic wording, and specialist or one-off jargon unless the expression itself is widely useful.',
-    'Return only expressions that appear verbatim in the article and an exact sentence from the article containing each expression.',
-    'Do not reproduce the article or provide long quotations. Each context_sentence must be one short sentence (maximum 200 characters).',
-    'Write meaning_ko as a concise, natural Korean paraphrase of what the expression means in this exact context. Translate the intent and pragmatic meaning, not each word literally; use the Korean expression a learner would actually say. For example, explain “break the ice” as “어색한 분위기를 풀다,” not “얼음을 깨다.”',
-    'Write note_ko in Korean as a short learning tip about nuance, register, or a common situation where the expression is used. Do not simply repeat meaning_ko. Use an empty string only when no additional useful tip applies. Never invent source context or claim unsupported frequency statistics.',
-    'Return the strongest, most reusable expressions first. Do not claim an expression is common unless it is broadly established in natural native usage.',
-    'For Chinese (zh), pinyin is required for every expression: write the full pronunciation in standard pinyin, using tone marks on the syllable vowels and no tone numbers. Never leave it empty, and set reading to an empty string. For Japanese (ja), reading is required: write the complete pronunciation of every expression in hiragana (use katakana only where standard), never leave it empty, and set pinyin to an empty string. For other languages, set both pinyin and reading to empty strings.',
+    `Select at most ${maxPhrases} expressions fluent native speakers commonly use in conversation or general writing. Rank by everyday reuse value; favor natural collocations, idioms, phrasal verbs, and sentence patterns. Avoid basic isolated words, names, headline fragments, bureaucratic language, and one-off jargon.`,
+    'Copy each expression exactly as written, including tense and inflection; never substitute a dictionary form. Every expression must appear verbatim in the article, with one exact source sentence of at most 200 characters as context. Do not reproduce more article text than needed.',
+    'Write meaning_ko as a concise, natural Korean paraphrase of the expression in context, preserving intent rather than translating word for word. Write note_ko as a short Korean tip on nuance or register, without repeating the meaning. Do not invent context or unsupported frequency claims.',
+    'For Chinese, provide full tone-marked pinyin and an empty reading. For Japanese, provide the full reading in hiragana (standard katakana where needed) and empty pinyin. For other languages, leave both pronunciation fields empty.',
     `The article language is ${language}. Choose expressions containing ${limits.min} to ${limits.max} ${limits.phrase_unit}.`,
     `Use levels from ${limits.level_scale}: ${limits.level_scale === 'CEFR' ? 'A2, B1, B2, or C1' : limits.level_scale === 'HSK' ? '1 to 6' : 'N1 to N5'}.`,
   ].join(' ');
@@ -81,13 +76,15 @@ export async function extractPhrases({
         think: false,
         format: phraseSchema(language),
         messages: [
-          { role: 'system', content: instructions({ language, limits }) },
+          { role: 'system', content: instructions({ language, limits, maxPhrases }) },
           {
             role: 'user',
             content: `Article title: ${article.title}\nArticle text:\n${article.description}`,
           },
         ],
-        options: { num_predict: maxTokens ?? Math.min(6000, 500 + maxPhrases * 180) },
+        options: {
+          num_predict: maxTokens ?? Math.min(6000, 500 + maxPhrases * 180),
+        },
       }),
       signal: AbortSignal.timeout(requestTimeoutMs),
     });
@@ -128,5 +125,14 @@ export async function extractPhrases({
   }
   if (!Array.isArray(parsed.phrases))
     throw new AppError('extract_failed', 'Ollama returned invalid structured phrase data', 502);
-  return parsed.phrases.slice(0, maxPhrases);
+  return {
+    phrases: parsed.phrases.slice(0, maxPhrases),
+    model_stats: {
+      duration_ms: Number.isFinite(payload.total_duration)
+        ? Math.round(payload.total_duration / 1_000_000)
+        : null,
+      prompt_tokens: Number.isInteger(payload.prompt_eval_count) ? payload.prompt_eval_count : null,
+      generated_tokens: Number.isInteger(payload.eval_count) ? payload.eval_count : null,
+    },
+  };
 }

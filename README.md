@@ -49,6 +49,7 @@ Copy-Item .env.example .env
 OLLAMA_BASE_URL=http://127.0.0.1:11434
 OLLAMA_MODEL=qwen3.5:9b
 OLLAMA_ARTICLE_MODEL=qwen3.5:4b
+OLLAMA_TITLE_MODEL=qwen3.5:4b
 MODEL_TIMEOUT_MS=120000
 ```
 
@@ -64,6 +65,7 @@ npm run dev
 
 - `OLLAMA_MODEL`은 오늘의 표현 생성에 사용하는 기본 로컬 모델입니다.
 - `OLLAMA_ARTICLE_MODEL`은 아티클 상세 표현 추출에 사용하는 로컬 모델입니다. 기본값은 더 가벼운 `qwen3.5:4b`입니다.
+- `OLLAMA_TITLE_MODEL`은 아티클 제목 번역과 발음 표시에 사용할 모델입니다. 더 빠른 모델이 설치되어 있다면 이 설정만 바꿔 성능과 결과를 비교할 수 있습니다. 기본값은 `OLLAMA_ARTICLE_MODEL`입니다.
 - Kimi 등 다른 Ollama 모델을 사용하려면 Ollama에서 해당 모델을 먼저 내려받고 `OLLAMA_MODEL` 또는 `OLLAMA_ARTICLE_MODEL`을 설치된 모델 태그로 설정하세요.
 - 모델 다운로드는 디스크 공간을 사용하지만, 로컬 Ollama 추론에는 모델 API 종량 요금이 발생하지 않습니다. 전력과 메모리 사용은 컴퓨터 환경에 따라 달라집니다.
 
