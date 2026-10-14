@@ -4,6 +4,8 @@
 
 ### A little practice, every day.
 
+Windows에서 Intel 내장 GPU 가속을 설정하는 방법은 [Ollama GPU 가속 안내](docs/ollama-gpu.md)를 참고하세요.
+
 ![alt text](readme_image.png)
 
 아티클을 읽으며 만난 표현을 매일 조금씩 공부하는 언어 학습 앱입니다. 원문에 실제로 나온 자연스러운 표현을 로컬 Ollama 모델이 골라 주고, 문맥과 한국어 뜻을 함께 보여줍니다.

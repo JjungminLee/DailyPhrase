@@ -68,6 +68,7 @@ Open the app at [http://localhost:5173](http://localhost:5173). The API health e
 - `OLLAMA_TITLE_MODEL` handles article title translation and pronunciation. Set it to an installed faster model to compare latency and quality; it defaults to `OLLAMA_ARTICLE_MODEL`.
 - To use Kimi or another Ollama model, pull it with Ollama and set `OLLAMA_MODEL` or `OLLAMA_ARTICLE_MODEL` to its installed tag.
 - Model downloads use disk space. Local Ollama inference has no per-request model API fee; power and memory use depend on your computer.
+- On Windows, Ollama may detect an Intel integrated GPU but default to CPU inference. See [Ollama GPU acceleration](docs/ollama-gpu.md) for the setting and verification steps.
 
 ## Cloud architecture
 
