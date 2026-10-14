@@ -1,6 +1,10 @@
 # Daily Phrase 🌱
 
+[한국어](README.md) | [English](README.en.md)
+
 ### A little practice, every day.
+
+![alt text](readme_image.png)
 
 아티클을 읽으며 만난 표현을 매일 조금씩 공부하는 언어 학습 앱입니다. 원문에 실제로 나온 자연스러운 표현을 로컬 Ollama 모델이 골라 주고, 문맥과 한국어 뜻을 함께 보여줍니다.
 
@@ -11,6 +15,7 @@
 - **중국어 병음** — 중국어 표현과 함께 성조가 표시된 병음을 확인합니다.
 - **일본어 읽기** — 한자가 포함된 표현에 히라가나 또는 가타카나 발음을 표시합니다.
 - **아티클 보관함** — 수집된 글을 열고 표현을 살펴봅니다. 상세 화면은 새 탭으로도 열 수 있습니다.
+- **학습 기록** — 공부한 아티클과 표현을 Google Drive에 저장하고 네비게이션 메뉴에서 다시 확인합니다.
 - **본문 직접 붙여넣기** — 원문 사이트에서 기사를 가져오지 못하면 본문을 붙여넣어 로컬 모델로 표현을 추출할 수 있습니다. 입력한 본문은 저장하지 않습니다.
 - **피드 설정** — 톱니바퀴에서 `/admin`으로 이동해 RSS/Atom 피드를 추가하고 확인합니다.
 
@@ -21,6 +26,7 @@
 | 오늘의 표현   | `/`                    | 언어와 표현 수를 선택해 학습 |
 | 아티클 보관함 | `/articles`            | 수집된 기사 목록             |
 | 아티클 상세   | `/articles/:articleId` | 원문 링크와 표현 추출        |
+| 학습 기록     | `/studied`             | Drive에 저장한 아티클과 표현 |
 | 피드 설정     | `/admin`               | 피드 등록, 확인, 수집 관리   |
 
 ## 시작하기
@@ -71,7 +77,7 @@ EC2 등에 Ollama 호스트를 별도로 구성할 수 있지만, 현재 Terrafo
 
 피드는 RSS/Atom URL 또는 피드를 공개하는 웹사이트 URL로 등록합니다. 일반 웹페이지를 무차별 크롤링하지 않습니다. 아티클 본문은 표현 추출 중에만 가져오며, 본문과 RSS 미리보기 텍스트는 앱 데이터로 저장하지 않습니다. 원문 사이트가 접근 확인 페이지를 반환하면 추출을 멈추고, 사용자가 본문을 복사해 붙여넣을 수 있도록 안내합니다.
 
-피드와 수집된 아티클 목록은 로컬 `data/subscriptions.json`, `data/articles.json` 파일에 보관됩니다. 이 프로토타입은 해당 설정을 AWS와 동기화하지 않으며 사용자 인증도 제공하지 않습니다.
+피드 설정은 로컬 `data/subscriptions.json`에, 그날 수집한 아티클은 `data/articles.json`에 저장됩니다. 매일 서울 시간 기준으로 앱에 처음 접속할 때 수집하며, 다음 날짜의 첫 수집 전에 이전 아티클 목록을 비웁니다. 저장한 학습 기록은 Google Drive의 앱 전용 영역에 보관되고, OAuth 토큰은 Git에서 제외된 `data/google-drive-auth.json`에 저장됩니다.
 
 ## 유용한 명령
 
@@ -93,3 +99,9 @@ Terraform은 `infra/`에 있으며 아직 적용되지 않은 배포 스캐폴�
 - `config/feeds.json` — 선택적 프로젝트 기본 피드
 - `.env.example` — 로컬 Ollama 설정 예시
 - `infra/` — API Gateway 및 Lambda Terraform 구성
+
+## 매일 수집과 학습 기록
+
+매일 서울 시간 기준으로 앱에 처음 접속하면 피드 글을 수집합니다. API 서버를 켜기만 해서는 수집하지 않습니다. 컴퓨터가 하루 종일 꺼져 있어도 이후 앱을 열면 그날 수집하고, 같은 날 다시 방문하거나 서버를 재시작해도 다시 수집하지 않습니다. 다음 날짜의 첫 수집 전에 로컬 아티클 목록을 비우며, Google Drive에 저장한 학습 기록은 유지됩니다.
+
+학습 기록을 사용하려면 Google Cloud에서 OAuth 웹 클라이언트를 만들고 Google Drive API를 활성화한 다음, 승인된 리디렉션 URI에 `http://localhost:3000/api/drive/callback`을 추가합니다. 클라이언트 ID와 보안 비밀을 `.env`의 `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`에 입력하고 `GOOGLE_REDIRECT_URI=http://localhost:3000/api/drive/callback`으로 설정한 뒤 앱을 재시작합니다. 네비게이션의 학습 기록 메뉴에서 Google Drive를 연결할 수 있습니다. 학습 기록은 Drive의 비공개 `appDataFolder`에 저장됩니다. 현재 Google Drive 연동은 로컬 개발 API에서 지원됩니다.

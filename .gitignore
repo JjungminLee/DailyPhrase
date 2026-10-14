@@ -7,5 +7,7 @@ terraform.tfstate.*
 results/*.json
 data/articles.json
 data/subscriptions.json
+data/daily-poll.json
+data/google-drive-auth.json
 dist/
 .env

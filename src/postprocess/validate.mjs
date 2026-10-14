@@ -60,6 +60,11 @@ export function validatePhrases(raw, article, language, limits, requestedMax = 1
           ? /^[1-6]$/.test(level)
           : /^N[1-5]$/.test(level);
     if (!validLevel || !clean(item.meaning_ko)) continue;
+    const pinyin = language === 'zh' ? clean(item.pinyin) : '';
+    if (language === 'zh' && (!/\p{Script=Latin}/u.test(pinyin) || /\p{Script=Han}/u.test(pinyin)))
+      continue;
+    const reading = language === 'ja' ? clean(item.reading) : '';
+    if (language === 'ja' && !/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(reading)) continue;
     const sourceContext =
       normalize(context).includes(key) && source.includes(normalize(context))
         ? context
@@ -72,8 +77,8 @@ export function validatePhrases(raw, article, language, limits, requestedMax = 1
       context_sentence: sourceContext.slice(0, 200),
       level,
       type: item.type,
-      ...(language === 'zh' && item.pinyin ? { pinyin: clean(item.pinyin) } : {}),
-      ...(language === 'ja' && item.reading ? { reading: clean(item.reading) } : {}),
+      ...(language === 'zh' ? { pinyin } : {}),
+      ...(language === 'ja' ? { reading } : {}),
       ...(item.note_ko ? { note_ko: clean(item.note_ko).slice(0, 200) } : {}),
     });
     if (phrases.length >= requestedMax) break;

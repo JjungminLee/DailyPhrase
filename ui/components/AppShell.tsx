@@ -151,6 +151,15 @@ export function AppShell({
           ◉
         </NavButton>
         <NavButton
+          $active={pathname.startsWith('/studied')}
+          onClick={() => navigate('/studied')}
+          aria-label="Study history"
+          title="Study history"
+          type="button"
+        >
+          ✓
+        </NavButton>
+        <NavButton
           $active={pathname === '/admin'}
           onClick={() => navigate('/admin')}
           aria-label="Settings"

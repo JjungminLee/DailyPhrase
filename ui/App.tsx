@@ -5,6 +5,7 @@ import { AppShell } from './components/AppShell';
 import { useDailyPhrase } from './hooks/useDailyPhrase';
 import { ArticleLibraryPage } from './pages/ArticleLibraryPage';
 import { DailyPhrasePage } from './pages/DailyPhrasePage';
+import { StudyHistoryPage } from './pages/StudyHistoryPage';
 
 export function App() {
   return (
@@ -41,6 +42,8 @@ function ApplicationRoutes() {
         <Route path="/" element={<DailyPhrasePage state={dailyPhrase} />} />
         <Route path="/articles" element={<ArticleLibraryPage />} />
         <Route path="/articles/:articleId" element={<ArticleLibraryPage />} />
+        <Route path="/studied" element={<StudyHistoryPage />} />
+        <Route path="/studied/:articleId" element={<StudyHistoryPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppShell>

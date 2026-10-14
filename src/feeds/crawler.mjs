@@ -1,10 +1,28 @@
 import { createHash } from 'node:crypto';
+import { readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { AppError } from '../errors.mjs';
+import { rootDir } from '../config.mjs';
 import { parseFeed } from './rss.mjs';
 import { safeFetch } from './safe-fetch.mjs';
 import { mutateArticles, mutateFeeds, readArticles, readFeeds } from './store.mjs';
 
 const fingerprint = (url) => createHash('sha256').update(url).digest('hex');
+const dailyStatePath = path.join(rootDir, 'data/daily-poll.json');
+let dailyPollInFlight;
+
+function seoulDate(date = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(date);
+}
+
+async function readDailyState() {
+  try {
+    return JSON.parse(await readFile(dailyStatePath, 'utf8'));
+  } catch (error) {
+    if (error.code === 'ENOENT') return {};
+    throw error;
+  }
+}
 
 async function mapLimit(values, concurrency, task) {
   const output = new Array(values.length);
@@ -49,7 +67,43 @@ export async function scanFeed(feed) {
   }
 }
 
-export async function pollFeeds({ concurrency = 2, persist = true } = {}) {
+export async function pollFeeds(options = {}) {
+  if (dailyPollInFlight) return dailyPollInFlight;
+  dailyPollInFlight = pollFeedsOnce(options).finally(() => {
+    dailyPollInFlight = undefined;
+  });
+  return dailyPollInFlight;
+}
+
+async function pollFeedsOnce({ concurrency = 2, persist = true } = {}) {
+  const today = seoulDate();
+  const state = await readDailyState();
+  if (persist && state.collection_date === today) {
+    return {
+      checked_at: state.checked_at,
+      collection_date: today,
+      already_collected_today: true,
+      duration_ms: 0,
+      concurrency,
+      feed_count: 0,
+      discovered_count: 0,
+      baseline_count: 0,
+      feeds: [],
+    };
+  }
+
+  if (persist) {
+    await mutateArticles((items) => {
+      items.length = 0;
+    });
+    const checkedAt = new Date().toISOString();
+    await writeFile(
+      dailyStatePath,
+      `${JSON.stringify({ collection_date: today, checked_at: checkedAt }, null, 2)}\n`,
+      'utf8',
+    );
+  }
+
   const feeds = await readFeeds();
   const active = feeds.filter((feed) => feed.enabled && feed.verified);
   const startedAt = performance.now();
@@ -117,6 +171,7 @@ export async function pollFeeds({ concurrency = 2, persist = true } = {}) {
 
   return {
     checked_at: checkedAt,
+    collection_date: today,
     duration_ms: Math.round(performance.now() - startedAt),
     concurrency,
     feed_count: active.length,

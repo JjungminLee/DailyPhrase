@@ -1,42 +1,46 @@
 import { AppError } from '../errors.mjs';
 
-const phraseSchema = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['phrases'],
-  properties: {
-    phrases: {
-      type: 'array',
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        required: [
-          'text',
-          'meaning_ko',
-          'context_sentence',
-          'level',
-          'type',
-          'note_ko',
-          'pinyin',
-          'reading',
-        ],
-        properties: {
-          text: { type: 'string' },
-          meaning_ko: { type: 'string' },
-          context_sentence: { type: 'string' },
-          level: { type: 'string' },
-          type: {
-            type: 'string',
-            enum: ['collocation', 'idiom', 'phrasal_verb', 'sentence_pattern', 'other'],
+function phraseSchema(language) {
+  const pinyin = language === 'zh' ? { type: 'string', minLength: 1 } : { type: 'string' };
+  const reading = language === 'ja' ? { type: 'string', minLength: 1 } : { type: 'string' };
+  return {
+    type: 'object',
+    additionalProperties: false,
+    required: ['phrases'],
+    properties: {
+      phrases: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: [
+            'text',
+            'meaning_ko',
+            'context_sentence',
+            'level',
+            'type',
+            'note_ko',
+            'pinyin',
+            'reading',
+          ],
+          properties: {
+            text: { type: 'string' },
+            meaning_ko: { type: 'string' },
+            context_sentence: { type: 'string' },
+            level: { type: 'string' },
+            type: {
+              type: 'string',
+              enum: ['collocation', 'idiom', 'phrasal_verb', 'sentence_pattern', 'other'],
+            },
+            note_ko: { type: 'string' },
+            pinyin,
+            reading,
           },
-          note_ko: { type: 'string' },
-          pinyin: { type: 'string' },
-          reading: { type: 'string' },
         },
       },
     },
-  },
-};
+  };
+}
 
 function instructions({ language, limits }) {
   return [
@@ -46,7 +50,7 @@ function instructions({ language, limits }) {
     'Prefer reusable collocations, idioms, phrasal verbs, and sentence patterns over isolated basic vocabulary.',
     'Do not reproduce the article or provide long quotations. Each context_sentence must be one short sentence (maximum 200 characters).',
     'Write meaning_ko and note_ko in Korean. Do not invent examples or translations as if they were in the source.',
-    'For Chinese (zh), provide pinyin with tone marks in pinyin and an empty reading. For Japanese (ja), provide the full pronunciation in hiragana or katakana in reading and an empty pinyin. For other languages, set both pinyin and reading to empty strings.',
+    'For Chinese (zh), pinyin is required for every expression: write the full pronunciation in standard pinyin, using tone marks on the syllable vowels and no tone numbers. Never leave it empty, and set reading to an empty string. For Japanese (ja), reading is required: write the complete pronunciation of every expression in hiragana (use katakana only where standard), never leave it empty, and set pinyin to an empty string. For other languages, set both pinyin and reading to empty strings.',
     `The article language is ${language}. Choose expressions containing ${limits.min} to ${limits.max} ${limits.phrase_unit}.`,
     `Use levels from ${limits.level_scale}: ${limits.level_scale === 'CEFR' ? 'A2, B1, B2, or C1' : limits.level_scale === 'HSK' ? '1 to 6' : 'N1 to N5'}.`,
   ].join(' ');
@@ -73,7 +77,7 @@ export async function extractPhrases({
         model,
         stream: false,
         think: false,
-        format: phraseSchema,
+        format: phraseSchema(language),
         messages: [
           { role: 'system', content: instructions({ language, limits }) },
           {
@@ -114,10 +118,13 @@ export async function extractPhrases({
   const output = payload.message?.content;
   if (typeof output !== 'string' || !output.trim())
     throw new AppError('extract_failed', 'Ollama returned no phrase output', 502);
+  let parsed;
   try {
-    const parsed = JSON.parse(output);
-    return Array.isArray(parsed.phrases) ? parsed.phrases.slice(0, maxPhrases) : parsed;
+    parsed = JSON.parse(output);
   } catch {
     throw new AppError('extract_failed', 'Ollama returned invalid structured phrase data', 502);
   }
+  if (!Array.isArray(parsed.phrases))
+    throw new AppError('extract_failed', 'Ollama returned invalid structured phrase data', 502);
+  return parsed.phrases.slice(0, maxPhrases);
 }

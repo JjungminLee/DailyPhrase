@@ -7,7 +7,9 @@
       "rss_url": "https://learningenglish.voanews.com/api/zmypyl-vomx-tpeyry_",
       "homepage_url": "https://learningenglish.voanews.com/rssfeeds",
       "source_type": "rss_or_atom",
-      "allowed_domains": ["learningenglish.voanews.com"],
+      "allowed_domains": [
+        "learningenglish.voanews.com"
+      ],
       "enabled": true,
       "verified": false,
       "is_default": true,
@@ -20,7 +22,12 @@
       "rss_url": "https://feeds.feedburner.com/TEDTalks_audio",
       "homepage_url": "https://www.ted.com/podcasts/ted-talks-daily",
       "source_type": "rss_or_atom",
-      "allowed_domains": ["feeds.feedburner.com", "feeds.acast.com", "ted.com", "www.ted.com"],
+      "allowed_domains": [
+        "feeds.feedburner.com",
+        "feeds.acast.com",
+        "ted.com",
+        "www.ted.com"
+      ],
       "enabled": true,
       "verified": true,
       "is_default": true,
@@ -28,41 +35,47 @@
       "initial_scan_complete": false
     },
     {
-      "id": "default-cna-culture",
-      "name": "中央社 CNA — 文化",
+      "id": "default-chinese-reading-practice-beginner",
+      "name": "Chinese Reading Practice - Beginner Stories",
       "language": "zh",
-      "rss_url": "https://feeds.feedburner.com/rsscna/culture",
-      "homepage_url": "https://www.cna.com.tw/about/rss.aspx",
+      "rss_url": "https://chinesereadingpractice.com/category/beginner/feed/",
+      "homepage_url": "https://chinesereadingpractice.com/category/beginner/",
       "source_type": "rss_or_atom",
-      "allowed_domains": ["feedburner.com"],
+      "allowed_domains": [
+        "chinesereadingpractice.com"
+      ],
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "is_default": true,
       "initial_scan_complete": false
     },
     {
-      "id": "default-le-monde",
-      "name": "Le Monde — À la une",
-      "language": "fr",
-      "rss_url": "https://www.lemonde.fr/rss/une.xml",
-      "homepage_url": "https://www.lemonde.fr/",
-      "source_type": "rss_or_atom",
-      "allowed_domains": ["lemonde.fr"],
-      "enabled": true,
-      "verified": false,
-      "is_default": true,
-      "initial_scan_complete": false
-    },
-    {
-      "id": "default-nippon-com-news",
-      "name": "nippon.com — News",
+      "id": "default-weejoy-japanese-stories",
+      "name": "Joyful Japanese - Graded Stories N5-N4",
       "language": "ja",
-      "rss_url": "https://www.nippon.com/ja/rss-others/news.xml",
-      "homepage_url": "https://www.nippon.com/ja/rss_list/",
+      "rss_url": "https://weejoysjapaneselanguage.substack.com/feed",
+      "homepage_url": "https://weejoysjapaneselanguage.substack.com/",
       "source_type": "rss_or_atom",
-      "allowed_domains": ["nippon.com"],
+      "allowed_domains": [
+        "weejoysjapaneselanguage.substack.com"
+      ],
       "enabled": true,
-      "verified": false,
+      "verified": true,
+      "is_default": true,
+      "initial_scan_complete": false
+    },
+    {
+      "id": "default-apprendre-francais-stories",
+      "name": "Apprendre le francais - Learning stories",
+      "language": "fr",
+      "rss_url": "https://apprendrefrancais.substack.com/feed",
+      "homepage_url": "https://apprendrefrancais.substack.com/",
+      "source_type": "rss_or_atom",
+      "allowed_domains": [
+        "apprendrefrancais.substack.com"
+      ],
+      "enabled": true,
+      "verified": true,
       "is_default": true,
       "initial_scan_complete": false
     }

@@ -4,11 +4,23 @@ import { api } from '../api';
 import type { ArticleItem, Phrase } from '../types';
 
 type ArticlePhraseResponse = { phrases: Phrase[] };
+type ArticleTitleResponse = {
+  title_translation_ko: string;
+  title_pinyin?: string;
+  title_reading?: string;
+};
 
 export function ArticleLibraryPage() {
   const [articles, setArticles] = useState<ArticleItem[]>([]);
+  const [languageFilter, setLanguageFilter] = useState('all');
   const [articlesLoaded, setArticlesLoaded] = useState(false);
   const [phraseResult, setPhraseResult] = useState<{ key: string; phrases: Phrase[] } | null>(null);
+  const [titleResult, setTitleResult] = useState<{
+    key: string;
+    data: ArticleTitleResponse;
+  } | null>(null);
+  const [titleFailure, setTitleFailure] = useState<{ key: string; message: string } | null>(null);
+  const [titleRetryCount, setTitleRetryCount] = useState(0);
   const [extractFailure, setExtractFailure] = useState<{ key: string; message: string } | null>(
     null,
   );
@@ -18,17 +30,27 @@ export function ArticleLibraryPage() {
     text: string;
   } | null>(null);
   const [manualSubmitting, setManualSubmitting] = useState(false);
+  const [studySaveMessage, setStudySaveMessage] = useState('');
+  const [studySaving, setStudySaving] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { articleId } = useParams();
   const selected = articles.find((article) => article.id === articleId) ?? null;
+  const visibleArticles =
+    languageFilter === 'all'
+      ? articles
+      : articles.filter((article) => article.language === languageFilter);
   const requestKey = selected ? `${selected.id}:${retryCount}` : '';
+  const titleRequestKey = selected ? `${selected.id}:${titleRetryCount}` : '';
   const pastedText =
     manualArticleText && selected && manualArticleText.articleId === selected.id
       ? manualArticleText.text
       : '';
   const phrases = phraseResult?.key === requestKey ? phraseResult.phrases : [];
+  const titleData = titleResult?.key === titleRequestKey ? titleResult.data : null;
+  const titleError = titleFailure?.key === titleRequestKey ? titleFailure.message : '';
+  const titleLoading = Boolean(titleRequestKey && !titleData && !titleError);
   const extractError = extractFailure?.key === requestKey ? extractFailure.message : '';
   const extracting = Boolean(requestKey && completedRequest !== requestKey) || manualSubmitting;
 
@@ -49,6 +71,26 @@ export function ArticleLibraryPage() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!selected) return;
+    let active = true;
+    const key = `${selected.id}:${titleRetryCount}`;
+    api<ArticleTitleResponse>('/article-title', {
+      method: 'POST',
+      body: JSON.stringify({ title: selected.title, language: selected.language }),
+    })
+      .then((data) => {
+        if (active) setTitleResult({ key, data });
+      })
+      .catch((reason: unknown) => {
+        if (active)
+          setTitleFailure({ key, message: reason instanceof Error ? reason.message : 'Title translation failed.' });
+      });
+    return () => {
+      active = false;
+    };
+  }, [selected, titleRetryCount]);
 
   useEffect(() => {
     if (!selected) return;
@@ -113,6 +155,29 @@ export function ArticleLibraryPage() {
     }
   }
 
+  async function saveStudyRecord() {
+    if (!selected || !phrases.length) return;
+    setStudySaving(true);
+    setStudySaveMessage('');
+    try {
+      await api('/study-records', {
+        method: 'POST',
+        body: JSON.stringify({
+          article: selected,
+          title_translation_ko: titleData?.title_translation_ko,
+          title_pinyin: titleData?.title_pinyin,
+          title_reading: titleData?.title_reading,
+          phrases,
+        }),
+      });
+      setStudySaveMessage('Saved to Google Drive.');
+    } catch (reason: unknown) {
+      setStudySaveMessage(reason instanceof Error ? reason.message : 'Could not save the study record.');
+    } finally {
+      setStudySaving(false);
+    }
+  }
+
   return (
     <section className="article-library">
       <div className="article-library-heading">
@@ -136,6 +201,38 @@ export function ArticleLibraryPage() {
             {selected.feed_name} · {selected.language.toUpperCase()}
           </span>
           <h2>{selected.title}</h2>
+          {titleData?.title_translation_ko && (
+            <p className="article-title-translation">
+              <span>{'\uD55C\uAD6D\uC5B4'}</span> {titleData.title_translation_ko}
+            </p>
+          )}
+          {titleData?.title_pinyin && (
+            <p className="article-title-pinyin">
+              <span>{'\uBCD1\uC74C'}</span> {titleData.title_pinyin}
+            </p>
+          )}
+          {titleData?.title_reading && (
+            <p className="article-title-reading">
+              <span>{'\uD788\uB77C\uAC00\uB098'}</span> {titleData.title_reading}
+            </p>
+          )}
+          {titleLoading && (
+            <p className="article-title-status" role="status">
+              {'\uC81C\uBAA9 \uBC1C\uC74C\uACFC \uD55C\uAD6D\uC5B4 \uBC88\uC5ED\uC744 \uC900\uBE44\uD558\uACE0 \uC788\uC5B4\uC694...'}
+            </p>
+          )}
+          {titleError && (
+            <div className="article-title-error" role="alert">
+              <span>{titleError}</span>
+              <button
+                className="article-retry"
+                type="button"
+                onClick={() => setTitleRetryCount((count) => count + 1)}
+              >
+                {'\uC81C\uBAA9 \uB2E4\uC2DC \uC2DC\uB3C4'}
+              </button>
+            </div>
+          )}
           <a
             className="primary-button article-open"
             href={selected.url}
@@ -163,7 +260,22 @@ export function ArticleLibraryPage() {
                   다시 추출
                 </button>
               )}
+              {!extracting && phrases.length > 0 && (
+                <button
+                  className="article-retry"
+                  type="button"
+                  disabled={studySaving}
+                  onClick={saveStudyRecord}
+                >
+                  {studySaving ? 'Saving…' : 'Save study to Google Drive'}
+                </button>
+              )}
             </div>
+            {studySaveMessage && (
+              <p className="article-study-save-message" role="status">
+                {studySaveMessage} <a href="/studied">Study history and Drive setup</a>
+              </p>
+            )}
             {extracting && (
               <p className="article-expression-state" role="status">
                 아티클을 읽고 표현을 고르는 중이에요…
@@ -232,8 +344,32 @@ export function ArticleLibraryPage() {
           </section>
         </article>
       ) : (
-        <div className="article-library-grid">
-          {articles.map((article) => (
+        <div className="article-list-view">
+          <nav className="article-language-filter" aria-label="Filter articles by language">
+            {[
+              { code: 'all', label: '\uC804\uCCB4' },
+              { code: 'en', label: 'English' },
+              { code: 'zh', label: '\u4E2D\u6587' },
+              { code: 'fr', label: 'Fran\u00E7ais' },
+              { code: 'ja', label: '\u65E5\u672C\u8A9E' },
+            ].map((language) => (
+              <button
+                className={`home-language-chip${languageFilter === language.code ? ' selected' : ''}`}
+                type="button"
+                key={language.code}
+                aria-pressed={languageFilter === language.code}
+                onClick={() => setLanguageFilter(language.code)}
+              >
+                {language.label}
+                <span>{language.code === 'all' ? articles.length : articles.filter((article) => article.language === language.code).length}</span>
+              </button>
+            ))}
+          </nav>
+          {articles.length > 0 && visibleArticles.length === 0 && !error && (
+            <div className="article-empty">{'\uC120\uD0DD\uD55C \uC5B8\uC5B4\uC758 \uC544\uD2F0\uD074\uC774 \uC5C6\uC2B5\uB2C8\uB2E4.'}</div>
+          )}
+          <div className="article-library-grid">
+          {visibleArticles.map((article) => (
             <div className="article-tile-wrap" key={article.id}>
               <button
                 className="article-tile ds-surface"
@@ -266,6 +402,7 @@ export function ArticleLibraryPage() {
               아티클을 불러오는 중이거나 아직 수집된 글이 없습니다.
             </div>
           )}
+        </div>
         </div>
       )}
     </section>

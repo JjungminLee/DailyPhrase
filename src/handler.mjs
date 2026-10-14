@@ -4,7 +4,15 @@ import { AppError, response } from './errors.mjs';
 import { latestArticle } from './feeds/rss.mjs';
 import { isAllowedHost } from './feeds/safe-fetch.mjs';
 import { extractPhrases } from './extract/model.mjs';
+import { translateArticleTitle } from './extract/article-title.mjs';
 import { validatePhrases } from './postprocess/validate.mjs';
+import {
+  finishGoogleDriveAuthorization,
+  googleDriveAuthorizationUrl,
+  googleDriveStatus,
+  listDriveStudyRecords,
+  saveDriveStudyRecord,
+} from './google-drive.mjs';
 import {
   addFeed,
   inspectFeedUrl,
@@ -170,6 +178,7 @@ export async function handler(event = {}) {
         active_feed_count: activeFeeds.length,
         endpoints: [
           { method: 'GET', path: '/health' },
+          { method: 'POST', path: '/article-title' },
           { method: 'POST', path: '/phrases' },
           { method: 'POST', path: '/phrases/daily' },
           { method: 'POST', path: '/check' },
@@ -177,6 +186,11 @@ export async function handler(event = {}) {
       });
     }
     if (method === 'GET' && path === '/health') {
+      if (process.env.DAILY_PHRASE_LOCAL === '1') {
+        const collection = await pollFeeds();
+        if (!collection.already_collected_today)
+          console.log(JSON.stringify({ type: 'daily_collection', ...collection }));
+      }
       const feeds = await readFeeds();
       const { config } = await getLanguages();
       return response(200, {
@@ -196,6 +210,40 @@ export async function handler(event = {}) {
         default_languages: config.default_languages,
         languages: Object.entries(config.languages).map(([code, value]) => ({ code, ...value })),
       });
+    }
+    if (path.startsWith('/drive/') || path === '/study-records') {
+      if (process.env.DAILY_PHRASE_LOCAL !== '1')
+        throw new AppError('not_found', 'Unknown route', 404);
+      if (method === 'GET' && path === '/drive/status')
+        return response(200, await googleDriveStatus());
+      if (method === 'GET' && path === '/drive/connect') {
+        return {
+          statusCode: 302,
+          headers: { location: googleDriveAuthorizationUrl(), 'cache-control': 'no-store' },
+          body: '',
+        };
+      }
+      if (method === 'GET' && path === '/drive/callback') {
+        const query = event.queryStringParameters || {};
+        if (query.error)
+          return {
+            statusCode: 302,
+            headers: { location: `http://localhost:${process.env.VITE_PORT || 5173}/studied?drive=error`, 'cache-control': 'no-store' },
+            body: '',
+          };
+        if (typeof query.code !== 'string' || typeof query.state !== 'string')
+          throw new AppError('invalid_request', 'Google authorization response is missing code or state.', 400);
+        await finishGoogleDriveAuthorization({ code: query.code, state: query.state });
+        return {
+          statusCode: 302,
+          headers: { location: `http://localhost:${process.env.VITE_PORT || 5173}/studied?drive=connected`, 'cache-control': 'no-store' },
+          body: '',
+        };
+      }
+      if (method === 'GET' && path === '/study-records')
+        return response(200, { records: await listDriveStudyRecords() });
+      if (method === 'POST' && path === '/study-records')
+        return response(201, { record: await saveDriveStudyRecord(jsonBody(event)) });
     }
     if (path?.startsWith('/admin/')) {
       if (process.env.DAILY_PHRASE_LOCAL !== '1')
@@ -242,6 +290,17 @@ export async function handler(event = {}) {
     }
     if (method !== 'POST') throw new AppError('invalid_request', 'Unsupported method', 405);
     const body = jsonBody(event);
+    if (path === '/article-title') {
+      if (typeof body.title !== 'string' || !body.title.trim() || body.title.length > 500)
+        throw new AppError('invalid_request', 'title must contain 1 to 500 characters', 400);
+      if (typeof body.language !== 'string')
+        throw new AppError('invalid_request', 'language is required', 400);
+      await getLanguages([body.language]);
+      return response(200, {
+        request_id: requestId,
+        ...(await translateArticleTitle({ title: body.title.trim(), language: body.language })),
+      });
+    }
     if (path === '/phrases')
       return response(200, { request_id: requestId, ...(await phraseRequest(body)) });
     if (path === '/phrases/daily') {
