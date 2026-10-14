@@ -51,7 +51,13 @@ OLLAMA_MODEL=qwen3.5:9b
 OLLAMA_ARTICLE_MODEL=qwen3.5:4b
 OLLAMA_TITLE_MODEL=qwen3.5:4b
 MODEL_TIMEOUT_MS=120000
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+# Register this exact URI as an authorized redirect URI in Google Cloud OAuth settings.
+GOOGLE_REDIRECT_URI=http://localhost:3000/api/drive/callback
 ```
+
+Google Drive settings are optional. Leave the credentials empty if you do not use Study History; see [Daily collection and study history](#daily-collection-and-study-history) to configure Google OAuth.
 
 Start Ollama, then run the app:
 

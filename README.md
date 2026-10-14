@@ -53,7 +53,13 @@ OLLAMA_MODEL=qwen3.5:9b
 OLLAMA_ARTICLE_MODEL=qwen3.5:4b
 OLLAMA_TITLE_MODEL=qwen3.5:4b
 MODEL_TIMEOUT_MS=120000
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+# Register this exact URI as an authorized redirect URI in Google Cloud OAuth settings.
+GOOGLE_REDIRECT_URI=http://localhost:3000/api/drive/callback
 ```
+
+Google Drive 설정은 선택 사항입니다. 학습 기록을 사용하지 않으면 인증 값을 비워 두세요. Google OAuth 설정 방법은 아래의 학습 기록 절을 참고하세요.
 
 Ollama가 실행 중인지 확인한 다음 앱을 시작합니다.
 
