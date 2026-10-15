@@ -22,6 +22,7 @@
     "crawler": "node --use-system-ca scripts/crawl.mjs",
     "study:batch": "node --use-system-ca scripts/study-batch.mjs",
     "quality": "node scripts/quality.mjs",
+    "harness:language": "node scripts/phrase-language-harness.mjs",
     "baseline": "node scripts/baseline.mjs",
     "load": "node scripts/load.mjs",
     "build:api": "node scripts/build.mjs",

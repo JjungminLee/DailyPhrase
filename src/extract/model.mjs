@@ -42,13 +42,19 @@ function phraseSchema(language) {
   };
 }
 
-function instructions({ language, limits, maxPhrases }) {
+function instructions({ language, limits, maxPhrases, sourceType }) {
+  const sourceInstructions =
+    sourceType === 'transcript'
+      ? 'The supplied source text is a transcript. Extract expressions only from words spoken in it; never use the title, promotional description, summary, metadata, outside knowledge, or inferred wording. If it contains no transcript text, return an empty phrases array. Copy each expression exactly as spoken and include an exact source sentence as context.'
+      : 'The supplied source text is article text. Extract expressions only from wording present in it; never use the title, metadata, outside knowledge, or inferred wording. When the article includes a parallel translation, select only from the section written in the requested language.';
   return [
     `Select at most ${maxPhrases} expressions fluent native speakers commonly use in conversation or general writing. Rank by everyday reuse value; favor natural collocations, idioms, phrasal verbs, and sentence patterns. Avoid basic isolated words, names, headline fragments, bureaucratic language, and one-off jargon.`,
-    'Copy each expression exactly as written, including tense and inflection; never substitute a dictionary form. Every expression must appear verbatim in the article, with one exact source sentence of at most 200 characters as context. Do not reproduce more article text than needed.',
+    sourceInstructions,
+    'Copy each expression exactly as written, including tense and inflection; never substitute a dictionary form. Every expression and its context sentence must appear verbatim in the supplied source text. Do not reproduce more source text than needed.',
     'Write meaning_ko as a concise, natural Korean paraphrase of the expression in context, preserving intent rather than translating word for word. Write note_ko as a short Korean tip on nuance or register, without repeating the meaning. Do not invent context or unsupported frequency claims.',
     'For Chinese, provide full tone-marked pinyin and an empty reading. For Japanese, provide the full reading in hiragana (standard katakana where needed) and empty pinyin. For other languages, leave both pronunciation fields empty.',
     `The article language is ${language}. Choose expressions containing ${limits.min} to ${limits.max} ${limits.phrase_unit}.`,
+    'Use expressions written in the requested article language only. When an article includes a parallel translation, ignore the translated section and select only from the original-language section.',
     `Use levels from ${limits.level_scale}: ${limits.level_scale === 'CEFR' ? 'A2, B1, B2, or C1' : limits.level_scale === 'HSK' ? '1 to 6' : 'N1 to N5'}.`,
   ].join(' ');
 }
@@ -61,6 +67,7 @@ export async function extractPhrases({
   timeoutMs,
   maxTokens,
   model: requestedModel,
+  sourceType = article.source_type || 'article',
 }) {
   const baseUrl = (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434').replace(/\/+$/, '');
   const model = requestedModel || process.env.OLLAMA_MODEL || 'qwen3.5:9b';
@@ -76,7 +83,7 @@ export async function extractPhrases({
         think: false,
         format: phraseSchema(language),
         messages: [
-          { role: 'system', content: instructions({ language, limits, maxPhrases }) },
+          { role: 'system', content: instructions({ language, limits, maxPhrases, sourceType }) },
           {
             role: 'user',
             content: `Article title: ${article.title}\nArticle text:\n${article.description}`,

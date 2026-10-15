@@ -106,6 +106,10 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
       url: articleUrl.href,
       published_at: null,
       description: body.article_text.trim(),
+      source_type:
+        /(^|\.)ted\.com$/i.test(articleUrl.hostname) && articleUrl.pathname.startsWith('/talks/')
+          ? 'transcript'
+          : 'article',
     };
   } else {
     article = await latestArticle(feed, queuedArticle?.url || body.article_url, body.article_title);
@@ -138,7 +142,14 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
         : undefined,
     maxTokens: body.purpose === 'article_detail' ? Math.min(800, 180 + max * 110) : undefined,
   });
-  const validated = validatePhrases(generated.phrases, article, feed.language, limits, max);
+  const validated = validatePhrases(
+    generated.phrases,
+    article,
+    feed.language,
+    limits,
+    max,
+    languages.config.languages,
+  );
   return {
     language: feed.language,
     source: {
@@ -153,6 +164,7 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
       input_chars: article.description.length,
       phrase_count: validated.phrases.length,
       dropped_not_in_source: validated.droppedNotInSource,
+      dropped_wrong_language: validated.droppedWrongLanguage,
     },
   };
 }
