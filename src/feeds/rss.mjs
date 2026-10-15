@@ -53,6 +53,8 @@ function readableText(html) {
       /<(script|style|nav|footer|header|noscript|svg|form|aside)\b[^>]*>[\s\S]*?<\/\1>/gi,
       ' ',
     )
+    .replace(/<\/(?:p|li|h[1-6]|blockquote|section|article|div)>\s*/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;|&#160;|&#xA0;/gi, ' ')
     .replace(/&amp;/g, '&')
@@ -62,7 +64,9 @@ function readableText(html) {
     .replace(/&#39;|&apos;|&#x27;/g, "'")
     .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
     .replace(/&#x([\da-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
-    .replace(/\s+/g, ' ')
+    .replace(/[ \t\f\v]+/g, ' ')
+    .replace(/ *\n */g, '\n')
+    .replace(/\n{2,}/g, '\n')
     .trim();
 }
 

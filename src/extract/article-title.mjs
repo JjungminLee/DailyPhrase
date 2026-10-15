@@ -1,14 +1,14 @@
 import { AppError } from '../errors.mjs';
 
-function titleSchema(language) {
+function titleSchema() {
   return {
     type: 'object',
     additionalProperties: false,
     required: ['title_translation_ko', 'title_pinyin', 'title_reading'],
     properties: {
       title_translation_ko: { type: 'string', minLength: 1 },
-      title_pinyin: language === 'zh' ? { type: 'string', minLength: 1 } : { type: 'string' },
-      title_reading: language === 'ja' ? { type: 'string', minLength: 1 } : { type: 'string' },
+      title_pinyin: { type: 'string' },
+      title_reading: { type: 'string' },
     },
   };
 }
@@ -21,6 +21,7 @@ export async function translateArticleTitle({ title, language }) {
     process.env.OLLAMA_MODEL ||
     'qwen3.5:9b';
   const timeoutMs = Number(process.env.TITLE_MODEL_TIMEOUT_MS || 60000);
+  const hasJapaneseSource = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(title);
   let response;
   try {
     response = await fetch(`${baseUrl}/api/chat`, {
@@ -30,7 +31,8 @@ export async function translateArticleTitle({ title, language }) {
         model,
         stream: false,
         think: false,
-        format: titleSchema(language),
+        keep_alive: process.env.OLLAMA_KEEP_ALIVE || '10m',
+        format: titleSchema(),
         messages: [
           {
             role: 'system',
@@ -38,15 +40,21 @@ export async function translateArticleTitle({ title, language }) {
               `The title language is ${language}. Translate the entire title into concise, idiomatic Korean, as a Korean reader would naturally phrase the same headline. Reorder or paraphrase wording freely instead of translating word for word.`,
               'Preserve all important facts, the people or organizations involved, numbers, time references, and the certainty or uncertainty in the original. Keep proper names accurate. Do not add an explanation, opinion, or fact that is not in the title.',
               'Prefer a clear, natural Korean headline over source-language word order. Keep the translation concise without dropping meaningful details.',
-              'For Japanese (ja), provide the complete title reading in hiragana in title_reading. Do not leave kanji unread.',
-              'For Chinese (zh), provide the complete title pronunciation in standard tone-marked pinyin in title_pinyin.',
+              language === 'ja' && hasJapaneseSource
+                ? 'The source title contains Japanese. Provide its complete reading in hiragana in title_reading, including all kanji readings.'
+                : 'Return an empty title_reading unless the source title contains Japanese text that needs a Japanese reading.',
+              language === 'zh'
+                ? 'Provide the complete title pronunciation in standard tone-marked pinyin in title_pinyin.'
+                : 'Return an empty title_pinyin.',
               'For languages without a requested pronunciation, return an empty string for that field.',
               'Return only the requested JSON fields.',
             ].join(' '),
           },
           { role: 'user', content: title },
         ],
-        options: { num_predict: 160 },
+        options: {
+          num_predict: Math.max(48, Number(process.env.TITLE_MAX_OUTPUT_TOKENS) || 96),
+        },
       }),
       signal: AbortSignal.timeout(timeoutMs),
     });
@@ -80,16 +88,21 @@ export async function translateArticleTitle({ title, language }) {
   const reading = String(result.title_reading || '').trim();
   if (
     typeof result.title_translation_ko !== 'string' ||
-    !result.title_translation_ko.trim() ||
-    (language === 'zh' && (!/\p{Script=Latin}/u.test(pinyin) || /\p{Script=Han}/u.test(pinyin))) ||
-    (language === 'ja' && (!/\p{Script=Hiragana}/u.test(reading) || /\p{Script=Han}/u.test(reading)))
+    !result.title_translation_ko.trim()
   )
-    throw new AppError('extract_failed', 'Ollama omitted the title translation or pronunciation', 502);
+    throw new AppError('extract_failed', 'Ollama omitted the title translation', 502);
+
+  const validPinyin = language === 'zh' && /\p{Script=Latin}/u.test(pinyin) && !/\p{Script=Han}/u.test(pinyin);
+  const validReading =
+    language === 'ja' &&
+    hasJapaneseSource &&
+    /\p{Script=Hiragana}/u.test(reading) &&
+    !/\p{Script=Han}/u.test(reading);
 
   return {
     title_translation_ko: result.title_translation_ko.trim(),
-    ...(language === 'zh' ? { title_pinyin: pinyin } : {}),
-    ...(language === 'ja' ? { title_reading: reading } : {}),
+    ...(validPinyin ? { title_pinyin: pinyin } : {}),
+    ...(validReading ? { title_reading: reading } : {}),
     model_stats: {
       duration_ms: Number.isFinite(payload.total_duration)
         ? Math.round(payload.total_duration / 1_000_000)

@@ -1,8 +1,16 @@
 import { AppError } from '../errors.mjs';
 
 function phraseSchema(language) {
-  const pinyin = language === 'zh' ? { type: 'string', minLength: 1 } : { type: 'string' };
-  const reading = language === 'ja' ? { type: 'string', minLength: 1 } : { type: 'string' };
+  const types =
+    language === 'zh' || language === 'ja'
+      ? ['collocation', 'idiom', 'sentence_pattern', 'other']
+      : ['collocation', 'idiom', 'phrasal_verb', 'sentence_pattern', 'other'];
+  const levels =
+    language === 'zh'
+      ? ['1', '2', '3', '4', '5', '6']
+      : language === 'ja'
+        ? ['N1', 'N2', 'N3', 'N4', 'N5']
+        : ['A2', 'B1', 'B2', 'C1'];
   return {
     type: 'object',
     additionalProperties: false,
@@ -16,25 +24,21 @@ function phraseSchema(language) {
           required: [
             'text',
             'meaning_ko',
-            'context_sentence',
             'level',
             'type',
             'note_ko',
-            'pinyin',
-            'reading',
           ],
           properties: {
             text: { type: 'string' },
             meaning_ko: { type: 'string' },
-            context_sentence: { type: 'string' },
-            level: { type: 'string' },
+            level: { type: 'string', enum: levels },
             type: {
               type: 'string',
-              enum: ['collocation', 'idiom', 'phrasal_verb', 'sentence_pattern', 'other'],
+              enum: types,
             },
             note_ko: { type: 'string' },
-            pinyin,
-            reading,
+            pinyin: { type: 'string' },
+            reading: { type: 'string' },
           },
         },
       },
@@ -45,17 +49,23 @@ function phraseSchema(language) {
 function instructions({ language, limits, maxPhrases, sourceType }) {
   const sourceInstructions =
     sourceType === 'transcript'
-      ? 'The supplied source text is a transcript. Extract expressions only from words spoken in it; never use the title, promotional description, summary, metadata, outside knowledge, or inferred wording. If it contains no transcript text, return an empty phrases array. Copy each expression exactly as spoken and include an exact source sentence as context.'
+      ? 'The supplied source text is a transcript. Extract expressions only from words spoken in it; never use the title, promotional description, summary, metadata, outside knowledge, or inferred wording. If it contains no transcript text, return an empty phrases array.'
       : 'The supplied source text is article text. Extract expressions only from wording present in it; never use the title, metadata, outside knowledge, or inferred wording. When the article includes a parallel translation, select only from the section written in the requested language.';
   return [
-    `Select at most ${maxPhrases} expressions fluent native speakers commonly use in conversation or general writing. Rank by everyday reuse value; favor natural collocations, idioms, phrasal verbs, and sentence patterns. Avoid basic isolated words, names, headline fragments, bureaucratic language, and one-off jargon.`,
+    `Select up to ${maxPhrases} natural expressions that fluent native speakers commonly use. Everyday chunks and sentence patterns count even when simple; they do not need to be idioms. Avoid isolated vocabulary, names, headlines, and one-off jargon.`,
+    'For beginner stories, prioritize reusable everyday patterns that are explicitly present in the source. Do not return an empty list when a complete, natural example of a common pattern appears. Return empty only when the source has no suitable multi-character expression.',
     sourceInstructions,
-    'Copy each expression exactly as written, including tense and inflection; never substitute a dictionary form. Every expression and its context sentence must appear verbatim in the supplied source text. Do not reproduce more source text than needed.',
+    'Copy each expression exactly as written, including spelling, script, spaces, tense, and inflection; never translate it, convert kana to kanji, or substitute a dictionary form. Every expression must appear verbatim in the supplied source text. Do not output a context sentence; the application will quote it directly from the source.',
     'Write meaning_ko as a concise, natural Korean paraphrase of the expression in context, preserving intent rather than translating word for word. Write note_ko as a short Korean tip on nuance or register, without repeating the meaning. Do not invent context or unsupported frequency claims.',
-    'For Chinese, provide full tone-marked pinyin and an empty reading. For Japanese, provide the full reading in hiragana (standard katakana where needed) and empty pinyin. For other languages, leave both pronunciation fields empty.',
+    'Write meaning_ko and note_ko in Korean only. For Chinese, provide tone-marked pinyin when certain; for Japanese, provide a kana-only reading when certain. Never guess pronunciation; use an empty string if unsure. For other languages, leave both pronunciation fields empty.',
+    language === 'ja'
+      ? 'For Japanese beginner stories, select concrete complete examples of reusable grammar patterns, including the particle and predicate. A common pattern in the story text is preferable to a short conjugated verb alone. Do not use blank templates. Use sentence_pattern for grammar and collocation for natural word combinations; do not label Japanese phrases as idioms or phrasal verbs.'
+      : language === 'zh'
+        ? 'For Chinese beginner stories, prefer reusable everyday sentence patterns or natural chunks over isolated vocabulary items. Do not label Chinese expressions as phrasal verbs.'
+        : '',
     `The article language is ${language}. Choose expressions containing ${limits.min} to ${limits.max} ${limits.phrase_unit}.`,
     'Use expressions written in the requested article language only. When an article includes a parallel translation, ignore the translated section and select only from the original-language section.',
-    `Use levels from ${limits.level_scale}: ${limits.level_scale === 'CEFR' ? 'A2, B1, B2, or C1' : limits.level_scale === 'HSK' ? '1 to 6' : 'N1 to N5'}.`,
+    `Use levels from ${limits.level_scale}: ${limits.level_scale === 'CEFR' ? 'A2, B1, B2, or C1' : limits.level_scale === 'HSK' ? 'the digits 1 to 6 only, without the HSK prefix' : 'N1 to N5'}.`,
   ].join(' ');
 }
 
@@ -81,6 +91,7 @@ export async function extractPhrases({
         model,
         stream: false,
         think: false,
+        keep_alive: process.env.OLLAMA_KEEP_ALIVE || '10m',
         format: phraseSchema(language),
         messages: [
           { role: 'system', content: instructions({ language, limits, maxPhrases, sourceType }) },
@@ -90,7 +101,7 @@ export async function extractPhrases({
           },
         ],
         options: {
-          num_predict: maxTokens ?? Math.min(6000, 500 + maxPhrases * 180),
+          num_predict: maxTokens ?? Math.min(6000, 300 + maxPhrases * 140),
         },
       }),
       signal: AbortSignal.timeout(requestTimeoutMs),

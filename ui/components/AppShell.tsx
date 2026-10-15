@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import type { ReactNode } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import type { HealthResponse } from '../types';
 
 const Shell = styled.div({ minHeight: '100vh' });
@@ -18,7 +18,7 @@ const Rail = styled.aside({
   '@media (max-width: 760px)': { width: '58px' },
   '@media (max-width: 430px)': { width: '54px' },
 });
-const Brand = styled.a({
+const Brand = styled(Link)({
   position: 'relative',
   width: '42px',
   height: '42px',
@@ -127,7 +127,7 @@ export function AppShell({
   return (
     <Shell>
       <Rail>
-        <Brand href="#top" aria-label="Daily Phrase">
+        <Brand to="/" aria-label="Daily Phrase">
           <span>dp</span>
           <i>✳</i>
         </Brand>

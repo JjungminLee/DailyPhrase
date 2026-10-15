@@ -11,6 +11,10 @@ const count = (text, unit) =>
     : (text.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{L}\p{N}]/gu) || [])
         .length;
 const normalize = (s) => clean(s).toLocaleLowerCase();
+const normalizeSourceMatch = (s, language) => {
+  const normalized = normalize(s);
+  return language === 'zh' || language === 'ja' ? normalized.replace(/\s+/g, '') : normalized;
+};
 
 // Extend language detection by adding script_signatures and language_markers to
 // each language in config/languages.json.
@@ -55,10 +59,12 @@ function isWrongLanguage(text, targetLanguage, languageConfig) {
   return strongestOtherScore >= targetScore + 3;
 }
 
-function sourceSentence(sourceText, phrase) {
-  const sentences = sourceText.match(/[^.!?。！？]+[.!?。！？]?(?:["'”’)]*)/gu) || [sourceText];
+function sourceSentence(sourceText, phrase, language) {
+  const sentences = sourceText
+    .split(/\r?\n+/)
+    .flatMap((line) => line.match(/[^.!?。！？]+[.!?。！？]?(?:["'”’)]*)/gu) || [line]);
   return (
-    sentences.find((sentence) => normalize(sentence).includes(normalize(phrase))) || sourceText
+    sentences.find((sentence) => normalizeSourceMatch(sentence, language).includes(normalizeSourceMatch(phrase, language))) || sourceText
   ).trim();
 }
 
@@ -72,8 +78,8 @@ export function validatePhrases(
 ) {
   if (!Array.isArray(raw))
     throw new AppError('extract_failed', 'Model output must contain a phrases array');
-  const sourceText = clean(article.description || '');
-  const source = normalize(sourceText);
+  const sourceText = String(article.description || '').normalize('NFKC').trim();
+  const source = normalizeSourceMatch(sourceText, language);
   const seen = new Set();
   const phrases = [];
   let droppedNotInSource = 0;
@@ -83,19 +89,18 @@ export function validatePhrases(
       !item ||
       typeof item !== 'object' ||
       typeof item.text !== 'string' ||
-      typeof item.meaning_ko !== 'string' ||
-      typeof item.context_sentence !== 'string'
+      typeof item.meaning_ko !== 'string'
     )
       throw new AppError('extract_failed', 'Model returned a phrase with invalid fields');
     const text = clean(item.text);
-    const context = clean(item.context_sentence);
-    const key = normalize(text);
+    const context = typeof item.context_sentence === 'string' ? clean(item.context_sentence) : '';
+    const key = normalizeSourceMatch(text, language);
     if (item.language !== undefined && item.language !== language) continue;
     if (!key || !source.includes(key)) {
       droppedNotInSource += 1;
       continue;
     }
-    const originalSentence = sourceSentence(sourceText, text);
+    const originalSentence = sourceSentence(sourceText, text, language);
     if (isWrongLanguage(originalSentence, language, languageConfig)) {
       droppedWrongLanguage += 1;
       continue;
@@ -106,9 +111,21 @@ export function validatePhrases(
       seen.has(key)
     )
       continue;
-    if (!['collocation', 'idiom', 'phrasal_verb', 'sentence_pattern', 'other'].includes(item.type))
+    const allowedTypes =
+      language === 'zh' || language === 'ja'
+        ? ['collocation', 'idiom', 'sentence_pattern', 'other']
+        : ['collocation', 'idiom', 'phrasal_verb', 'sentence_pattern', 'other'];
+    if (!allowedTypes.includes(item.type))
       continue;
-    const level = clean(item.level);
+    if (
+      language === 'ja' &&
+      count(text, 'chars') < 6 &&
+      !/(?:は|が|を|に|へ|と|で|から|まで|より|の|も)/u.test(text)
+    )
+      continue;
+    const rawLevel = clean(item.level);
+    const hskLevel = rawLevel.match(/^(?:HSK\s*)?([1-6])$/i)?.[1];
+    const level = limits.level_scale === 'HSK' ? hskLevel || rawLevel : rawLevel;
     const validLevel =
       limits.level_scale === 'CEFR'
         ? /^(A2|B1|B2|C1)$/.test(level)
@@ -117,12 +134,18 @@ export function validatePhrases(
           : /^N[1-5]$/.test(level);
     if (!validLevel || !clean(item.meaning_ko)) continue;
     const pinyin = language === 'zh' ? clean(item.pinyin) : '';
-    if (language === 'zh' && (!/\p{Script=Latin}/u.test(pinyin) || /\p{Script=Han}/u.test(pinyin)))
-      continue;
+    const validPinyin =
+      language === 'zh' && /\p{Script=Latin}/u.test(pinyin) && !/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(pinyin);
     const reading = language === 'ja' ? clean(item.reading) : '';
-    if (language === 'ja' && !/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(reading)) continue;
+    const kanaOnlyReading = /^[\p{Script=Hiragana}\p{Script=Katakana}ー\s・。、！？「」]+$/u.test(reading);
+    const validReading =
+      language === 'ja' &&
+      kanaOnlyReading &&
+      /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(reading);
+    const safeNote = clean(item.note_ko);
     const sourceContext =
-      normalize(context).includes(key) && source.includes(normalize(context))
+      normalizeSourceMatch(context, language).includes(key) &&
+      source.includes(normalizeSourceMatch(context, language))
         ? context
         : originalSentence;
     seen.add(key);
@@ -133,9 +156,11 @@ export function validatePhrases(
       context_sentence: sourceContext.slice(0, 200),
       level,
       type: item.type,
-      ...(language === 'zh' ? { pinyin } : {}),
-      ...(language === 'ja' ? { reading } : {}),
-      ...(item.note_ko ? { note_ko: clean(item.note_ko).slice(0, 200) } : {}),
+      ...(validPinyin ? { pinyin } : {}),
+      ...(validReading ? { reading } : {}),
+      ...(safeNote && !/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(safeNote)
+        ? { note_ko: safeNote.slice(0, 200) }
+        : {}),
     });
     if (phrases.length >= requestedMax) break;
   }
