@@ -42,6 +42,24 @@ export async function readFeeds() {
       throw new AppError('invalid_store', 'Feed store is malformed');
     const existing = new Set(data.feeds.map((feed) => feed.id));
     const dismissed = new Set(data.dismissed_defaults);
+    const japaneseDefault = defaults.feeds.find(
+      (feed) => feed.id === 'default-weejoy-japanese-stories',
+    );
+    const previousJapaneseDefault = data.feeds.find(
+      (feed) =>
+        feed.id === 'default-weejoy-japanese-stories' &&
+        feed.rss_url === 'https://nhkeasier.com/feed/',
+    );
+    if (japaneseDefault && previousJapaneseDefault) {
+      Object.assign(previousJapaneseDefault, {
+        name: japaneseDefault.name,
+        rss_url: japaneseDefault.rss_url,
+        homepage_url: japaneseDefault.homepage_url,
+        source_type: japaneseDefault.source_type,
+        allowed_domains: japaneseDefault.allowed_domains,
+      });
+      await atomicWrite(feedPath, data);
+    }
     const seeds = defaults.feeds.filter(
       (feed) => !existing.has(feed.id) && !dismissed.has(feed.id),
     );

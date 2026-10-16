@@ -36,13 +36,13 @@
     },
     {
       "id": "default-weejoy-japanese-stories",
-      "name": "NHK Easier - Easy Japanese News",
+      "name": "ニュースでやさしい日本語 - 入門",
       "language": "ja",
-      "rss_url": "https://nhkeasier.com/feed/",
-      "homepage_url": "https://nhkeasier.com/",
-      "source_type": "rss_or_atom",
+      "rss_url": "https://simplenihongo.com/level/entry/index.php",
+      "homepage_url": "https://simplenihongo.com/",
+      "source_type": "simple_nihongo_html",
       "allowed_domains": [
-        "nhkeasier.com"
+        "simplenihongo.com"
       ],
       "enabled": true,
       "verified": true,

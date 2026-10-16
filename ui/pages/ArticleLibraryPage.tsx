@@ -3,7 +3,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
 import type { ArticleItem, Phrase } from '../types';
 
-type ArticlePhraseResponse = { phrases: Phrase[] };
+type ArticlePhraseResponse = {
+  phrases: Phrase[];
+  stats?: {
+    model_phrase_count?: number;
+    dropped_not_in_source?: number;
+    dropped_wrong_language?: number;
+    dropped_invalid?: number;
+  };
+};
 type ArticleTitleResponse = {
   title_translation_ko: string;
   title_pinyin?: string;
@@ -45,11 +53,8 @@ function hasPronunciation(language: string, phrases: Phrase[]) {
   return true;
 }
 
-function hasTitlePronunciation(language: string, sourceTitle: string, title: ArticleTitleResponse) {
-  if (language === 'zh') return Boolean(title.title_pinyin?.trim());
-  if (language === 'ja' && /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(sourceTitle))
-    return Boolean(title.title_reading?.trim());
-  return true;
+function hasTitleTranslation(title: ArticleTitleResponse) {
+  return Boolean(title.title_translation_ko?.trim());
 }
 
 export function ArticleLibraryPage() {
@@ -107,18 +112,13 @@ export function ArticleLibraryPage() {
       ? phraseCacheValue
       : null;
   const titleCacheValue = peekCache(titleResponseCache, cacheKey);
-  const cachedTitle =
-    titleCacheValue && selected && hasTitlePronunciation(selected.language, selected.title, titleCacheValue)
-      ? titleCacheValue
-      : null;
+  const cachedTitle = titleCacheValue && hasTitleTranslation(titleCacheValue) ? titleCacheValue : null;
   const phrases =
     phraseResult?.key === requestKey && selected && hasPronunciation(selected.language, phraseResult.phrases)
       ? phraseResult.phrases
       : (cachedPhrases?.phrases ?? []);
   const titleData =
-    titleResult?.key === titleRequestKey &&
-    selected &&
-    hasTitlePronunciation(selected.language, selected.title, titleResult.data)
+    titleResult?.key === titleRequestKey && hasTitleTranslation(titleResult.data)
       ? titleResult.data
       : cachedTitle;
   const titleError = titleFailure?.key === titleRequestKey ? titleFailure.message : '';
@@ -150,7 +150,7 @@ export function ArticleLibraryPage() {
     let active = true;
     const key = `${selected.id}:${titleRetryCount}`;
     const cached = readCache(titleResponseCache, cacheKey);
-    if (cached && hasTitlePronunciation(selected.language, selected.title, cached)) return;
+    if (cached && hasTitleTranslation(cached)) return;
     if (cached) titleResponseCache.delete(cacheKey);
     api<ArticleTitleResponse>('/article-title', {
       method: 'POST',
@@ -239,7 +239,7 @@ export function ArticleLibraryPage() {
       setCompletedRequest(key);
       if (result.phrases.length === 0)
         setManualEmptyResult(
-          '붙여넣은 본문에서도 학습할 표현을 찾지 못했어요. 본문에 해당 언어의 원문이 포함되어 있는지 확인해 주세요.',
+          `추출 결과가 비어 있어요. 모델 후보 ${result.stats?.model_phrase_count ?? 0}개 · 원문 불일치 ${result.stats?.dropped_not_in_source ?? 0}개 · 언어 불일치 ${result.stats?.dropped_wrong_language ?? 0}개 · 조건 미충족 ${result.stats?.dropped_invalid ?? 0}개.`,
         );
     } catch (reason: unknown) {
       setExtractFailure({

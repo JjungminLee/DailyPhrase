@@ -1,5 +1,11 @@
 import assert from 'node:assert/strict';
 import { validatePhrases } from '../src/postprocess/validate.mjs';
+import {
+  buildExtractionInstructions,
+  buildExtractionMessages,
+  exactJapaneseCandidates,
+} from '../src/extract/model.mjs';
+import { translateArticleTitle } from '../src/extract/article-title.mjs';
 import { originalLanguageText } from '../src/extract/source-text.mjs';
 import { readJson } from '../src/config.mjs';
 
@@ -133,27 +139,25 @@ const derivedContext = validatePhrases(
 );
 assert.equal(derivedContext.phrases[0]?.context_sentence, '私は学校へ行きます。');
 
-const pronunciationFallback = validatePhrases(
-  [
-    {
-      text: 'あめはふっていません',
-      meaning_ko: '비가 내리지 않고 있어요.',
-      level: 'N5',
-      type: 'sentence_pattern',
-      pinyin: '',
-      reading: 'あめは降っていません',
-      note_ko: '비가 아직 오지 않는 상태를 나타내요. 雨が降らない',
-    },
-  ],
-  { description: 'あめはふっていません。' },
+const invalidReading = validatePhrases(
+  [{ text: '\u4e88\u7b97\u3092\u5897\u3084\u3059', meaning_ko: '??? ???', level: 'N3', type: 'collocation', reading: '\u4e88\u7b97' }],
+  { description: '\u4e88\u7b97\u3092\u5897\u3084\u3059' },
   'ja',
   languageConfig.languages.ja,
   1,
   languageConfig.languages,
 );
-assert.equal(pronunciationFallback.phrases.length, 1);
-assert.equal(pronunciationFallback.phrases[0]?.reading, undefined);
-assert.equal(pronunciationFallback.phrases[0]?.note_ko, undefined);
+assert.equal(invalidReading.phrases.length, 0);
+
+const romanizedReading = validatePhrases(
+  [{ text: '\u4e88\u7b97\u3092\u5897\u3084\u3059', meaning_ko: '??? ???', level: 'N3', type: 'collocation', reading: 'yosan o fuyasu' }],
+  { description: '\u4e88\u7b97\u3092\u5897\u3084\u3059' },
+  'ja',
+  languageConfig.languages.ja,
+  1,
+  languageConfig.languages,
+);
+assert.equal(romanizedReading.phrases[0]?.reading, '\u3088\u3055\u3093\u3092\u3075\u3084\u3059');
 
 const shortJapaneseVerb = validatePhrases(
   [
@@ -195,3 +199,76 @@ const japaneseInlineSpacing = validatePhrases(
 );
 assert.equal(japaneseInlineSpacing.phrases[0]?.text, 'しごとのあと');
 console.log('Chinese/Japanese source filtering and context harness passed.');
+
+const pastedJapaneseNews = [
+  'フランスの政府は予算を増やすと言いました。しかし、高校生たちは「まだ足りない」と言って、今月13日にも大きいデモをしました。16万人ぐらいが行ったようです。',
+  '高校生だけでなく、先生たちなど大人もデモをしました。パリでは、一部の人たちが、商店の窓を割ったり、車を燃やしたりしたそうです。',
+  'デモは、ベルギーやギリシャ、アルバニアなどヨーロッパのほかの国にも広がっています。',
+].join('\n');
+const japaneseRecoveryPrompt = buildExtractionInstructions({
+  language: 'ja',
+  limits: languageConfig.languages.ja,
+  maxPhrases: 3,
+  sourceType: 'article',
+  forceExamples: true,
+});
+assert.match(japaneseRecoveryPrompt, /recovery attempt/i);
+assert.match(japaneseRecoveryPrompt, /Never return an empty list/);
+assert.match(japaneseRecoveryPrompt, /never output 〜, ～, ~, ellipses/i);
+const exactJapaneseRecoveryCandidates = exactJapaneseCandidates(pastedJapaneseNews, 12);
+assert.ok(exactJapaneseRecoveryCandidates.includes('高校生だけでなく'));
+assert.ok(exactJapaneseRecoveryCandidates.some((candidate) => candidate.endsWith('行ったようです')));
+const pastedSourceMessages = buildExtractionMessages({
+  title: 'フランス 高校生たちがデモ「学校をよくしてほしい」',
+  description: pastedJapaneseNews,
+}, { language: 'ja', forceExamples: true, maxPhraseChars: 12 });
+assert.equal(pastedSourceMessages.length, 1);
+assert.match(pastedSourceMessages[0].content, /高校生たちは「まだ足りない」/);
+assert.doesNotMatch(pastedSourceMessages[0].content, /Article title|学校をよくしてほしい/);
+assert.match(pastedSourceMessages[0].content, /Exact source candidates/);
+const pastedJapaneseCandidates = [
+  { ...phrase('まだ足りない', 'ja', ''), meaning_ko: '아직 부족하다', level: 'N4', reading: 'まだたりない', type: 'sentence_pattern' },
+  { ...phrase('高校生だけでなく', 'ja', ''), meaning_ko: '고등학생뿐만 아니라', level: 'N4', reading: 'こうこうせいだけでなく', type: 'sentence_pattern' },
+  { ...phrase('広がっています', 'ja', ''), meaning_ko: '퍼지고 있습니다', level: 'N4', reading: 'ひろがっています', type: 'sentence_pattern' },
+];
+const pastedJapaneseResult = validatePhrases(
+  pastedJapaneseCandidates,
+  { description: pastedJapaneseNews },
+  'ja',
+  languageConfig.languages.ja,
+  3,
+  languageConfig.languages,
+);
+assert.deepEqual(
+  pastedJapaneseResult.phrases.map(({ text }) => text),
+  ['まだ足りない', '高校生だけでなく', '広がっています'],
+  'Pasted Japanese news text should yield valid reusable expressions.',
+);
+assert.ok(pastedJapaneseResult.phrases.every(({ reading }) => reading));
+console.log('Pasted Japanese news extraction harness passed.');
+
+const originalFetch = globalThis.fetch;
+globalThis.fetch = async (_url, options) => {
+  const request = JSON.parse(options.body);
+  assert.deepEqual(request.format.required, ['title_translation_ko']);
+  return new Response(
+    JSON.stringify({
+      message: {
+        content: JSON.stringify({ title_translation_ko: '프랑스 고등학생들의 시위' }),
+      },
+      total_duration: 1_000_000,
+    }),
+    { status: 200, headers: { 'content-type': 'application/json' } },
+  );
+};
+try {
+  const title = await translateArticleTitle({
+    title: 'フランス 高校生たちがデモ',
+    language: 'ja',
+  });
+  assert.equal(title.title_translation_ko, '프랑스 고등학생들의 시위');
+  assert.equal(title.title_reading, undefined);
+} finally {
+  globalThis.fetch = originalFetch;
+}
+console.log('Partial Japanese title response harness passed.');

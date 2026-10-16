@@ -138,7 +138,7 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
       : 120000;
   const phraseInputLimit = body.purpose === 'article_detail' ? Math.min(maxChars, 8000) : maxChars;
   article.description = article.description.slice(0, phraseInputLimit);
-  const generated = await extractPhrases({
+  const extractionOptions = {
     article,
     language: feed.language,
     limits,
@@ -161,8 +161,9 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
             ),
           )
         : undefined,
-  });
-  const validated = validatePhrases(
+  };
+  let generated = await extractPhrases(extractionOptions);
+  let validated = validatePhrases(
     generated.phrases,
     article,
     feed.language,
@@ -170,6 +171,21 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
     extractionMax,
     languages.config.languages,
   );
+  const pastedCjkText =
+    body.article_text !== undefined &&
+    ['zh', 'ja'].includes(feed.language) &&
+    /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(article.description);
+  if (pastedCjkText && validated.phrases.length === 0) {
+    generated = await extractPhrases({ ...extractionOptions, forceExamples: true });
+    validated = validatePhrases(
+      generated.phrases,
+      article,
+      feed.language,
+      limits,
+      extractionMax,
+      languages.config.languages,
+    );
+  }
   return {
     language: feed.language,
     source: {
@@ -183,8 +199,10 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
       ...generated.model_stats,
       input_chars: article.description.length,
       phrase_count: validated.phrases.length,
+      model_phrase_count: generated.phrases.length,
       dropped_not_in_source: validated.droppedNotInSource,
       dropped_wrong_language: validated.droppedWrongLanguage,
+      dropped_invalid: validated.droppedInvalid,
     },
   };
 }

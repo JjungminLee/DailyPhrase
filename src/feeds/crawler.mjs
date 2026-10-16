@@ -11,6 +11,34 @@ const fingerprint = (url) => createHash('sha256').update(url).digest('hex');
 const dailyStatePath = path.join(rootDir, 'data/daily-poll.json');
 let dailyPollInFlight;
 
+function decodeHtml(value = '') {
+  return value
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function parseSimpleNihongoListing(html, baseUrl) {
+  const entries = [];
+  for (const [, heading] of html.matchAll(/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]>/gi)) {
+    const link = heading.match(
+      /<a\b([^>]*href=["'][^"']*article\.php\?id=\d+&(?:amp;)?level=entry[^"']*["'][^>]*)>([\s\S]*?)<\/a>/i,
+    );
+    if (!link) continue;
+    const [, attributes, body] = link;
+    const href = attributes.match(/href=["']([^"']+)/i)?.[1]?.replace(/&amp;/g, '&');
+    const title = decodeHtml(body);
+    if (!href || !title) continue;
+    entries.push({ title, url: new URL(href, baseUrl).href, published_at: '', description: '' });
+  }
+  return [...new Map(entries.map((entry) => [entry.url, entry])).values()].slice(0, 100);
+}
+
 function seoulDate(date = new Date()) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(date);
 }
@@ -44,7 +72,9 @@ export async function scanFeed(feed) {
     const fetched = await safeFetch(feed.rss_url, feed.allowed_domains, {
       allowTruncate: feed.allow_truncated_feed === true,
     });
-    const entries = parseFeed(fetched.text).slice(0, 100);
+    const entries = (feed.source_type === 'simple_nihongo_html'
+      ? parseSimpleNihongoListing(fetched.text, fetched.url)
+      : parseFeed(fetched.text).slice(0, 100));
     return {
       feed_id: feed.id,
       feed_name: feed.name,
