@@ -43,6 +43,16 @@ Run the deterministic language/source regression harness with:
 npm run harness:language
 ```
 
+Run the live API phrase-quality cases with the local API running (`npm run dev:api`):
+
+```sh
+npm run harness:phrases
+```
+
+The runner reads `data/phrase-quality-cases.json`, fails when a positive case returns no phrases or misses its minimum expected-phrase matches, and saves request IDs, phrases, quality counters, and errors under `results/phrase-quality-<timestamp>.json`. Set `PHRASE_API_URL` to target a deployed API. Positive cases must be reviewed against the source and usage examples before treating them as gold labels; expected phrases are a minimum recall check, not an exhaustive answer key.
+
+The French article `fr-le-chat-forestier-positive` is a known positive case. Phrases such as `ne la confondez pas avec`, `il pourrait bien s'agir`, and `fait son retour dans la région` occur in its French text and can be reused in other contexts. This case is intended to catch an empty response on an article with teachable expressions.
+
 Validate the 20-case dataset with:
 
 ```sh
