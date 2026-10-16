@@ -9,6 +9,22 @@ import { translateArticleTitle } from '../src/extract/article-title.mjs';
 import { originalLanguageText } from '../src/extract/source-text.mjs';
 import { readJson } from '../src/config.mjs';
 
+function reviewedTitleResponse(request) {
+  if (request.format.required[0] !== 'faithful') return null;
+  const input = JSON.parse(request.messages.at(-1).content);
+  return new Response(
+    JSON.stringify({
+      message: {
+        content: JSON.stringify({
+          faithful: true,
+          verified_translation_ko: input.proposed_translation_ko,
+        }),
+      },
+    }),
+    { status: 200, headers: { 'content-type': 'application/json' } },
+  );
+}
+
 const languageConfig = await readJson('config/languages.json');
 function phrase(text, language, context) {
   return {
@@ -140,7 +156,15 @@ const derivedContext = validatePhrases(
 assert.equal(derivedContext.phrases[0]?.context_sentence, '私は学校へ行きます。');
 
 const invalidReading = validatePhrases(
-  [{ text: '\u4e88\u7b97\u3092\u5897\u3084\u3059', meaning_ko: '??? ???', level: 'N3', type: 'collocation', reading: '\u4e88\u7b97' }],
+  [
+    {
+      text: '\u4e88\u7b97\u3092\u5897\u3084\u3059',
+      meaning_ko: '??? ???',
+      level: 'N3',
+      type: 'collocation',
+      reading: '\u4e88\u7b97',
+    },
+  ],
   { description: '\u4e88\u7b97\u3092\u5897\u3084\u3059' },
   'ja',
   languageConfig.languages.ja,
@@ -150,7 +174,15 @@ const invalidReading = validatePhrases(
 assert.equal(invalidReading.phrases.length, 0);
 
 const romanizedReading = validatePhrases(
-  [{ text: '\u4e88\u7b97\u3092\u5897\u3084\u3059', meaning_ko: '??? ???', level: 'N3', type: 'collocation', reading: 'yosan o fuyasu' }],
+  [
+    {
+      text: '\u4e88\u7b97\u3092\u5897\u3084\u3059',
+      meaning_ko: '??? ???',
+      level: 'N3',
+      type: 'collocation',
+      reading: 'yosan o fuyasu',
+    },
+  ],
   { description: '\u4e88\u7b97\u3092\u5897\u3084\u3059' },
   'ja',
   languageConfig.languages.ja,
@@ -217,19 +249,42 @@ assert.match(japaneseRecoveryPrompt, /Never return an empty list/);
 assert.match(japaneseRecoveryPrompt, /never output 〜, ～, ~, ellipses/i);
 const exactJapaneseRecoveryCandidates = exactJapaneseCandidates(pastedJapaneseNews, 12);
 assert.ok(exactJapaneseRecoveryCandidates.includes('高校生だけでなく'));
-assert.ok(exactJapaneseRecoveryCandidates.some((candidate) => candidate.endsWith('行ったようです')));
-const pastedSourceMessages = buildExtractionMessages({
-  title: 'フランス 高校生たちがデモ「学校をよくしてほしい」',
-  description: pastedJapaneseNews,
-}, { language: 'ja', forceExamples: true, maxPhraseChars: 12 });
+assert.ok(
+  exactJapaneseRecoveryCandidates.some((candidate) => candidate.endsWith('行ったようです')),
+);
+const pastedSourceMessages = buildExtractionMessages(
+  {
+    title: 'フランス 高校生たちがデモ「学校をよくしてほしい」',
+    description: pastedJapaneseNews,
+  },
+  { language: 'ja', forceExamples: true, maxPhraseChars: 12 },
+);
 assert.equal(pastedSourceMessages.length, 1);
 assert.match(pastedSourceMessages[0].content, /高校生たちは「まだ足りない」/);
 assert.doesNotMatch(pastedSourceMessages[0].content, /Article title|学校をよくしてほしい/);
 assert.match(pastedSourceMessages[0].content, /Exact source candidates/);
 const pastedJapaneseCandidates = [
-  { ...phrase('まだ足りない', 'ja', ''), meaning_ko: '아직 부족하다', level: 'N4', reading: 'まだたりない', type: 'sentence_pattern' },
-  { ...phrase('高校生だけでなく', 'ja', ''), meaning_ko: '고등학생뿐만 아니라', level: 'N4', reading: 'こうこうせいだけでなく', type: 'sentence_pattern' },
-  { ...phrase('広がっています', 'ja', ''), meaning_ko: '퍼지고 있습니다', level: 'N4', reading: 'ひろがっています', type: 'sentence_pattern' },
+  {
+    ...phrase('まだ足りない', 'ja', ''),
+    meaning_ko: '아직 부족하다',
+    level: 'N4',
+    reading: 'まだたりない',
+    type: 'sentence_pattern',
+  },
+  {
+    ...phrase('高校生だけでなく', 'ja', ''),
+    meaning_ko: '고등학생뿐만 아니라',
+    level: 'N4',
+    reading: 'こうこうせいだけでなく',
+    type: 'sentence_pattern',
+  },
+  {
+    ...phrase('広がっています', 'ja', ''),
+    meaning_ko: '퍼지고 있습니다',
+    level: 'N4',
+    reading: 'ひろがっています',
+    type: 'sentence_pattern',
+  },
 ];
 const pastedJapaneseResult = validatePhrases(
   pastedJapaneseCandidates,
@@ -250,6 +305,8 @@ console.log('Pasted Japanese news extraction harness passed.');
 const originalFetch = globalThis.fetch;
 globalThis.fetch = async (_url, options) => {
   const request = JSON.parse(options.body);
+  const reviewed = reviewedTitleResponse(request);
+  if (reviewed) return reviewed;
   assert.deepEqual(request.format.required, ['title_translation_ko', 'title_reading']);
   assert.equal(request.options.temperature, 0.1);
   return new Response(
@@ -277,16 +334,21 @@ try {
 }
 console.log('Japanese title schema and sampling harness passed.');
 
-const kanaTitle = '\u30c1\u30e7\u30b3\u30ec\u30fc\u30c8\u306e \u30ab\u30ab\u30aa\u304c \u3059\u304f\u306a\u3044 \u3067\u3059\u3002 \u3069\u3046\u3057\u3066 \u3067\u3057\u3087\u3046\u304b\u3002';
+const kanaTitle =
+  '\u30c1\u30e7\u30b3\u30ec\u30fc\u30c8\u306e \u30ab\u30ab\u30aa\u304c \u3059\u304f\u306a\u3044 \u3067\u3059\u3002 \u3069\u3046\u3057\u3066 \u3067\u3057\u3087\u3046\u304b\u3002';
 globalThis.fetch = async (_url, options) => {
   const request = JSON.parse(options.body);
+  const reviewed = reviewedTitleResponse(request);
+  if (reviewed) return reviewed;
   assert.deepEqual(request.format.required, ['title_translation_ko']);
   return new Response(
     JSON.stringify({
       message: {
         content: JSON.stringify({
-          title_translation_ko: '\ucd08\ucf5c\ub9bf\uc758 \uce74\uce74\uc624\uac00 \uc801\uc5b4\uc694. \uc65c\uc77c\uae4c\uc694?',
-          title_reading: '\u304d\u3087\u3046\u3057\u3087\u304f\u3044\u305f\u306e\u304b\u304c\u3053\u3046\u304c',
+          title_translation_ko:
+            '\ucd08\ucf5c\ub9bf\uc758 \uce74\uce74\uc624\uac00 \uc801\uc5b4\uc694. \uc65c\uc77c\uae4c\uc694?',
+          title_reading:
+            '\u304d\u3087\u3046\u3057\u3087\u304f\u3044\u305f\u306e\u304b\u304c\u3053\u3046\u304c',
         }),
       },
     }),
@@ -295,7 +357,10 @@ globalThis.fetch = async (_url, options) => {
 };
 try {
   const title = await translateArticleTitle({ title: kanaTitle, language: 'ja' });
-  assert.equal(title.title_translation_ko, '\ucd08\ucf5c\ub9bf\uc758 \uce74\uce74\uc624\uac00 \uc801\uc5b4\uc694. \uc65c\uc77c\uae4c\uc694?');
+  assert.equal(
+    title.title_translation_ko,
+    '\ucd08\ucf5c\ub9bf\uc758 \uce74\uce74\uc624\uac00 \uc801\uc5b4\uc694. \uc65c\uc77c\uae4c\uc694?',
+  );
   assert.equal(
     title.title_reading,
     '\u3061\u3087\u3053\u308c\u30fc\u3068\u306e \u304b\u304b\u304a\u304c \u3059\u304f\u306a\u3044 \u3067\u3059\u3002 \u3069\u3046\u3057\u3066 \u3067\u3057\u3087\u3046\u304b\u3002',
@@ -305,17 +370,22 @@ try {
 }
 console.log('Kana-only Japanese title reading harness passed.');
 
-globalThis.fetch = async () =>
-  new Response(
+globalThis.fetch = async (_url, options) => {
+  const request = JSON.parse(options.body);
+  const reviewed = reviewedTitleResponse(request);
+  if (reviewed) return reviewed;
+  return new Response(
     JSON.stringify({
       message: {
         content: JSON.stringify({
-          title_translation_ko: '\u5de7\ucf5c\ucf54\uac00 \ubd80\uc871\ud569\ub2c8\ub2e4. \uc65c\uc77c\uae4c\uc694?',
+          title_translation_ko:
+            '\u5de7\ucf5c\ucf54\uac00 \ubd80\uc871\ud569\ub2c8\ub2e4. \uc65c\uc77c\uae4c\uc694?',
         }),
       },
     }),
     { status: 200, headers: { 'content-type': 'application/json' } },
   );
+};
 try {
   await assert.rejects(
     translateArticleTitle({ title: kanaTitle, language: 'ja' }),
