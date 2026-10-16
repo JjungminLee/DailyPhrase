@@ -11,6 +11,10 @@ body:
       options:
         - "2주차: 만들기 ① · 하네스 · 데이터셋"
         - "3주차: 만들기 ② · 동결 · 기준선"
+        - "4주차: 성능 개선 · 지연 (Lambda · API Gateway)"
+        - "5주차: 성능 개선 · 비용"
+        - "6주차: 성능 개선 · 동시성 (모델 API)"
+        - "7주차: 성능 개선 · 안정성"
         - 기타
     validations:
       required: true
@@ -31,6 +35,30 @@ body:
     validations:
       required: true
   - type: textarea
+    id: wall
+    attributes:
+      label: 이번 주차의 벽
+      description: 어떤 병목이나 실패를 조사하나요?
+      placeholder: "예) 4주차: Lambda/API Gateway 지연, 긴 입력에서 29초 재현"
+    validations:
+      required: false
+  - type: textarea
+    id: measurements
+    attributes:
+      label: 측정할 것
+      description: 주차별 조건을 함께 적어주세요. 4주차는 콜드/웜 p50·p95와 긴 입력, 5주차는 요청당 비용 항목, 6주차는 동시 1·5·10·20, 7주차는 6주차와 같은 부하를 측정합니다.
+      placeholder: "예) 모델 토큰 + Lambda GB-초 + API Gateway + 로그 수집 비용"
+    validations:
+      required: false
+  - type: textarea
+    id: lever
+    attributes:
+      label: 선택한 손잡이 또는 실험
+      description: 4·5·7주차는 개선 손잡이 하나를 선택하고, 6주차는 벽을 찾는 실험을 적어주세요.
+      placeholder: "예) 메모리 올리기 · esbuild 번들 · 클라이언트 동시성 상한"
+    validations:
+      required: false
+  - type: textarea
     id: implementation
     attributes:
       label: 구현 및 검증할 내용
@@ -40,15 +68,16 @@ body:
   - type: textarea
     id: acceptance
     attributes:
-      label: 완료 기준
-      placeholder: 완료를 확인할 수 있는 구체적인 결과나 측정값을 적어주세요.
+      label: 최소 통과선 및 완료 기준
+      description: 주차 표의 최소 통과선을 충족하는지 확인할 수 있게 적어주세요.
+      placeholder: "예) 전후 p95 비교, 첫 실패 지점과 원인, 실패율과 p95 변화"
     validations:
       required: true
   - type: textarea
     id: baseline
     attributes:
       label: 기준선 및 다음 확인 사항 (선택)
-      description: 3주차 이슈라면 콜드 5회·웜 5회 측정값과 가장 나쁜 지표를 적어주세요.
+      description: 3·4·5주차는 전후 기준선을, 6주차는 첫 실패 지점과 원인(429·Lambda 스로틀·타임아웃), 7주차는 실패율과 p95 변화를 기록하세요.
       placeholder: 관련 PR, freeze 태그, 결과 파일 또는 팀 표 위치
     validations:
       required: false
