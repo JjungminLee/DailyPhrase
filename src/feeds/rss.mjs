@@ -49,10 +49,13 @@ function readableText(html) {
   const main = html.match(/<(?:article|main)\b[^>]*>([\s\S]*?)<\/(?:article|main)>/i)?.[1] || html;
   return main
     .replace(/<!--([\s\S]*?)-->/g, ' ')
+    .replace(/<(rt|rp)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, ' ')
     .replace(
       /<(script|style|nav|footer|header|noscript|svg|form|aside)\b[^>]*>[\s\S]*?<\/\1>/gi,
       ' ',
     )
+    .replace(/<\/(?:p|li|h[1-6]|blockquote|section|article|div)>\s*/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;|&#160;|&#xA0;/gi, ' ')
     .replace(/&amp;/g, '&')
@@ -62,8 +65,18 @@ function readableText(html) {
     .replace(/&#39;|&apos;|&#x27;/g, "'")
     .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
     .replace(/&#x([\da-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
-    .replace(/\s+/g, ' ')
+    .replace(/[ \t\f\v]+/g, ' ')
+    .replace(/ *\n */g, '\n')
+    .replace(/\n{2,}/g, '\n')
     .trim();
+}
+
+function readableTranscript(html) {
+  const text = readableText(html);
+  const marker = text.match(/\b(?:read\s+)?transcript\b/i);
+  if (!marker) return '';
+  const transcript = text.slice(marker.index + marker[0].length).trim();
+  return transcript.split(/\s+/).length >= 150 ? transcript : '';
 }
 
 function assertArticleText(text) {
@@ -84,15 +97,39 @@ export async function latestArticle(feed, articleUrl, articleTitle) {
       'No verified, enabled feed is configured for this language',
       503,
     );
-  const fetched = await safeFetch(articleUrl || feed.rss_url, feed.allowed_domains);
+  let requestedUrl = articleUrl || feed.rss_url;
+  let transcriptRequired = false;
   if (articleUrl) {
-    const description = readableText(fetched.text);
+    const candidate = new URL(articleUrl);
+    if (
+      /(^|\.)ted\.com$/i.test(candidate.hostname) &&
+      candidate.pathname.startsWith('/talks/')
+    ) {
+      // TED exposes its player transcript view on the talk URL. Never let the
+      // normal talk page's promotional description stand in for the transcript.
+      candidate.searchParams.set('view', 'transcript');
+      requestedUrl = candidate.href;
+      transcriptRequired = true;
+    }
+  }
+  const fetched = await safeFetch(requestedUrl, feed.allowed_domains);
+  if (articleUrl) {
+    const description = transcriptRequired
+      ? readableTranscript(fetched.text)
+      : readableText(fetched.text);
     assertArticleText(description);
+    if (transcriptRequired && !description)
+      throw new AppError(
+        'transcript_unavailable',
+        'Could not read the TED transcript from this link. Open Read Transcript on TED, copy the transcript, and paste it into the article text box.',
+        422,
+      );
     return {
       title: articleTitle || 'Article',
       url: fetched.url,
       published_at: null,
       description,
+      source_type: transcriptRequired ? 'transcript' : 'article',
     };
   }
   const item = parseFeed(fetched.text)[0];
@@ -103,5 +140,5 @@ export async function latestArticle(feed, articleUrl, articleTitle) {
   const articleBody = await safeFetch(url.href, feed.allowed_domains);
   const readable = readableText(articleBody.text);
   if (readable) assertArticleText(readable);
-  return { ...item, url: url.href, description: readable || item.description };
+  return { ...item, url: url.href, description: readable || item.description, source_type: 'article' };
 }

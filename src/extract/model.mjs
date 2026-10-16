@@ -1,8 +1,17 @@
 import { AppError } from '../errors.mjs';
 
 function phraseSchema(language) {
-  const pinyin = language === 'zh' ? { type: 'string', minLength: 1 } : { type: 'string' };
-  const reading = language === 'ja' ? { type: 'string', minLength: 1 } : { type: 'string' };
+  const pronunciationField = language === 'zh' ? 'pinyin' : language === 'ja' ? 'reading' : null;
+  const types =
+    language === 'zh' || language === 'ja'
+      ? ['collocation', 'idiom', 'sentence_pattern', 'other']
+      : ['collocation', 'idiom', 'phrasal_verb', 'sentence_pattern', 'other'];
+  const levels =
+    language === 'zh'
+      ? ['1', '2', '3', '4', '5', '6']
+      : language === 'ja'
+        ? ['N1', 'N2', 'N3', 'N4', 'N5']
+        : ['A2', 'B1', 'B2', 'C1'];
   return {
     type: 'object',
     additionalProperties: false,
@@ -16,25 +25,22 @@ function phraseSchema(language) {
           required: [
             'text',
             'meaning_ko',
-            'context_sentence',
             'level',
             'type',
             'note_ko',
-            'pinyin',
-            'reading',
+            ...(pronunciationField ? [pronunciationField] : []),
           ],
           properties: {
             text: { type: 'string' },
             meaning_ko: { type: 'string' },
-            context_sentence: { type: 'string' },
-            level: { type: 'string' },
+            level: { type: 'string', enum: levels },
             type: {
               type: 'string',
-              enum: ['collocation', 'idiom', 'phrasal_verb', 'sentence_pattern', 'other'],
+              enum: types,
             },
             note_ko: { type: 'string' },
-            pinyin,
-            reading,
+            pinyin: { type: 'string', ...(language === 'zh' ? { minLength: 1 } : {}) },
+            reading: { type: 'string', ...(language === 'ja' ? { minLength: 1 } : {}) },
           },
         },
       },
@@ -42,20 +48,68 @@ function phraseSchema(language) {
   };
 }
 
-function instructions({ language, limits }) {
+export function buildExtractionInstructions({ language, limits, maxPhrases, sourceType, forceExamples = false }) {
+  const sourceInstructions =
+    sourceType === 'transcript'
+      ? 'The supplied source text is a transcript. Extract expressions only from words spoken in it; never use the title, promotional description, summary, metadata, outside knowledge, or inferred wording. If it contains no transcript text, return an empty phrases array.'
+      : 'The supplied source text is article text. Extract expressions only from wording present in it; never use the title, metadata, outside knowledge, or inferred wording. When the article includes a parallel translation, select only from the section written in the requested language.';
   return [
-    'Read the supplied article and select expressions that fluent native speakers naturally use in real conversations and writing.',
-    'Rank the results from most broadly useful and commonly used to less common. Prefer expressions that learners can reuse in many everyday or general situations, not merely expressions that are interesting in this one article.',
-    'Favor natural collocations, idioms, phrasal verbs, and sentence patterns. Avoid isolated basic words, proper nouns, headline fragments, stiff bureaucratic wording, and specialist or one-off jargon unless the expression itself is widely useful.',
-    'Return only expressions that appear verbatim in the article and an exact sentence from the article containing each expression.',
-    'Do not reproduce the article or provide long quotations. Each context_sentence must be one short sentence (maximum 200 characters).',
-    'Write meaning_ko as a concise, natural Korean paraphrase of what the expression means in this exact context. Translate the intent and pragmatic meaning, not each word literally; use the Korean expression a learner would actually say. For example, explain “break the ice” as “어색한 분위기를 풀다,” not “얼음을 깨다.”',
-    'Write note_ko in Korean as a short learning tip about nuance, register, or a common situation where the expression is used. Do not simply repeat meaning_ko. Use an empty string only when no additional useful tip applies. Never invent source context or claim unsupported frequency statistics.',
-    'Return the strongest, most reusable expressions first. Do not claim an expression is common unless it is broadly established in natural native usage.',
-    'For Chinese (zh), pinyin is required for every expression: write the full pronunciation in standard pinyin, using tone marks on the syllable vowels and no tone numbers. Never leave it empty, and set reading to an empty string. For Japanese (ja), reading is required: write the complete pronunciation of every expression in hiragana (use katakana only where standard), never leave it empty, and set pinyin to an empty string. For other languages, set both pinyin and reading to empty strings.',
+    `Select up to ${maxPhrases} natural expressions that fluent native speakers commonly use. Everyday chunks and sentence patterns count even when simple; they do not need to be idioms. Avoid isolated vocabulary, names, headlines, and one-off jargon.`,
+    'For beginner stories, prioritize reusable everyday patterns that are explicitly present in the source. Do not return an empty list when a complete, natural example of a common pattern appears. Return empty only when the source has no suitable multi-character expression.',
+    sourceInstructions,
+    'Copy each expression exactly as written, including spelling, script, spaces, tense, and inflection; never translate it, convert kana to kanji, or substitute a dictionary form. Every expression must appear verbatim in the supplied source text. Do not output a context sentence; the application will quote it directly from the source.',
+    'Write meaning_ko as a concise, natural Korean paraphrase of the expression in context, preserving intent rather than translating word for word. Write note_ko as a short Korean tip on nuance or register, without repeating the meaning. Do not invent context or unsupported frequency claims.',
+    'Write meaning_ko and note_ko in Korean only. Every Chinese expression MUST include its complete standard Hanyu Pinyin with tone marks in pinyin, syllables separated by spaces. Every Japanese expression MUST include its complete pronunciation in kana only in reading, converting all kanji to their reading. Never omit these fields or return them empty. For other languages, leave both pronunciation fields empty.',
+    language === 'ja'
+      ? 'Japanese source may be a news article or pasted lesson text, not only a story. Select useful everyday chunks and complete grammar patterns even when the text is news. Choose a literal contiguous substring from the article text, preserving every character. Do not create a grammar template: never output 〜, ～, ~, ellipses, or placeholder marks in a phrase. If a phrase cannot be copied as an exact substring, do not return it. Prefer useful patterns with particles and predicates over isolated conjugated verbs. Never return an empty list when a usable exact phrase is present. Use sentence_pattern for grammar and collocation for natural word combinations; do not label Japanese phrases as idioms or phrasal verbs.'
+      : language === 'zh'
+        ? 'For Chinese beginner stories, prefer reusable everyday sentence patterns or natural chunks over isolated vocabulary items. Do not label Chinese expressions as phrasal verbs.'
+        : '',
+    forceExamples
+      ? `This is a recovery attempt because the previous extraction found no usable expressions. Re-read the supplied ${language} text and return up to ${maxPhrases} short, reusable phrases copied exactly from it. Prefer complete examples that meet the requested length and level. Do not return an empty list if any suitable phrase is present. For Japanese, choose expressions only from the exact source candidates appended to the article text, copy them character-for-character, never use placeholders, and include a kana-only reading for every candidate.`
+      : '',
     `The article language is ${language}. Choose expressions containing ${limits.min} to ${limits.max} ${limits.phrase_unit}.`,
-    `Use levels from ${limits.level_scale}: ${limits.level_scale === 'CEFR' ? 'A2, B1, B2, or C1' : limits.level_scale === 'HSK' ? '1 to 6' : 'N1 to N5'}.`,
+    'Use expressions written in the requested article language only. When an article includes a parallel translation, ignore the translated section and select only from the original-language section.',
+    `Use levels from ${limits.level_scale}: ${limits.level_scale === 'CEFR' ? 'A2, B1, B2, or C1' : limits.level_scale === 'HSK' ? 'the digits 1 to 6 only, without the HSK prefix' : 'N1 to N5'}.`,
   ].join(' ');
+}
+
+export function exactJapaneseCandidates(text, maxChars = 12) {
+  const endings = /だけでなく|と言いました|と言って|ようです|ています|ていました|そうです|になります|たり/g;
+  const candidates = new Set();
+  for (const match of String(text).matchAll(endings)) {
+    const end = match.index + match[0].length;
+    const boundary = Math.max(
+      String(text).lastIndexOf('。', match.index),
+      String(text).lastIndexOf('！', match.index),
+      String(text).lastIndexOf('？', match.index),
+      String(text).lastIndexOf('\n', match.index),
+    ) + 1;
+    const chars = [...String(text).slice(boundary, end)];
+    const candidate = chars
+      .slice(-maxChars)
+      .join('')
+      .replace(/^[、。！？「『\s]+/u, '');
+    if (candidate && [...candidate].length <= maxChars) candidates.add(candidate);
+  }
+  return [...candidates];
+}
+
+export function buildExtractionMessages(article, { language, forceExamples = false, maxPhraseChars = 12 } = {}) {
+  const candidates = language === 'ja' && forceExamples
+    ? exactJapaneseCandidates(article.description, maxPhraseChars)
+    : [];
+  const candidateList = candidates.length
+    ? `\n\nExact source candidates (choose expressions only from these; copy them character-for-character):\n${candidates.map((candidate) => `- ${candidate}`).join('\n')}`
+    : '';
+  return [
+    {
+      role: 'user',
+      // The title is metadata, not part of the source passage. Keeping it out
+      // prevents the model from selecting or blending wording from the headline.
+      content: `Article text:\n${article.description}${candidateList}`,
+    },
+  ];
 }
 
 export async function extractPhrases({
@@ -66,6 +120,8 @@ export async function extractPhrases({
   timeoutMs,
   maxTokens,
   model: requestedModel,
+  sourceType = article.source_type || 'article',
+  forceExamples = false,
 }) {
   const baseUrl = (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434').replace(/\/+$/, '');
   const model = requestedModel || process.env.OLLAMA_MODEL || 'qwen3.5:9b';
@@ -79,15 +135,29 @@ export async function extractPhrases({
         model,
         stream: false,
         think: false,
+        keep_alive: process.env.OLLAMA_KEEP_ALIVE || '10m',
         format: phraseSchema(language),
         messages: [
-          { role: 'system', content: instructions({ language, limits }) },
           {
-            role: 'user',
-            content: `Article title: ${article.title}\nArticle text:\n${article.description}`,
+            role: 'system',
+            content: buildExtractionInstructions({
+              language,
+              limits,
+              maxPhrases,
+              sourceType,
+              forceExamples,
+            }),
           },
+          ...buildExtractionMessages(article, {
+            language,
+            forceExamples,
+            maxPhraseChars: limits.max,
+          }),
         ],
-        options: { num_predict: maxTokens ?? Math.min(6000, 500 + maxPhrases * 180) },
+        options: {
+          num_predict: maxTokens ?? Math.min(6000, 300 + maxPhrases * 140),
+          temperature: 0.1,
+        },
       }),
       signal: AbortSignal.timeout(requestTimeoutMs),
     });
@@ -128,5 +198,14 @@ export async function extractPhrases({
   }
   if (!Array.isArray(parsed.phrases))
     throw new AppError('extract_failed', 'Ollama returned invalid structured phrase data', 502);
-  return parsed.phrases.slice(0, maxPhrases);
+  return {
+    phrases: parsed.phrases.slice(0, maxPhrases),
+    model_stats: {
+      duration_ms: Number.isFinite(payload.total_duration)
+        ? Math.round(payload.total_duration / 1_000_000)
+        : null,
+      prompt_tokens: Number.isInteger(payload.prompt_eval_count) ? payload.prompt_eval_count : null,
+      generated_tokens: Number.isInteger(payload.eval_count) ? payload.eval_count : null,
+    },
+  };
 }

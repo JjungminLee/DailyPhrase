@@ -1,9 +1,25 @@
 {
   "default_languages": ["en", "zh", "fr", "ja"],
   "languages": {
-    "en": { "name": "English", "phrase_unit": "words", "min": 2, "max": 6, "level_scale": "CEFR" },
-    "zh": { "name": "Chinese", "phrase_unit": "chars", "min": 2, "max": 8, "level_scale": "HSK" },
-    "fr": { "name": "French", "phrase_unit": "words", "min": 2, "max": 6, "level_scale": "CEFR" },
-    "ja": { "name": "Japanese", "phrase_unit": "chars", "min": 3, "max": 12, "level_scale": "JLPT" }
+    "en": {
+      "name": "English", "phrase_unit": "words", "min": 2, "max": 6, "level_scale": "CEFR",
+      "script_signatures": ["Latin"],
+      "language_markers": ["the", "and", "of", "to", "is", "it", "you", "your", "that", "for", "with", "are", "be", "have", "do", "not", "was", "were", "they", "he", "she", "this", "what", "from", "as", "at", "but", "we", "an", "or", "by", "can", "will", "would", "should", "about", "into", "there", "which", "more", "when", "if", "then", "who", "than", "so", "one", "all", "has", "had", "maybe", "rather", "practice", "listening", "vlogger", "discuss"]
+    },
+    "zh": {
+      "name": "Chinese", "phrase_unit": "chars", "min": 2, "max": 8, "level_scale": "HSK",
+      "script_signatures": ["Han"], "language_markers": [],
+      "text_markers": ["她", "在", "学习", "法语", "的是", "不是", "我们", "他们", "可以", "正在"]
+    },
+    "fr": {
+      "name": "French", "phrase_unit": "words", "min": 2, "max": 6, "level_scale": "CEFR",
+      "script_signatures": ["Latin"],
+      "language_markers": ["le", "la", "les", "un", "une", "des", "du", "de", "que", "qui", "et", "pour", "avec", "dans", "est", "sont", "vous", "nous", "je", "elle", "il", "ce", "cette", "pas", "plus", "sur", "par", "au", "aux", "en", "votre", "son", "mais", "comme", "peut-être", "pratiquer", "compréhension", "écoutant", "vlogueuse", "quotidien"]
+    },
+    "ja": {
+      "name": "Japanese", "phrase_unit": "chars", "min": 3, "max": 12, "level_scale": "JLPT",
+      "script_signatures": ["Hiragana", "Katakana", "Han"], "language_markers": [],
+      "text_markers": ["です", "ます", "でした", "ません", "して", "ください"]
+    }
   }
 }

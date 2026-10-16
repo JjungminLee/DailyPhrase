@@ -4,6 +4,8 @@
 
 ### A little practice, every day.
 
+Windows에서 Intel 내장 GPU 가속을 설정하는 방법은 [Ollama GPU 가속 안내](docs/ollama-gpu.md)를 참고하세요.
+
 ![alt text](readme_image.png)
 
 아티클을 읽으며 만난 표현을 매일 조금씩 공부하는 언어 학습 앱입니다. 원문에 실제로 나온 자연스러운 표현을 로컬 Ollama 모델이 골라 주고, 문맥과 한국어 뜻을 함께 보여줍니다.
@@ -49,10 +51,17 @@ Copy-Item .env.example .env
 OLLAMA_BASE_URL=http://127.0.0.1:11434
 OLLAMA_MODEL=qwen3.5:9b
 OLLAMA_ARTICLE_MODEL=qwen3.5:4b
+OLLAMA_TITLE_MODEL=qwen3.5:4b
 MODEL_TIMEOUT_MS=120000
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+# Register this exact URI as an authorized redirect URI in Google Cloud OAuth settings.
+GOOGLE_REDIRECT_URI=http://localhost:3000/api/drive/callback
 ```
 
-Ollama가 실행 중인지 확인한 다음 앱을 시작합니다.
+Google Drive 설정은 선택 사항입니다. 학습 기록을 사용하지 않으면 인증 값을 비워 두세요. Google OAuth 설정 방법은 아래의 학습 기록 절을 참고하세요.
+
+앱을 시작하면 로컬 Ollama API가 이미 실행 중인지 확인합니다. 꺼져 있으면 `ollama serve`로 시작합니다. macOS에서는 Ollama가 Apple GPU를 Metal로 자동 사용하므로 별도의 Vulkan 설정은 필요하지 않습니다.
 
 ```sh
 npm run dev
@@ -64,6 +73,7 @@ npm run dev
 
 - `OLLAMA_MODEL`은 오늘의 표현 생성에 사용하는 기본 로컬 모델입니다.
 - `OLLAMA_ARTICLE_MODEL`은 아티클 상세 표현 추출에 사용하는 로컬 모델입니다. 기본값은 더 가벼운 `qwen3.5:4b`입니다.
+- `OLLAMA_TITLE_MODEL`은 아티클 제목 번역과 발음 표시에 사용할 모델입니다. 더 빠른 모델이 설치되어 있다면 이 설정만 바꿔 성능과 결과를 비교할 수 있습니다. 기본값은 `OLLAMA_ARTICLE_MODEL`입니다.
 - Kimi 등 다른 Ollama 모델을 사용하려면 Ollama에서 해당 모델을 먼저 내려받고 `OLLAMA_MODEL` 또는 `OLLAMA_ARTICLE_MODEL`을 설치된 모델 태그로 설정하세요.
 - 모델 다운로드는 디스크 공간을 사용하지만, 로컬 Ollama 추론에는 모델 API 종량 요금이 발생하지 않습니다. 전력과 메모리 사용은 컴퓨터 환경에 따라 달라집니다.
 

@@ -4,6 +4,7 @@ import { AppError, response } from './errors.mjs';
 import { latestArticle } from './feeds/rss.mjs';
 import { isAllowedHost } from './feeds/safe-fetch.mjs';
 import { extractPhrases } from './extract/model.mjs';
+import { originalLanguageText } from './extract/source-text.mjs';
 import { translateArticleTitle } from './extract/article-title.mjs';
 import { validatePhrases } from './postprocess/validate.mjs';
 import {
@@ -106,6 +107,10 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
       url: articleUrl.href,
       published_at: null,
       description: body.article_text.trim(),
+      source_type:
+        /(^|\.)ted\.com$/i.test(articleUrl.hostname) && articleUrl.pathname.startsWith('/talks/')
+          ? 'transcript'
+          : 'article',
     };
   } else {
     article = await latestArticle(feed, queuedArticle?.url || body.article_url, body.article_title);
@@ -114,6 +119,18 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
     article.title = queuedArticle.title;
     article.published_at = queuedArticle.published_at;
   }
+  const languages = await getLanguages([feed.language]);
+  const limits = languages.config.languages[feed.language];
+  // User-pasted text is an explicit source supplied by the reader. Keep it intact;
+  // the fetched-page filter is only needed to separate mixed-language scrape output.
+  if (body.article_text === undefined)
+    article.description = originalLanguageText(article.description, feed.language, limits);
+  const extractionMax =
+    body.purpose === 'article_detail' && feed.language === 'zh'
+      ? Math.min(max, 2)
+      : body.purpose === 'article_detail' && feed.language === 'ja'
+        ? Math.min(max, 3)
+        : max;
   const configuredMaxChars = Number(process.env.MAX_INPUT_CHARS || 120000);
   const maxChars =
     Number.isFinite(configuredMaxChars) && configuredMaxChars > 0
@@ -121,13 +138,11 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
       : 120000;
   const phraseInputLimit = body.purpose === 'article_detail' ? Math.min(maxChars, 8000) : maxChars;
   article.description = article.description.slice(0, phraseInputLimit);
-  const languages = await getLanguages([feed.language]);
-  const limits = languages.config.languages[feed.language];
-  const generated = await extractPhrases({
+  const extractionOptions = {
     article,
     language: feed.language,
     limits,
-    maxPhrases: max,
+    maxPhrases: extractionMax,
     model:
       body.purpose === 'article_detail' && process.env.DAILY_PHRASE_LOCAL === '1'
         ? process.env.OLLAMA_ARTICLE_MODEL || process.env.OLLAMA_MODEL
@@ -136,9 +151,41 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
       body.purpose === 'article_detail' && process.env.DAILY_PHRASE_LOCAL === '1'
         ? Math.min(300000, Math.max(30000, Number(process.env.ARTICLE_MODEL_TIMEOUT_MS) || 240000))
         : undefined,
-    maxTokens: body.purpose === 'article_detail' ? 800 : undefined,
-  });
-  const validated = validatePhrases(generated, article, feed.language, limits, max);
+    maxTokens:
+      body.purpose === 'article_detail'
+        ? Math.max(
+            220,
+            Math.min(
+              600,
+              Number(process.env.ARTICLE_MAX_OUTPUT_TOKENS) || 140 + extractionMax * 100,
+            ),
+          )
+        : undefined,
+  };
+  let generated = await extractPhrases(extractionOptions);
+  let validated = validatePhrases(
+    generated.phrases,
+    article,
+    feed.language,
+    limits,
+    extractionMax,
+    languages.config.languages,
+  );
+  const pastedCjkText =
+    body.article_text !== undefined &&
+    ['zh', 'ja'].includes(feed.language) &&
+    /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(article.description);
+  if (pastedCjkText && validated.phrases.length === 0) {
+    generated = await extractPhrases({ ...extractionOptions, forceExamples: true });
+    validated = validatePhrases(
+      generated.phrases,
+      article,
+      feed.language,
+      limits,
+      extractionMax,
+      languages.config.languages,
+    );
+  }
   return {
     language: feed.language,
     source: {
@@ -149,9 +196,13 @@ async function phraseRequest(body, forcedLanguage, queuedArticle) {
     },
     phrases: validated.phrases,
     stats: {
+      ...generated.model_stats,
       input_chars: article.description.length,
       phrase_count: validated.phrases.length,
+      model_phrase_count: generated.phrases.length,
       dropped_not_in_source: validated.droppedNotInSource,
+      dropped_wrong_language: validated.droppedWrongLanguage,
+      dropped_invalid: validated.droppedInvalid,
     },
   };
 }
@@ -228,15 +279,25 @@ export async function handler(event = {}) {
         if (query.error)
           return {
             statusCode: 302,
-            headers: { location: `http://localhost:${process.env.VITE_PORT || 5173}/studied?drive=error`, 'cache-control': 'no-store' },
+            headers: {
+              location: `http://localhost:${process.env.VITE_PORT || 5173}/studied?drive=error`,
+              'cache-control': 'no-store',
+            },
             body: '',
           };
         if (typeof query.code !== 'string' || typeof query.state !== 'string')
-          throw new AppError('invalid_request', 'Google authorization response is missing code or state.', 400);
+          throw new AppError(
+            'invalid_request',
+            'Google authorization response is missing code or state.',
+            400,
+          );
         await finishGoogleDriveAuthorization({ code: query.code, state: query.state });
         return {
           statusCode: 302,
-          headers: { location: `http://localhost:${process.env.VITE_PORT || 5173}/studied?drive=connected`, 'cache-control': 'no-store' },
+          headers: {
+            location: `http://localhost:${process.env.VITE_PORT || 5173}/studied?drive=connected`,
+            'cache-control': 'no-store',
+          },
           body: '',
         };
       }

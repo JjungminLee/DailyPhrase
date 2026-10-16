@@ -7,7 +7,7 @@
     "node": ">=22.19"
   },
   "scripts": {
-    "dev": "node scripts/dev.mjs",
+    "dev": "node --env-file-if-exists=.env scripts/dev.mjs",
     "dev:api": "node --env-file-if-exists=.env --use-system-ca src/local.mjs",
     "dev:ui": "vite --configLoader native --host 127.0.0.1",
     "start": "node --env-file-if-exists=.env --use-system-ca src/local.mjs",
@@ -22,6 +22,7 @@
     "crawler": "node --use-system-ca scripts/crawl.mjs",
     "study:batch": "node --use-system-ca scripts/study-batch.mjs",
     "quality": "node scripts/quality.mjs",
+    "harness:language": "node scripts/phrase-language-harness.mjs",
     "baseline": "node scripts/baseline.mjs",
     "load": "node scripts/load.mjs",
     "build:api": "node scripts/build.mjs",
