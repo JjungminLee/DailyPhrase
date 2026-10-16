@@ -99,7 +99,7 @@ export function ArticleLibraryPage() {
         selected.title,
         selected.language,
         selected.feed_id,
-        'pronunciation-v2',
+        'pronunciation-v3',
       ])
     : '';
   const pastedText =

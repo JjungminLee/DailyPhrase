@@ -1,16 +1,29 @@
 import { AppError } from '../errors.mjs';
 
-function titleSchema() {
+function titleSchema(requireJapaneseReading = false) {
   return {
     type: 'object',
     additionalProperties: false,
-    required: ['title_translation_ko'],
+    required: ['title_translation_ko', ...(requireJapaneseReading ? ['title_reading'] : [])],
     properties: {
       title_translation_ko: { type: 'string', minLength: 1 },
       title_pinyin: { type: 'string' },
       title_reading: { type: 'string' },
     },
   };
+}
+
+function readingFromKanaTitle(title) {
+  if (!/^[\p{Script=Hiragana}\p{Script=Katakana}\p{M}\p{Zs}\p{P}\p{S}ー]+$/u.test(title))
+    return '';
+  return [...title]
+    .map((character) => {
+      const codePoint = character.codePointAt(0);
+      return codePoint >= 0x30a1 && codePoint <= 0x30f6
+        ? String.fromCodePoint(codePoint - 0x60)
+        : character;
+    })
+    .join('');
 }
 
 export async function translateArticleTitle({ title, language }) {
@@ -22,6 +35,7 @@ export async function translateArticleTitle({ title, language }) {
     'qwen3.5:9b';
   const timeoutMs = Number(process.env.TITLE_MODEL_TIMEOUT_MS || 60000);
   const hasJapaneseSource = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(title);
+  const kanaSourceReading = language === 'ja' ? readingFromKanaTitle(title) : '';
   let response;
   try {
     response = await fetch(`${baseUrl}/api/chat`, {
@@ -32,16 +46,18 @@ export async function translateArticleTitle({ title, language }) {
         stream: false,
         think: false,
         keep_alive: process.env.OLLAMA_KEEP_ALIVE || '10m',
-        format: titleSchema(),
+        format: titleSchema(language === 'ja' && hasJapaneseSource && !kanaSourceReading),
         messages: [
           {
             role: 'system',
             content: [
-              `The title language is ${language}. Translate the entire title into concise, idiomatic Korean, as a Korean reader would naturally phrase the same headline. Reorder or paraphrase wording freely instead of translating word for word.`,
-              'Preserve all important facts, the people or organizations involved, numbers, time references, and the certainty or uncertainty in the original. Keep proper names accurate. Do not add an explanation, opinion, or fact that is not in the title.',
+              `The source title is written in ${language}. Translate only the supplied title into concise, idiomatic Korean. Preserve its exact subject and meaning; do not replace it with a different headline or add any facts.`,
+              'Translate every clause and preserve whether it is a question or statement. Keep proper names and numbers accurate. Before returning, check that each Korean phrase is supported by the source title.',
               'Prefer a clear, natural Korean headline over source-language word order. Keep the translation concise without dropping meaningful details.',
               language === 'ja' && hasJapaneseSource
-                ? 'The source title contains Japanese. Also provide its complete reading in hiragana in title_reading, including kanji readings. Keep title_translation_ko present even if a reading is uncertain.'
+                ? kanaSourceReading
+                  ? 'The Japanese title uses only kana, so its exact hiragana reading is the source title with katakana converted to hiragana. Put that exact reading in title_reading.'
+                  : 'The source title contains Japanese. Also provide its complete reading in hiragana in title_reading, including kanji readings. Keep title_translation_ko present even if a reading is uncertain.'
                 : 'Return an empty title_reading unless the source title contains Japanese text that needs a Japanese reading.',
               language === 'zh'
                 ? 'Also provide the complete title pronunciation in standard Hanyu Pinyin with tone marks in title_pinyin, with syllables separated by spaces. Keep title_translation_ko present even if pinyin is uncertain.'
@@ -53,7 +69,8 @@ export async function translateArticleTitle({ title, language }) {
           { role: 'user', content: title },
         ],
         options: {
-          num_predict: Math.max(48, Number(process.env.TITLE_MAX_OUTPUT_TOKENS) || 96),
+          num_predict: Math.max(64, Number(process.env.TITLE_MAX_OUTPUT_TOKENS) || 160),
+          temperature: 0.1,
         },
       }),
       signal: AbortSignal.timeout(timeoutMs),
@@ -91,6 +108,14 @@ export async function translateArticleTitle({ title, language }) {
     !result.title_translation_ko.trim()
   )
     throw new AppError('extract_failed', 'Ollama omitted the title translation', 502);
+  const translation = result.title_translation_ko.trim();
+  if (
+    language === 'ja' &&
+    hasJapaneseSource &&
+    (!/\p{Script=Hangul}/u.test(translation) ||
+      /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(translation))
+  )
+    throw new AppError('extract_failed', 'Ollama returned a title translation in an unexpected language', 502);
 
   const validPinyin = language === 'zh' && /\p{Script=Latin}/u.test(pinyin) && !/\p{Script=Han}/u.test(pinyin);
   const validReading =
@@ -100,9 +125,13 @@ export async function translateArticleTitle({ title, language }) {
     !/\p{Script=Han}/u.test(reading);
 
   return {
-    title_translation_ko: result.title_translation_ko.trim(),
+    title_translation_ko: translation,
     ...(validPinyin ? { title_pinyin: pinyin } : {}),
-    ...(validReading ? { title_reading: reading } : {}),
+    ...(kanaSourceReading
+      ? { title_reading: kanaSourceReading }
+      : validReading
+        ? { title_reading: reading }
+        : {}),
     model_stats: {
       duration_ms: Number.isFinite(payload.total_duration)
         ? Math.round(payload.total_duration / 1_000_000)

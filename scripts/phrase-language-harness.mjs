@@ -250,11 +250,15 @@ console.log('Pasted Japanese news extraction harness passed.');
 const originalFetch = globalThis.fetch;
 globalThis.fetch = async (_url, options) => {
   const request = JSON.parse(options.body);
-  assert.deepEqual(request.format.required, ['title_translation_ko']);
+  assert.deepEqual(request.format.required, ['title_translation_ko', 'title_reading']);
+  assert.equal(request.options.temperature, 0.1);
   return new Response(
     JSON.stringify({
       message: {
-        content: JSON.stringify({ title_translation_ko: '프랑스 고등학생들의 시위' }),
+        content: JSON.stringify({
+          title_translation_ko: '프랑스 고등학생들의 시위',
+          title_reading: 'ふらんすこうこうせいたちがでも',
+        }),
       },
       total_duration: 1_000_000,
     }),
@@ -267,8 +271,58 @@ try {
     language: 'ja',
   });
   assert.equal(title.title_translation_ko, '프랑스 고등학생들의 시위');
-  assert.equal(title.title_reading, undefined);
+  assert.equal(title.title_reading, 'ふらんすこうこうせいたちがでも');
 } finally {
   globalThis.fetch = originalFetch;
 }
-console.log('Partial Japanese title response harness passed.');
+console.log('Japanese title schema and sampling harness passed.');
+
+const kanaTitle = '\u30c1\u30e7\u30b3\u30ec\u30fc\u30c8\u306e \u30ab\u30ab\u30aa\u304c \u3059\u304f\u306a\u3044 \u3067\u3059\u3002 \u3069\u3046\u3057\u3066 \u3067\u3057\u3087\u3046\u304b\u3002';
+globalThis.fetch = async (_url, options) => {
+  const request = JSON.parse(options.body);
+  assert.deepEqual(request.format.required, ['title_translation_ko']);
+  return new Response(
+    JSON.stringify({
+      message: {
+        content: JSON.stringify({
+          title_translation_ko: '\ucd08\ucf5c\ub9bf\uc758 \uce74\uce74\uc624\uac00 \uc801\uc5b4\uc694. \uc65c\uc77c\uae4c\uc694?',
+          title_reading: '\u304d\u3087\u3046\u3057\u3087\u304f\u3044\u305f\u306e\u304b\u304c\u3053\u3046\u304c',
+        }),
+      },
+    }),
+    { status: 200, headers: { 'content-type': 'application/json' } },
+  );
+};
+try {
+  const title = await translateArticleTitle({ title: kanaTitle, language: 'ja' });
+  assert.equal(title.title_translation_ko, '\ucd08\ucf5c\ub9bf\uc758 \uce74\uce74\uc624\uac00 \uc801\uc5b4\uc694. \uc65c\uc77c\uae4c\uc694?');
+  assert.equal(
+    title.title_reading,
+    '\u3061\u3087\u3053\u308c\u30fc\u3068\u306e \u304b\u304b\u304a\u304c \u3059\u304f\u306a\u3044 \u3067\u3059\u3002 \u3069\u3046\u3057\u3066 \u3067\u3057\u3087\u3046\u304b\u3002',
+  );
+} finally {
+  globalThis.fetch = originalFetch;
+}
+console.log('Kana-only Japanese title reading harness passed.');
+
+globalThis.fetch = async () =>
+  new Response(
+    JSON.stringify({
+      message: {
+        content: JSON.stringify({
+          title_translation_ko: '\u5de7\ucf5c\ucf54\uac00 \ubd80\uc871\ud569\ub2c8\ub2e4. \uc65c\uc77c\uae4c\uc694?',
+        }),
+      },
+    }),
+    { status: 200, headers: { 'content-type': 'application/json' } },
+  );
+try {
+  await assert.rejects(
+    translateArticleTitle({ title: kanaTitle, language: 'ja' }),
+    /unexpected language/,
+    'Mixed Japanese/Hanja output must not be shown as a Korean translation.',
+  );
+} finally {
+  globalThis.fetch = originalFetch;
+}
+console.log('Invalid Japanese-to-Korean title rejection harness passed.');
