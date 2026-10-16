@@ -9,7 +9,7 @@ YouGlish supports English, Chinese, French, and Japanese searches and is useful 
 | Language | Example usage/frequency source | What it is useful for |
 | --- | --- | --- |
 | English | [YouGlish](https://youglish.com/) | Spoken video examples and context. Treat the clip count as a rough signal. |
-| French | [Frantext](https://www.frantext.fr/) | Search expressions and calculate word/document frequency in French text corpora. Its corpus composition is not equivalent to everyday conversation. |
+| French | [Frantext frequency guide](https://blog.frantext.fr/2023/05/12/comment-lister-les-mots-les-plus-frequents/) | Shows how to use the frequency search in Frantext. Its corpus composition is not equivalent to everyday conversation. |
 | Chinese | [Peking University CCL Corpus](https://corpus.pku.edu.cn/) or [BLCU BCC Corpus](https://bcc.blcu.edu.cn/) | Search modern Chinese corpus examples and frequency. Check the selected subcorpus and written/spoken register. |
 | Japanese | [NINJAL Shōnagon / BCCWJ](https://shonagon.ninjal.ac.jp/) | Search contemporary written Japanese examples. The more advanced [Chūnagon](https://chunagon.ninjal.ac.jp/) supports corpus queries and requires an account/application. |
 
