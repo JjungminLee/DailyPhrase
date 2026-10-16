@@ -21,13 +21,13 @@
     },
     {
       "id": "default-chinese-reading-practice-beginner",
-      "name": "Chinese Reading Practice - Beginner Stories",
+      "name": "HSK Read - HSK 1 Chinese Stories",
       "language": "zh",
-      "rss_url": "https://chinesereadingpractice.com/category/beginner/feed/",
-      "homepage_url": "https://chinesereadingpractice.com/category/beginner/",
+      "rss_url": "https://hskread.com/feed.xml?level=hsk-1",
+      "homepage_url": "https://hskread.com/articles/beginner/hsk-1",
       "source_type": "rss_or_atom",
       "allowed_domains": [
-        "chinesereadingpractice.com"
+        "hskread.com"
       ],
       "enabled": true,
       "verified": true,
@@ -36,13 +36,13 @@
     },
     {
       "id": "default-weejoy-japanese-stories",
-      "name": "Joyful Japanese - Graded Stories N5-N4",
+      "name": "NHK Easier - Easy Japanese News",
       "language": "ja",
-      "rss_url": "https://weejoysjapaneselanguage.substack.com/feed",
-      "homepage_url": "https://weejoysjapaneselanguage.substack.com/",
+      "rss_url": "https://nhkeasier.com/feed/",
+      "homepage_url": "https://nhkeasier.com/",
       "source_type": "rss_or_atom",
       "allowed_domains": [
-        "weejoysjapaneselanguage.substack.com"
+        "nhkeasier.com"
       ],
       "enabled": true,
       "verified": true,

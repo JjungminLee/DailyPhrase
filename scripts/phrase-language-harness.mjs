@@ -95,6 +95,12 @@ assert.doesNotMatch(chineseSource, /彼女は日本語/);
 assert.doesNotMatch(chineseSource, /yuè liang|English/);
 assert.doesNotMatch(chineseSource, /You ask me/);
 
+const spacedChineseSource = originalLanguageText(
+  '爷 爷 的 蜂 蜜\n小 美 ： 爷 爷 ， 你 好 。',
+  'zh',
+);
+assert.equal(spacedChineseSource, '爷爷的蜂蜜\n小美：爷爷，你好。');
+
 const japaneseSource = originalLanguageText(
   [
     'English introduction',
@@ -110,6 +116,12 @@ const japaneseSource = originalLanguageText(
 assert.match(japaneseSource, /こんにちは。きょうは学校へ行きます。/);
 assert.match(japaneseSource, /私は学校へ行きます。/);
 assert.doesNotMatch(japaneseSource, /Konnichiwa|English introduction|welcome/);
+
+const spacedJapaneseSource = originalLanguageText(
+  '今日 は 学校 に 行 き ます。\n私 は 学生 です。',
+  'ja',
+);
+assert.equal(spacedJapaneseSource, '今日は学校に行きます。\n私は学生です。');
 
 const derivedContext = validatePhrases(
   [{ ...phrase('学校へ行きます', 'ja', ''), context_sentence: undefined }],

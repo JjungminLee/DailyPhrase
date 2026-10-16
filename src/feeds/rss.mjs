@@ -49,6 +49,7 @@ function readableText(html) {
   const main = html.match(/<(?:article|main)\b[^>]*>([\s\S]*?)<\/(?:article|main)>/i)?.[1] || html;
   return main
     .replace(/<!--([\s\S]*?)-->/g, ' ')
+    .replace(/<(rt|rp)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, ' ')
     .replace(
       /<(script|style|nav|footer|header|noscript|svg|form|aside)\b[^>]*>[\s\S]*?<\/\1>/gi,
       ' ',
