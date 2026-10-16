@@ -1,0 +1,54 @@
+name: 스터디 실습
+description: 스터디 일정에 맞춰 Daily Phrase 기능을 만들고 검증합니다.
+title: "[스터디] "
+labels:
+  - study
+body:
+  - type: dropdown
+    id: week
+    attributes:
+      label: 스터디 주차
+      options:
+        - "2주차: 만들기 ① · 하네스 · 데이터셋"
+        - "3주차: 만들기 ② · 동결 · 기준선"
+        - 기타
+    validations:
+      required: true
+  - type: textarea
+    id: daily_phrase_problem
+    attributes:
+      label: Daily Phrase에서 해결할 문제
+      description: 어떤 사용 흐름이나 학습 경험을 개선하나요?
+      placeholder: 예) 기사에서 뽑은 표현이 원문에 실제로 있는지 입력 20건으로 확인한다.
+    validations:
+      required: true
+  - type: textarea
+    id: study_goal
+    attributes:
+      label: 이번 주차 목표
+      description: 스터디 일정의 산출물과 연결해 적어주세요.
+      placeholder: 예) 자기 입력 20건을 준비하고, 원문 포함률을 품질 기준으로 정한다.
+    validations:
+      required: true
+  - type: textarea
+    id: implementation
+    attributes:
+      label: 구현 및 검증할 내용
+      placeholder: 관련 기능, 데이터셋, 하네스 필드, 로컬/Lambda 확인 방법을 적어주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 완료 기준
+      placeholder: 완료를 확인할 수 있는 구체적인 결과나 측정값을 적어주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: baseline
+    attributes:
+      label: 기준선 및 다음 확인 사항 (선택)
+      description: 3주차 이슈라면 콜드 5회·웜 5회 측정값과 가장 나쁜 지표를 적어주세요.
+      placeholder: 관련 PR, freeze 태그, 결과 파일 또는 팀 표 위치
+    validations:
+      required: false
