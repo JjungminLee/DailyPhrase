@@ -39,6 +39,19 @@ function writeCache<T>(cache: Map<string, Cached<T>>, key: string, value: T) {
   cache.set(key, { value, storedAt: Date.now() });
 }
 
+function hasPronunciation(language: string, phrases: Phrase[]) {
+  if (language === 'zh') return phrases.every((phrase) => Boolean(phrase.pinyin?.trim()));
+  if (language === 'ja') return phrases.every((phrase) => Boolean(phrase.reading?.trim()));
+  return true;
+}
+
+function hasTitlePronunciation(language: string, sourceTitle: string, title: ArticleTitleResponse) {
+  if (language === 'zh') return Boolean(title.title_pinyin?.trim());
+  if (language === 'ja' && /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(sourceTitle))
+    return Boolean(title.title_reading?.trim());
+  return true;
+}
+
 export function ArticleLibraryPage() {
   const [articles, setArticles] = useState<ArticleItem[]>([]);
   const [languageFilter, setLanguageFilter] = useState('all');
@@ -81,17 +94,33 @@ export function ArticleLibraryPage() {
         selected.title,
         selected.language,
         selected.feed_id,
+        'pronunciation-v2',
       ])
     : '';
   const pastedText =
     manualArticleText && selected && manualArticleText.articleId === selected.id
       ? manualArticleText.text
       : '';
-  const cachedPhrases = peekCache(phraseResponseCache, cacheKey);
-  const cachedTitle = peekCache(titleResponseCache, cacheKey);
+  const phraseCacheValue = peekCache(phraseResponseCache, cacheKey);
+  const cachedPhrases =
+    phraseCacheValue && selected && hasPronunciation(selected.language, phraseCacheValue.phrases)
+      ? phraseCacheValue
+      : null;
+  const titleCacheValue = peekCache(titleResponseCache, cacheKey);
+  const cachedTitle =
+    titleCacheValue && selected && hasTitlePronunciation(selected.language, selected.title, titleCacheValue)
+      ? titleCacheValue
+      : null;
   const phrases =
-    phraseResult?.key === requestKey ? phraseResult.phrases : (cachedPhrases?.phrases ?? []);
-  const titleData = titleResult?.key === titleRequestKey ? titleResult.data : cachedTitle;
+    phraseResult?.key === requestKey && selected && hasPronunciation(selected.language, phraseResult.phrases)
+      ? phraseResult.phrases
+      : (cachedPhrases?.phrases ?? []);
+  const titleData =
+    titleResult?.key === titleRequestKey &&
+    selected &&
+    hasTitlePronunciation(selected.language, selected.title, titleResult.data)
+      ? titleResult.data
+      : cachedTitle;
   const titleError = titleFailure?.key === titleRequestKey ? titleFailure.message : '';
   const titleLoading = Boolean(titleRequestKey && !titleData && !titleError);
   const extractError = extractFailure?.key === requestKey ? extractFailure.message : '';
@@ -121,7 +150,8 @@ export function ArticleLibraryPage() {
     let active = true;
     const key = `${selected.id}:${titleRetryCount}`;
     const cached = readCache(titleResponseCache, cacheKey);
-    if (cached) return;
+    if (cached && hasTitlePronunciation(selected.language, selected.title, cached)) return;
+    if (cached) titleResponseCache.delete(cacheKey);
     api<ArticleTitleResponse>('/article-title', {
       method: 'POST',
       body: JSON.stringify({ title: selected.title, language: selected.language }),
@@ -149,7 +179,9 @@ export function ArticleLibraryPage() {
     let active = true;
     const key = `${selected.id}:${retryCount}`;
     const cached = readCache(phraseResponseCache, cacheKey);
-    if (cached) return;
+    if (cached && hasPronunciation(selected.language, cached.phrases)) return;
+    if (cached) phraseResponseCache.delete(cacheKey);
+    setCompletedRequest('');
 
     api<ArticlePhraseResponse>('/phrases', {
       method: 'POST',

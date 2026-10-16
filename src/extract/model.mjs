@@ -1,6 +1,7 @@
 import { AppError } from '../errors.mjs';
 
 function phraseSchema(language) {
+  const pronunciationField = language === 'zh' ? 'pinyin' : language === 'ja' ? 'reading' : null;
   const types =
     language === 'zh' || language === 'ja'
       ? ['collocation', 'idiom', 'sentence_pattern', 'other']
@@ -27,6 +28,7 @@ function phraseSchema(language) {
             'level',
             'type',
             'note_ko',
+            ...(pronunciationField ? [pronunciationField] : []),
           ],
           properties: {
             text: { type: 'string' },
@@ -37,8 +39,8 @@ function phraseSchema(language) {
               enum: types,
             },
             note_ko: { type: 'string' },
-            pinyin: { type: 'string' },
-            reading: { type: 'string' },
+            pinyin: { type: 'string', ...(language === 'zh' ? { minLength: 1 } : {}) },
+            reading: { type: 'string', ...(language === 'ja' ? { minLength: 1 } : {}) },
           },
         },
       },
@@ -57,7 +59,7 @@ function instructions({ language, limits, maxPhrases, sourceType }) {
     sourceInstructions,
     'Copy each expression exactly as written, including spelling, script, spaces, tense, and inflection; never translate it, convert kana to kanji, or substitute a dictionary form. Every expression must appear verbatim in the supplied source text. Do not output a context sentence; the application will quote it directly from the source.',
     'Write meaning_ko as a concise, natural Korean paraphrase of the expression in context, preserving intent rather than translating word for word. Write note_ko as a short Korean tip on nuance or register, without repeating the meaning. Do not invent context or unsupported frequency claims.',
-    'Write meaning_ko and note_ko in Korean only. For Chinese, provide tone-marked pinyin when certain; for Japanese, provide a kana-only reading when certain. Never guess pronunciation; use an empty string if unsure. For other languages, leave both pronunciation fields empty.',
+    'Write meaning_ko and note_ko in Korean only. Every Chinese expression MUST include its complete standard Hanyu Pinyin with tone marks in pinyin, syllables separated by spaces. Every Japanese expression MUST include its complete pronunciation in kana only in reading, converting all kanji to their reading. Never omit these fields or return them empty. For other languages, leave both pronunciation fields empty.',
     language === 'ja'
       ? 'For Japanese beginner stories, select concrete complete examples of reusable grammar patterns, including the particle and predicate. A common pattern in the story text is preferable to a short conjugated verb alone. Do not use blank templates. Use sentence_pattern for grammar and collocation for natural word combinations; do not label Japanese phrases as idioms or phrasal verbs.'
       : language === 'zh'

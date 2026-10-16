@@ -61,7 +61,7 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/api/drive/callback
 
 Google Drive 설정은 선택 사항입니다. 학습 기록을 사용하지 않으면 인증 값을 비워 두세요. Google OAuth 설정 방법은 아래의 학습 기록 절을 참고하세요.
 
-Ollama가 실행 중인지 확인한 다음 앱을 시작합니다.
+앱을 시작하면 로컬 Ollama API가 이미 실행 중인지 확인합니다. 꺼져 있으면 `ollama serve`로 시작합니다. macOS에서는 Ollama가 Apple GPU를 Metal로 자동 사용하므로 별도의 Vulkan 설정은 필요하지 않습니다.
 
 ```sh
 npm run dev

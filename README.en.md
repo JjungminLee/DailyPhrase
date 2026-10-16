@@ -59,7 +59,7 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/api/drive/callback
 
 Google Drive settings are optional. Leave the credentials empty if you do not use Study History; see [Daily collection and study history](#daily-collection-and-study-history) to configure Google OAuth.
 
-Start Ollama, then run the app:
+Run the app. It checks whether the local Ollama API is already running and starts `ollama serve` if needed. On macOS, Ollama selects Apple GPU acceleration through Metal automatically; no Vulkan setting is needed.
 
 ```sh
 npm run dev

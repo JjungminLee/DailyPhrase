@@ -142,6 +142,10 @@ export function validatePhrases(
       language === 'ja' &&
       kanaOnlyReading &&
       /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(reading);
+    if (language === 'zh' && !validPinyin)
+      throw new AppError('extract_failed', `Model omitted valid pinyin for Chinese expression: ${text}`);
+    if (language === 'ja' && !validReading)
+      throw new AppError('extract_failed', `Model omitted the kana reading for Japanese expression: ${text}`);
     const safeNote = clean(item.note_ko);
     const sourceContext =
       normalizeSourceMatch(context, language).includes(key) &&

@@ -1,14 +1,17 @@
 import { AppError } from '../errors.mjs';
 
-function titleSchema() {
+function titleSchema(language, hasJapaneseSource) {
+  const required = ['title_translation_ko'];
+  if (language === 'zh') required.push('title_pinyin');
+  if (language === 'ja' && hasJapaneseSource) required.push('title_reading');
   return {
     type: 'object',
     additionalProperties: false,
-    required: ['title_translation_ko', 'title_pinyin', 'title_reading'],
+    required,
     properties: {
       title_translation_ko: { type: 'string', minLength: 1 },
-      title_pinyin: { type: 'string' },
-      title_reading: { type: 'string' },
+      title_pinyin: { type: 'string', ...(language === 'zh' ? { minLength: 1 } : {}) },
+      title_reading: { type: 'string', ...(language === 'ja' && hasJapaneseSource ? { minLength: 1 } : {}) },
     },
   };
 }
@@ -32,7 +35,7 @@ export async function translateArticleTitle({ title, language }) {
         stream: false,
         think: false,
         keep_alive: process.env.OLLAMA_KEEP_ALIVE || '10m',
-        format: titleSchema(),
+        format: titleSchema(language, hasJapaneseSource),
         messages: [
           {
             role: 'system',
@@ -41,10 +44,10 @@ export async function translateArticleTitle({ title, language }) {
               'Preserve all important facts, the people or organizations involved, numbers, time references, and the certainty or uncertainty in the original. Keep proper names accurate. Do not add an explanation, opinion, or fact that is not in the title.',
               'Prefer a clear, natural Korean headline over source-language word order. Keep the translation concise without dropping meaningful details.',
               language === 'ja' && hasJapaneseSource
-                ? 'The source title contains Japanese. Provide its complete reading in hiragana in title_reading, including all kanji readings.'
+                ? 'The source title contains Japanese. You MUST provide its complete reading in hiragana in title_reading, including all kanji readings. Never leave it blank.'
                 : 'Return an empty title_reading unless the source title contains Japanese text that needs a Japanese reading.',
               language === 'zh'
-                ? 'Provide the complete title pronunciation in standard tone-marked pinyin in title_pinyin.'
+                ? 'You MUST provide the complete title pronunciation in standard Hanyu Pinyin with tone marks in title_pinyin, with syllables separated by spaces. Never leave it blank.'
                 : 'Return an empty title_pinyin.',
               'For languages without a requested pronunciation, return an empty string for that field.',
               'Return only the requested JSON fields.',
@@ -98,6 +101,11 @@ export async function translateArticleTitle({ title, language }) {
     hasJapaneseSource &&
     /\p{Script=Hiragana}/u.test(reading) &&
     !/\p{Script=Han}/u.test(reading);
+
+  if (language === 'zh' && !validPinyin)
+    throw new AppError('extract_failed', 'Ollama omitted valid pinyin for the Chinese title', 502);
+  if (language === 'ja' && hasJapaneseSource && !validReading)
+    throw new AppError('extract_failed', 'Ollama omitted the Japanese title reading', 502);
 
   return {
     title_translation_ko: result.title_translation_ko.trim(),
