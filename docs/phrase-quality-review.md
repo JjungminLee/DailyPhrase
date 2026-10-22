@@ -29,11 +29,11 @@ For a blocked or empty-result case, record why an empty result is expected and c
 
 ## Dataset and run record
 
-Keep the 20 cases in `data/inputs.json`, with five cases per language and a mix of expected success and expected blocked/empty outcomes. Each case should include a stable `id`, language, article URL or reproducible pasted source, expected outcome, expected useful phrases (or block reason), and the source citation. Do not add guessed expected results: review the article and phrase list before marking a case ready.
+Keep the canonical 20 cases in `data/inputs.json`, with five cases per language and a mix of expected success and expected blocked/empty outcomes. Each case includes a stable `id`, language, verified `feed_id`, `size_class`, article URL or reproducible pasted source, expected outcome, expected useful phrases (or block reason), source citation, and `reviewed: true` after a human checks the annotation. Do not add guessed expected results. `npm run quality` checks the count, language split, references, and required review fields.
 
 For each run, preserve the model/provider and version, prompt revision, timestamp, input case IDs, local or deployed endpoint, API `request_id`, returned phrases, quality counters, and reviewer decisions. Compare runs against the same fixed cases so changes can be attributed to the prompt/model change.
 
-Current repository status: `data/inputs.json` is empty. The local runtime has four enabled, verified feeds and 181 stored articles in `data/subscriptions.json` and `data/articles.json`; these are suitable starting inputs. The 20-case expected-result annotations and API comparison run have not yet been created, so the issue's acceptance criteria are not met yet.
+Current repository status: `data/inputs.json` contains one reviewed French positive case. Add 19 more reviewed cases (four more per language plus the remaining French cases) before the quality dataset is complete.
 
 ## Commands and PR notes
 
@@ -49,7 +49,7 @@ Run the live API phrase-quality cases with the local API running (`npm run dev:a
 npm run harness:phrases
 ```
 
-The runner reads `data/phrase-quality-cases.json`, fails when a positive case returns no phrases or misses its minimum expected-phrase matches, and saves request IDs, phrases, quality counters, and errors under `results/phrase-quality-<timestamp>.json`. Set `PHRASE_API_URL` to target a deployed API. Positive cases must be reviewed against the source and usage examples before treating them as gold labels; expected phrases are a minimum recall check, not an exhaustive answer key.
+The runner reads the same `data/inputs.json` cases as the dataset validator. It always targets local (`LOCAL_PHRASE_API_URL`, default `http://127.0.0.1:3000/api`; legacy `PHRASE_API_URL` is also accepted). Set `DEPLOYED_PHRASE_API_URL` to run the exact same cases against the deployed API in the same run. It records endpoint, case, request ID, returned phrases, counters, latency, and pass/fail under `results/phrase-quality-<timestamp>.json`. Set `MODEL_PROVIDER`, `MODEL_VERSION`, and `PROMPT_REVISION` to annotate a run. A missing deployed endpoint skips only that comparison; it does not claim deployment coverage.
 
 The French article `fr-le-chat-forestier-positive` is a known positive case. Phrases such as `ne la confondez pas avec`, `il pourrait bien s'agir`, and `fait son retour dans la région` occur in its French text and can be reused in other contexts. This case is intended to catch an empty response on an article with teachable expressions.
 
@@ -59,7 +59,7 @@ Validate the 20-case dataset with:
 npm run quality
 ```
 
-The quality command currently fails until `data/inputs.json` contains 20 complete cases. It validates the dataset only; it does not call the API or generate a comparison log. Save the reviewed, shareable summary in `docs/phrase-quality-review-issue-5.md` (or attach a generated run artifact) and include its path in the PR. Local generated files under `results/` are ignored by Git, so copy the final reviewed summary into a tracked location.
+`npm run quality` validates annotations only; it does not call the API. Review each generated run's `review.status` and `review.decisions` by hand, count unsupported phrases from final returned cards, and save the completed summary in `docs/phrase-quality-review-issue-5.md`. Local generated JSON under `results/` is ignored by Git, so copy or summarize the reviewed evidence into this tracked report.
 
 ### PR report template
 
