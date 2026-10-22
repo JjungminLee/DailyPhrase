@@ -7,11 +7,11 @@
     "node": ">=22.19"
   },
   "scripts": {
-    "dev": "node --env-file-if-exists=.env scripts/dev.mjs",
+    "dev": "node --use-system-ca --env-file-if-exists=.env scripts/dev.mjs",
     "dev:api": "node --env-file-if-exists=.env --use-system-ca src/local.mjs",
     "dev:ui": "vite --configLoader native --host 127.0.0.1",
     "start": "node --env-file-if-exists=.env --use-system-ca src/local.mjs",
-    "build": "vite build --configLoader native && node scripts/build.mjs",
+    "build": "vite build --configLoader native",
     "preview": "vite preview --host 127.0.0.1",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -24,12 +24,7 @@
     "quality": "node scripts/quality.mjs",
     "harness:language": "node scripts/phrase-language-harness.mjs",
     "baseline": "node scripts/baseline.mjs",
-    "load": "node scripts/load.mjs",
-    "build:api": "node scripts/build.mjs",
-    "plan": "terraform -chdir=infra plan -var-file=envs/baseline.tfvars",
-    "deploy": "npm run build:api && terraform -chdir=infra apply -var-file=envs/baseline.tfvars",
-    "destroy": "terraform -chdir=infra destroy -var-file=envs/baseline.tfvars",
-    "outputs": "terraform -chdir=infra output -json"
+    "load": "node scripts/load.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

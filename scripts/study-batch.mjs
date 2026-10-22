@@ -9,7 +9,7 @@ const report = await studyPolling({ concurrencyLevels, repeats });
 report.notes = [
   'Use the same feed set and repeat count for each concurrency setting.',
   'Compare duration, throughput, and failures; remote feed latency and rate limits affect results.',
-  'This measures feed polling only, not phrase extraction or cloud batch infrastructure.',
+  'This measures feed polling only, not phrase extraction or model inference.',
 ];
 const outputDir = path.join(rootDir, 'results');
 await mkdir(outputDir, { recursive: true });
