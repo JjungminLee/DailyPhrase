@@ -4,6 +4,8 @@
 
 Daily Phrase is a language-learning service that extracts useful, beginner-appropriate expressions from articles in English, Chinese, French, and Japanese. The active study direction is improving the quality of open-weight language models for this task. Treat AWS provisioning and deployment as out of scope unless the user explicitly brings them back into the study.
 
+[`Study.md`](Study.md) is the source of truth for the eight-week study plan, weekly goals, metrics, and completion criteria. Read it before planning study work or drafting a weekly issue. Keep weekly issues aligned with both that plan and `.github/ISSUE_TEMPLATE/study.yml`.
+
 ## Model experiments
 
 - Use the current Ollama/Qwen setup as the reproducible baseline and record the exact model artifact or digest, prompt revision, runtime settings, and machine details.
