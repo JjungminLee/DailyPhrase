@@ -23,6 +23,8 @@
     "study:batch": "node --use-system-ca scripts/study-batch.mjs",
     "quality": "node scripts/quality.mjs",
     "harness:language": "node scripts/phrase-language-harness.mjs",
+    "harness:titles": "node scripts/article-title-quality-harness.mjs",
+    "harness:phrases": "node --use-system-ca scripts/phrase-quality-harness.mjs",
     "baseline": "node scripts/baseline.mjs",
     "load": "node scripts/load.mjs",
     "build:api": "node scripts/build.mjs",

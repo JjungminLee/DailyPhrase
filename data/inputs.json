@@ -1,1 +1,21 @@
-[]
+[
+  {
+    "id": "fr-le-chat-forestier-positive",
+    "language": "fr",
+    "feed_id": "default-apprendre-francais-stories",
+    "size_class": "medium",
+    "article_title": "Le Chat Forestier de retour en Île-de-France",
+    "article_url": "https://apprendrefrancais.substack.com/p/le-chat-forestier-de-retour-en-ile",
+    "source_reference": "https://apprendrefrancais.substack.com/p/le-chat-forestier-de-retour-en-ile",
+    "expected": "success",
+    "expected_phrases": [
+      "ne la confondez pas avec",
+      "il pourrait bien s'agir",
+      "les apparences peuvent être trompeuses",
+      "fait son retour dans la région",
+      "n'était pas en mesure de combattre"
+    ],
+    "minimum_expected_matches": 1,
+    "reviewed": true
+  }
+]
