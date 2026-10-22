@@ -1,9 +1,4 @@
 node_modules/
-.terraform/
-terraform.tfstate
-terraform.tfstate.*
-*.tfvars
-!infra/envs/*.example.tfvars
 results/*.json
 data/articles.json
 data/subscriptions.json

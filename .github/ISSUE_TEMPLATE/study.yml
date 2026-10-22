@@ -9,12 +9,14 @@ body:
     attributes:
       label: 스터디 주차
       options:
-        - "2주차: 만들기 ① · 하네스 · 데이터셋"
-        - "3주차: 만들기 ② · 동결 · 기준선"
-        - "4주차: 성능 개선 · 지연 (Lambda · API Gateway)"
-        - "5주차: 성능 개선 · 비용"
-        - "6주차: 성능 개선 · 동시성 (모델 API)"
-        - "7주차: 성능 개선 · 안정성"
+        - "1주차: OT · 로컬 서비스 · 실험 가드레일"
+        - "2주차: 하네스 · 데이터셋 · 품질 기준"
+        - "3주차: 기능 동결 · 기준선 · 황금 신호"
+        - "4주차: 추론 지연 · 긴 입력 · 모델 로딩"
+        - "5주차: 품질 · LoRA · 로컬 자원 비용"
+        - "6주차: 동시성 · 모델 API 포화"
+        - "7주차: 안정성 · 재시도 · 복구"
+        - "8주차: 결과 공유 · 재현성"
         - 기타
     validations:
       required: true
@@ -39,30 +41,30 @@ body:
     attributes:
       label: 이번 주차의 벽
       description: 어떤 병목이나 실패를 조사하나요?
-      placeholder: "예) 4주차: Lambda/API Gateway 지연, 긴 입력에서 29초 재현"
+      placeholder: "예) 긴 입력에서 p95 지연이 튀거나, 평가셋에서 원문에 없는 표현을 생성한다."
     validations:
       required: false
   - type: textarea
     id: measurements
     attributes:
       label: 측정할 것
-      description: 주차별 조건을 함께 적어주세요. 4주차는 콜드/웜 p50·p95와 긴 입력, 5주차는 요청당 비용 항목, 6주차는 동시 1·5·10·20, 7주차는 6주차와 같은 부하를 측정합니다.
-      placeholder: "예) 모델 토큰 + Lambda GB-초 + API Gateway + 로그 수집 비용"
+      description: Study.md의 해당 주차 지표를 참고해 품질과 추론 효율을 구분하고, 같은 평가셋·실행 조건을 적어주세요.
+      placeholder: "예) 원문 근거 일치율, 언어별 품질 점수, p50·p95 지연, 피크 메모리"
     validations:
       required: false
   - type: textarea
     id: lever
     attributes:
       label: 선택한 손잡이 또는 실험
-      description: 4·5·7주차는 개선 손잡이 하나를 선택하고, 6주차는 벽을 찾는 실험을 적어주세요.
-      placeholder: "예) 메모리 올리기 · esbuild 번들 · 클라이언트 동시성 상한"
+      description: 비교할 모델 변경이나 실험 변수를 적어주세요.
+      placeholder: "예) 프롬프트 수정 · 학습 예시 보강 · LoRA · 양자화 · 동시성 상한"
     validations:
       required: false
   - type: textarea
     id: implementation
     attributes:
       label: 구현 및 검증할 내용
-      placeholder: 관련 기능, 데이터셋, 하네스 필드, 로컬/Lambda 확인 방법을 적어주세요.
+      placeholder: 평가셋, 학습 데이터 분리, 모델·프롬프트 버전, 하네스 지표, 로컬 재현 방법을 적어주세요.
     validations:
       required: true
   - type: textarea
@@ -70,14 +72,14 @@ body:
     attributes:
       label: 최소 통과선 및 완료 기준
       description: 주차 표의 최소 통과선을 충족하는지 확인할 수 있게 적어주세요.
-      placeholder: "예) 전후 p95 비교, 첫 실패 지점과 원인, 실패율과 p95 변화"
+      placeholder: "예) 동일 평가셋의 전후 품질 비교, 언어별 결과, p95·메모리 변화, 실행 재현 정보"
     validations:
       required: true
   - type: textarea
     id: baseline
     attributes:
       label: 기준선 및 다음 확인 사항 (선택)
-      description: 3·4·5주차는 전후 기준선을, 6주차는 첫 실패 지점과 원인(429·Lambda 스로틀·타임아웃), 7주차는 실패율과 p95 변화를 기록하세요.
-      placeholder: 관련 PR, freeze 태그, 결과 파일 또는 팀 표 위치
+      description: 모델 아티팩트, 프롬프트 revision, 데이터셋 버전과 실험 환경을 기록하세요. 개선되지 않은 결과와 실패 원인도 다음 실험을 위해 남깁니다.
+      placeholder: 모델 digest, 데이터셋·결과 파일 위치, PR 또는 실행 환경
     validations:
       required: false

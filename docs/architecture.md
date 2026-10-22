@@ -1,9 +1,14 @@
-# Architecture (local draft)
+# Architecture
 
-`src/handler.mjs` is the shared entry point for local HTTP and Lambda proxy events. Routes use the `/api` prefix: `GET /api/health`, `GET /api/config`, `POST /api/phrases`, `POST /api/phrases/daily`, and a placeholder `POST /api/check`. The React + Vite dashboard uses `/api` through the Vite development proxy; `scripts/dev.mjs` starts the API and UI together.
+`src/handler.mjs` contains the API routes. `src/local.mjs` serves them locally, and
+`scripts/dev.mjs` starts the API together with the Vite dashboard. The API calls the
+configured local Ollama model, defaulting to Qwen. Feed collection uses RSS/Atom and
+bounded article fetches; HTTPS requests use Node's system certificate store.
 
-Phrase requests read project feed records from `config/feeds.json` plus local subscriptions from ignored `data/subscriptions.json`. The local Admin view verifies and manages RSS/Atom subscriptions. A polling crawler deduplicates entries into ignored `data/articles.json`; its first scan records a baseline, and later scans place unseen articles in the new-article inbox. The daily request consumes queued articles as its input source. `src/feeds/safe-fetch.mjs` checks DNS answers for private/reserved addresses, disables automatic redirects, revalidates each redirect against subscribed domains, and bounds fetch time and response size. Article bodies are kept in memory only. `src/postprocess/validate.mjs` applies NFKC/whitespace normalization, source/context membership, length, language field, and duplicate checks before returning model output.
-
-Phrase extraction calls Ollama's `/api/chat` endpoint with a JSON schema and defaults to Qwen `qwen3.5:9b`. Local development targets `http://127.0.0.1:11434`; `OLLAMA_MODEL` can select another installed local model such as the quantized Kimi-VL model. Deployment configuration supplies a reachable Ollama endpoint and Qwen model tag to the Lambda function. Terraform currently provisions the API Lambda and gateway only; it does not provision Qwen/Ollama inference. An EC2 Ollama service remains a possible target pending the infrastructure choice. The local article inbox is JSON-file storage; it is not a multi-user/cloud persistence design. Admin API routes are disabled outside the local server process. The batch study compares network polling concurrency and does not model AWS queues or phrase-generation cost.
-
-Terraform drafts a regional API Gateway REST API, one Node.js 22 Lambda, reserved concurrency, throttling, and retained CloudWatch logs. `infra/aws_api_gateway_account` sets a shared account-level CloudWatch role, which must be checked against the target AWS account before apply. State is local by default. No AWS resources have been applied.
+The active study workflow pins the model and prompt, evaluates reviewed examples in
+four languages, and compares the baseline with prompt or parameter-efficient tuning
+such as LoRA. Training examples stay separate from the held-out evaluation set. The
+quality measures include source grounding, target-language correctness, beginner
+usefulness, pronunciation fields, and Korean explanations. Latency and memory are
+tracked separately from quality. Feed subscriptions, article metadata, and study
+history use the local data store and Google Drive integration described in the README.
