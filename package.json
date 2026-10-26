@@ -24,6 +24,8 @@
     "quality": "node scripts/quality.mjs",
     "evaluate:model": "node scripts/evaluate-model.mjs",
     "harness:language": "node scripts/phrase-language-harness.mjs",
+    "harness:titles": "node scripts/article-title-quality-harness.mjs",
+    "harness:phrases": "node --use-system-ca scripts/phrase-quality-harness.mjs",
     "baseline": "node scripts/baseline.mjs",
     "load": "node scripts/load.mjs"
   },

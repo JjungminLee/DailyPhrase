@@ -99,7 +99,7 @@ export function ArticleLibraryPage() {
         selected.title,
         selected.language,
         selected.feed_id,
-        'pronunciation-v2',
+        'pronunciation-v4',
       ])
     : '';
   const pastedText =
@@ -112,9 +112,12 @@ export function ArticleLibraryPage() {
       ? phraseCacheValue
       : null;
   const titleCacheValue = peekCache(titleResponseCache, cacheKey);
-  const cachedTitle = titleCacheValue && hasTitleTranslation(titleCacheValue) ? titleCacheValue : null;
+  const cachedTitle =
+    titleCacheValue && hasTitleTranslation(titleCacheValue) ? titleCacheValue : null;
   const phrases =
-    phraseResult?.key === requestKey && selected && hasPronunciation(selected.language, phraseResult.phrases)
+    phraseResult?.key === requestKey &&
+    selected &&
+    hasPronunciation(selected.language, phraseResult.phrases)
       ? phraseResult.phrases
       : (cachedPhrases?.phrases ?? []);
   const titleData =
