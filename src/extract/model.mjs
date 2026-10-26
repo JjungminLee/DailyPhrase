@@ -119,6 +119,7 @@ export async function extractPhrases({
   maxPhrases,
   timeoutMs,
   maxTokens,
+  seed,
   model: requestedModel,
   sourceType = article.source_type || 'article',
   forceExamples = false,
@@ -157,6 +158,7 @@ export async function extractPhrases({
         options: {
           num_predict: maxTokens ?? Math.min(6000, 300 + maxPhrases * 140),
           temperature: 0.1,
+          ...(Number.isInteger(seed) ? { seed } : {}),
         },
       }),
       signal: AbortSignal.timeout(requestTimeoutMs),
@@ -198,14 +200,29 @@ export async function extractPhrases({
   }
   if (!Array.isArray(parsed.phrases))
     throw new AppError('extract_failed', 'Ollama returned invalid structured phrase data', 502);
+  const durationMs = (value) =>
+    Number.isFinite(value) ? Math.round(value / 1_000_000) : null;
+  const tokensPerSecond = (count, duration) =>
+    Number.isInteger(count) && Number.isFinite(duration) && duration > 0
+      ? Math.round(((count * 1_000_000_000) / duration) * 100) / 100
+      : null;
   return {
     phrases: parsed.phrases.slice(0, maxPhrases),
     model_stats: {
-      duration_ms: Number.isFinite(payload.total_duration)
-        ? Math.round(payload.total_duration / 1_000_000)
-        : null,
+      duration_ms: durationMs(payload.total_duration),
+      model_load_ms: durationMs(payload.load_duration),
+      prompt_eval_ms: durationMs(payload.prompt_eval_duration),
+      generation_ms: durationMs(payload.eval_duration),
       prompt_tokens: Number.isInteger(payload.prompt_eval_count) ? payload.prompt_eval_count : null,
+      cached_prompt_tokens: Number.isInteger(payload.prompt_eval_cached_count)
+        ? payload.prompt_eval_cached_count
+        : null,
       generated_tokens: Number.isInteger(payload.eval_count) ? payload.eval_count : null,
+      prompt_tokens_per_second: tokensPerSecond(
+        payload.prompt_eval_count,
+        payload.prompt_eval_duration,
+      ),
+      generation_tokens_per_second: tokensPerSecond(payload.eval_count, payload.eval_duration),
     },
   };
 }
