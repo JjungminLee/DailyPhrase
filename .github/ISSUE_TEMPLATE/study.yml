@@ -1,5 +1,5 @@
 name: 스터디 실습
-description: 스터디 일정에 맞춰 Daily Phrase 기능을 만들고 검증합니다.
+description: 스터디 일정에 맞춰 Daily Phrase의 오픈웨이트 모델 품질과 추론 효율을 평가·개선합니다.
 title: "[스터디] "
 labels:
   - study
@@ -11,11 +11,11 @@ body:
       options:
         - "1주차: OT · 로컬 서비스 · 실험 가드레일"
         - "2주차: 하네스 · 데이터셋 · 품질 기준"
-        - "3주차: 기능 동결 · 기준선 · 황금 신호"
-        - "4주차: 추론 지연 · 긴 입력 · 모델 로딩"
-        - "5주차: 품질 · LoRA · 로컬 자원 비용"
-        - "6주차: 동시성 · 모델 API 포화"
-        - "7주차: 안정성 · 재시도 · 복구"
+        - "3주차: Qwen 중국어 품질 진단 · 기준선 · Jev 평가기"
+        - "4주차: Jev 진단 기반 중국어 품질 개선"
+        - "5주차: 품질을 유지하는 추론 효율 개선"
+        - "6주차: LoRA 등 모델 적응 검증"
+        - "7주차: 품질 대비 모델 효율 비교"
         - "8주차: 결과 공유 · 재현성"
         - 기타
     validations:
@@ -24,8 +24,8 @@ body:
     id: daily_phrase_problem
     attributes:
       label: Daily Phrase에서 해결할 문제
-      description: 어떤 사용 흐름이나 학습 경험을 개선하나요?
-      placeholder: 예) 기사에서 뽑은 표현이 원문에 실제로 있는지 입력 20건으로 확인한다.
+      description: 어떤 학습용 모델 출력의 품질이나 추론 병목을 개선하나요?
+      placeholder: 예) 중국어 50개 고정 사례에서 원문 근거·문맥 적합성·학습 가치를 평가하고 반복 오류를 찾는다.
     validations:
       required: true
   - type: textarea
@@ -33,7 +33,7 @@ body:
     attributes:
       label: 이번 주차 목표
       description: 스터디 일정의 산출물과 연결해 적어주세요.
-      placeholder: 예) 자기 입력 20건을 준비하고, 원문 포함률을 품질 기준으로 정한다.
+      placeholder: 예) 3주차의 상위 실패 유형 하나를 같은 평가셋으로 개선하고 Jev·사람 판정을 대조한다.
     validations:
       required: true
   - type: textarea
@@ -41,7 +41,7 @@ body:
     attributes:
       label: 이번 주차의 벽
       description: 어떤 병목이나 실패를 조사하나요?
-      placeholder: "예) 긴 입력에서 p95 지연이 튀거나, 평가셋에서 원문에 없는 표현을 생성한다."
+      placeholder: "예) 원문 밖 표현, 문맥 부적합, 낮은 학습 가치, Jev와 사람 판정의 불일치"
     validations:
       required: false
   - type: textarea
@@ -49,7 +49,7 @@ body:
     attributes:
       label: 측정할 것
       description: Study.md의 해당 주차 지표를 참고해 품질과 추론 효율을 구분하고, 같은 평가셋·실행 조건을 적어주세요.
-      placeholder: "예) 원문 근거 일치율, 언어별 품질 점수, p50·p95 지연, 피크 메모리"
+      placeholder: "예) 원문·형식 통과율, Jev/사람 항목별 점수와 불일치, 지연·토큰·피크 메모리"
     validations:
       required: false
   - type: textarea
@@ -57,7 +57,7 @@ body:
     attributes:
       label: 선택한 손잡이 또는 실험
       description: 비교할 모델 변경이나 실험 변수를 적어주세요.
-      placeholder: "예) 프롬프트 수정 · 학습 예시 보강 · LoRA · 양자화 · 동시성 상한"
+      placeholder: "예) 프롬프트/검증 변경 · 짧은 학습 예시 · LoRA · 양자화 · 작은 모델 비교"
     validations:
       required: false
   - type: textarea

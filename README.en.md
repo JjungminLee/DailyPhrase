@@ -78,7 +78,7 @@ Open the app at [http://localhost:5173](http://localhost:5173). The API health e
 
 ## Model quality study
 
-The current study focuses on improving open-weight models for language learning with local Ollama, instead of deploying to AWS. We will pin the Qwen model and prompt, measure a baseline on reviewed examples in English, Chinese, French, and Japanese, and keep training examples separate from the held-out evaluation set. A LoRA adapter will be compared under the same conditions. Output quality and inference latency or memory are recorded separately. See the [eight-week plan](Study.md) and [week 3 study issue](https://github.com/JjungminLee/DailyPhrase/issues/7) for details.
+The current study focuses on improving open-weight models for language learning with local Ollama, instead of deploying to AWS. In week 3, we will establish a baseline on 50 real-use Chinese cases and separate rule-based checks from Jev and human judgments, with at least 20 outputs independently reviewed by a person to inspect disagreements. Later weeks will address diagnosed errors on the same evaluation set, measure inference efficiency, and run a conditional LoRA pilot only when the evidence supports a model-weight issue. Jev is an assistant evaluator; human review adjudicates disagreements. See the [eight-week plan](Study.md) and [week 3 study issue](https://github.com/JjungminLee/DailyPhrase/issues/7) for details.
 
 ## Feeds and article text
 
