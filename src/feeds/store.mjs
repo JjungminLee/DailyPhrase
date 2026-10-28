@@ -42,23 +42,44 @@ export async function readFeeds() {
       throw new AppError('invalid_store', 'Feed store is malformed');
     const existing = new Set(data.feeds.map((feed) => feed.id));
     const dismissed = new Set(data.dismissed_defaults);
-    const japaneseDefault = defaults.feeds.find(
-      (feed) => feed.id === 'default-weejoy-japanese-stories',
-    );
-    const previousJapaneseDefault = data.feeds.find(
-      (feed) =>
-        feed.id === 'default-weejoy-japanese-stories' &&
-        feed.rss_url === 'https://nhkeasier.com/feed/',
-    );
-    if (japaneseDefault && previousJapaneseDefault) {
-      Object.assign(previousJapaneseDefault, {
-        name: japaneseDefault.name,
-        rss_url: japaneseDefault.rss_url,
-        homepage_url: japaneseDefault.homepage_url,
-        source_type: japaneseDefault.source_type,
-        allowed_domains: japaneseDefault.allowed_domains,
+    const previousDefaultUrls = {
+      'default-weejoy-japanese-stories': new Set([
+        'https://nhkeasier.com/feed/',
+        'https://simplenihongo.com/level/entry/index.php',
+      ]),
+      'default-chinese-reading-practice-beginner': new Set([
+        'https://hskread.com/feed.xml?level=hsk-1',
+        'https://chinesereadingpractice.com/category/beginner/feed/',
+      ]),
+    };
+    let migratedDefaults = false;
+    const migratedFeedIds = new Set();
+    for (const previous of data.feeds) {
+      const replacement = defaults.feeds.find((feed) => feed.id === previous.id);
+      if (!replacement || !previousDefaultUrls[previous.id]?.has(previous.rss_url)) continue;
+      Object.assign(previous, {
+        name: replacement.name,
+        rss_url: replacement.rss_url,
+        homepage_url: replacement.homepage_url,
+        source_type: replacement.source_type,
+        allowed_domains: replacement.allowed_domains,
+        last_checked_at: null,
+        last_error: null,
+        initial_scan_complete: false,
       });
+      migratedDefaults = true;
+      migratedFeedIds.add(previous.id);
+    }
+    if (migratedDefaults) {
       await atomicWrite(feedPath, data);
+      const articles = await readJson('data/articles.json').catch((error) => {
+        if (error.code === 'ENOENT') return null;
+        throw error;
+      });
+      if (articles && Array.isArray(articles.items)) {
+        articles.items = articles.items.filter((article) => !migratedFeedIds.has(article.feed_id));
+        await atomicWrite(articlePath, articles);
+      }
     }
     const seeds = defaults.feeds.filter(
       (feed) => !existing.has(feed.id) && !dismissed.has(feed.id),

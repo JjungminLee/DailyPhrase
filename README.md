@@ -77,11 +77,9 @@ npm run dev
 - Kimi 등 다른 Ollama 모델을 사용하려면 Ollama에서 해당 모델을 먼저 내려받고 `OLLAMA_MODEL` 또는 `OLLAMA_ARTICLE_MODEL`을 설치된 모델 태그로 설정하세요.
 - 모델 다운로드는 디스크 공간을 사용하지만, 로컬 Ollama 추론에는 모델 API 종량 요금이 발생하지 않습니다. 전력과 메모리 사용은 컴퓨터 환경에 따라 달라집니다.
 
-## 클라우드 구성
+## 모델 품질 개선 스터디
 
-Terraform은 **API Gateway → Lambda** API 구성을 정의합니다. Lambda는 Ollama 모델을 직접 실행하지 않습니다. `ollama_base_url`로 지정한 네트워크 접근 가능한 Ollama 서비스에 요청을 보내며, Qwen 모델은 그 Ollama 호스트에 미리 설치되어 있어야 합니다.
-
-EC2 등에 Ollama 호스트를 별도로 구성할 수 있지만, 현재 Terraform은 해당 호스트, 네트워크 경로, 인증 및 모델 설치를 만들지 않습니다. 따라서 Terraform 설정만으로 클라우드 추론까지 동작하는 것은 아닙니다. 배포 전 Ollama 엔드포인트의 연결과 보안을 구성하고 Terraform plan을 검토하세요. 로컬 개발은 기본적으로 로컬 Ollama를 사용하며, 클라우드 모델 호출은 호스팅 환경 비용이 발생할 수 있습니다.
+현재 스터디는 AWS 배포 대신 로컬 Ollama에서 언어 학습용 오픈웨이트 모델의 품질을 비교하고 개선하는 데 집중합니다. 3주차에는 중국어 실제 사용 시나리오 50개로 기준선을 만들고, 코드 규칙 평가와 Jev·사람의 주관 평가를 분리해 사람 검토 20건 이상으로 불일치를 확인합니다. 이어서 진단된 오류를 같은 평가셋에서 개선하고, 추론 효율과 조건부 LoRA 실험을 품질 기준과 함께 비교합니다. Jev는 보조 평가자로만 쓰며 사람 검토를 정답으로 둡니다. [8주 계획](Study.md)과 [3주차 스터디 이슈](https://github.com/JjungminLee/DailyPhrase/issues/7)를 참고하세요.
 
 ## 피드와 본문 처리
 
@@ -94,21 +92,18 @@ EC2 등에 Ollama 호스트를 별도로 구성할 수 있지만, 현재 Terrafo
 | 명령                  | 용도                               |
 | --------------------- | ---------------------------------- |
 | `npm run dev`         | 로컬 API와 프론트엔드 실행         |
-| `npm run build`       | 프론트엔드 빌드 및 Lambda ZIP 생성 |
+| `npm run build`       | 프론트엔드 빌드 |
 | `npm run lint`        | ESLint 검사                        |
 | `npm run typecheck`   | TypeScript 검사                    |
 | `npm run batch:poll`  | 피드 한 번 수집                    |
 | `npm run crawler`     | 설정된 간격으로 피드 수집          |
 | `npm run study:batch` | 피드 수집 동시성 측정              |
 
-Terraform은 `infra/`에 있으며 아직 적용되지 않은 배포 스캐폴드입니다. `npm run deploy`나 `npm run destroy`를 실행하기 전에 배포 구성을 검토하세요.
-
 ## 설정 파일
 
 - `config/languages.json` — 언어별 표현 길이 및 난이도 규칙
 - `config/feeds.json` — 선택적 프로젝트 기본 피드
 - `.env.example` — 로컬 Ollama 설정 예시
-- `infra/` — API Gateway 및 Lambda Terraform 구성
 
 ## 매일 수집과 학습 기록
 

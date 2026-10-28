@@ -76,11 +76,9 @@ Open the app at [http://localhost:5173](http://localhost:5173). The API health e
 - Model downloads use disk space. Local Ollama inference has no per-request model API fee; power and memory use depend on your computer.
 - On Windows, Ollama may detect an Intel integrated GPU but default to CPU inference. See [Ollama GPU acceleration](docs/ollama-gpu.md) for the setting and verification steps.
 
-## Cloud architecture
+## Model quality study
 
-Terraform defines an **API Gateway → Lambda** API. Lambda does not run Ollama. It sends requests to a network-accessible Ollama service configured through `ollama_base_url`; the Qwen models must already be installed on that Ollama host.
-
-You can set up an Ollama host on EC2 or elsewhere, but the current Terraform configuration does not create that host, its network route, authentication, or model installation. Terraform alone therefore does not provide cloud inference. Configure and secure the Ollama endpoint, then review the Terraform plan before deployment. Local development uses local Ollama by default; hosted inference may incur infrastructure costs.
+The current study focuses on improving open-weight models for language learning with local Ollama, instead of deploying to AWS. In week 3, we will establish a baseline on 50 real-use Chinese cases and separate rule-based checks from Jev and human judgments, with at least 20 outputs independently reviewed by a person to inspect disagreements. Later weeks will address diagnosed errors on the same evaluation set, measure inference efficiency, and run a conditional LoRA pilot only when the evidence supports a model-weight issue. Jev is an assistant evaluator; human review adjudicates disagreements. See the [eight-week plan](Study.md) and [week 3 study issue](https://github.com/JjungminLee/DailyPhrase/issues/7) for details.
 
 ## Feeds and article text
 
@@ -99,14 +97,12 @@ To enable study history, create a Google Cloud OAuth web client, enable the Goog
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Start the local API and frontend |
-| `npm run build` | Build the frontend and Lambda ZIP |
+| `npm run build` | Build the frontend |
 | `npm run lint` | Run ESLint |
 | `npm run typecheck` | Run TypeScript checks |
 | `npm run batch:poll` | Collect feeds once, subject to the daily limit |
 | `npm run crawler` | Start the feed collector process with the daily limit |
 | `npm run study:batch` | Measure feed polling concurrency |
-
-Terraform is an unapplied deployment scaffold in `infra/`. Review the deployment configuration before running `npm run deploy` or `npm run destroy`.
 
 ## Configuration files
 
@@ -114,4 +110,3 @@ Terraform is an unapplied deployment scaffold in `infra/`. Review the deployment
 - `config/feeds.json` — Optional project-level feeds
 - `config/default-feeds.json` — Default feeds seeded into the local feed store
 - `.env.example` — Example local Ollama and Google Drive settings
-- `infra/` — API Gateway and Lambda Terraform configuration

@@ -21,13 +21,13 @@
     },
     {
       "id": "default-chinese-reading-practice-beginner",
-      "name": "HSK Read - HSK 1 Chinese Stories",
+      "name": "APPI News - 小學生也看得懂的新聞",
       "language": "zh",
-      "rss_url": "https://hskread.com/feed.xml?level=hsk-1",
-      "homepage_url": "https://hskread.com/articles/beginner/hsk-1",
+      "rss_url": "https://kid.appi.news/rss.xml",
+      "homepage_url": "https://kid.appi.news/",
       "source_type": "rss_or_atom",
       "allowed_domains": [
-        "hskread.com"
+        "kid.appi.news"
       ],
       "enabled": true,
       "verified": true,
@@ -36,13 +36,13 @@
     },
     {
       "id": "default-weejoy-japanese-stories",
-      "name": "ニュースでやさしい日本語 - 入門",
+      "name": "NHK Easier - やさしい日本語ニュース",
       "language": "ja",
-      "rss_url": "https://simplenihongo.com/level/entry/index.php",
-      "homepage_url": "https://simplenihongo.com/",
-      "source_type": "simple_nihongo_html",
+      "rss_url": "https://nhkeasier.com/feed/",
+      "homepage_url": "https://nhkeasier.com/",
+      "source_type": "rss_or_atom",
       "allowed_domains": [
-        "simplenihongo.com"
+        "nhkeasier.com"
       ],
       "enabled": true,
       "verified": true,
