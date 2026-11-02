@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { setTimeout as delay } from 'node:timers/promises';
 import { rootDir } from '../src/config.mjs';
 
@@ -10,6 +11,9 @@ const env = {
   DAILY_PHRASE_LOCAL: '1',
   NODE_USE_SYSTEM_CA: '1',
 };
+const bundledOllama = '/Applications/Ollama.app/Contents/Resources/ollama';
+const ollamaCommand =
+  process.env.OLLAMA_BIN || (existsSync(bundledOllama) ? bundledOllama : 'ollama');
 let shuttingDown = false;
 const children = [];
 
@@ -38,7 +42,7 @@ async function ensureLocalOllama() {
   const ollamaHost = `${ollamaUrl.hostname}:${ollamaUrl.port || '11434'}`;
   let ollama;
   try {
-    ollama = spawn('ollama', ['serve'], {
+    ollama = spawn(ollamaCommand, ['serve'], {
       cwd: rootDir,
       env: { ...env, OLLAMA_HOST: ollamaHost },
       stdio: 'inherit',

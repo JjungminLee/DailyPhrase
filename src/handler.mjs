@@ -7,6 +7,7 @@ import { extractPhrases } from './extract/model.mjs';
 import { originalLanguageText } from './extract/source-text.mjs';
 import { translateArticleTitle } from './extract/article-title.mjs';
 import { validatePhrases } from './postprocess/validate.mjs';
+import { getLocalJudgeEvaluation, runLocalJudgeEvaluation } from './evaluation/local-judge.mjs';
 import {
   finishGoogleDriveAuthorization,
   googleDriveAuthorizationUrl,
@@ -326,6 +327,10 @@ export async function handler(event = {}) {
       }
       if (method === 'POST' && path === '/admin/study')
         return response(200, await studyPolling({ concurrencyLevels: [1, 2, 4], repeats: 1 }));
+      if (method === 'GET' && path === '/admin/quality-judge-results')
+        return response(200, { result: await getLocalJudgeEvaluation() });
+      if (method === 'POST' && path === '/admin/quality-judge')
+        return response(200, { result: await runLocalJudgeEvaluation(jsonBody(event)) });
       const feedMatch = path.match(/^\/admin\/feeds\/([^/]+)$/);
       if (feedMatch && method === 'DELETE')
         return response(200, { removed: await removeFeed(decodeURIComponent(feedMatch[1])) });
