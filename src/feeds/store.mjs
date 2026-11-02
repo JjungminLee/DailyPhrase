@@ -44,7 +44,6 @@ export async function readFeeds() {
     const dismissed = new Set(data.dismissed_defaults);
     const previousDefaultUrls = {
       'default-weejoy-japanese-stories': new Set([
-        'https://nhkeasier.com/feed/',
         'https://simplenihongo.com/level/entry/index.php',
       ]),
       'default-chinese-reading-practice-beginner': new Set([

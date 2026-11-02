@@ -6,7 +6,10 @@ import { execFileSync } from 'node:child_process';
 import { extractPhrases, buildExtractionInstructions } from '../src/extract/model.mjs';
 import { readJson, rootDir } from '../src/config.mjs';
 
-const datasetPath = path.join(rootDir, 'data/evaluation-set-v1.json');
+const datasetPath = path.resolve(
+  rootDir,
+  process.env.EVAL_DATASET || 'data/evaluation-set-v2.json',
+);
 const datasetRaw = await readFile(datasetPath, 'utf8');
 const dataset = JSON.parse(datasetRaw);
 const config = await readJson('config/languages.json');

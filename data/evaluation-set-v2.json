@@ -1,0 +1,589 @@
+{
+  "dataset_id": "daily-phrase-eval-v2",
+  "created_on": "2026-11-02",
+  "purpose": "Held-out 40-case multilingual baseline evaluation for beginner-friendly phrase extraction, balanced at 10 cases per language.",
+  "rights": "All source sentences and reference labels in this file were written for this evaluation and are not copied from articles.",
+  "training_split": "evaluation_only; do not use these cases for SFT, prompt examples, or retrieval indexing",
+  "cases": [
+    {
+      "id": "zh-01",
+      "language": "zh",
+      "source_text": "天气预报说，明天可能会下雨。出门的时候记得带伞。",
+      "expected_phrases": [
+        {
+          "text": "带伞",
+          "pinyin": "dài sǎn",
+          "meaning_ko": "우산을 챙기다",
+          "note_ko": "외출할 때 우산을 가져간다는 말이다.",
+          "level": "2",
+          "type": "collocation"
+        }
+      ]
+    },
+    {
+      "id": "zh-02",
+      "language": "zh",
+      "source_text": "我每天早上七点起床，然后做早餐。周末我会晚一点儿起。",
+      "expected_phrases": [
+        {
+          "text": "做早餐",
+          "pinyin": "zuò zǎo cān",
+          "meaning_ko": "아침 식사를 준비하다",
+          "note_ko": "早餐과 함께 자주 쓰는 동사 표현이다.",
+          "level": "2",
+          "type": "collocation"
+        }
+      ]
+    },
+    {
+      "id": "zh-03",
+      "language": "zh",
+      "source_text": "你先休息一下，我来洗碗。今天的工作已经做完了。",
+      "expected_phrases": [
+        {
+          "text": "休息一下",
+          "pinyin": "xiū xi yí xià",
+          "meaning_ko": "잠깐 쉬다",
+          "note_ko": "一下를 붙여 동작을 가볍고 짧게 제안한다.",
+          "level": "2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "zh-04",
+      "language": "zh",
+      "source_text": "这家店离地铁站很近，走路只要五分钟。我们下班后去吃饭吧。",
+      "expected_phrases": [
+        {
+          "text": "离地铁站很近",
+          "pinyin": "lí dì tiě zhàn hěn jìn",
+          "meaning_ko": "지하철역에서 아주 가깝다",
+          "note_ko": "离 A 很近은 A와 가깝다는 위치 표현이다.",
+          "level": "3",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "zh-05",
+      "language": "zh",
+      "source_text": "我不太明白这个词的意思，可以再说一遍吗？请说慢一点。",
+      "expected_phrases": [
+        {
+          "text": "再说一遍",
+          "pinyin": "zài shuō yí biàn",
+          "meaning_ko": "한 번 더 말하다",
+          "note_ko": "다시 말해 달라고 부탁할 때 쓰는 표현이다.",
+          "level": "2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "en-01",
+      "language": "en",
+      "source_text": "I usually make breakfast before I leave for work. Today I only had time for coffee.",
+      "expected_phrases": [
+        {
+          "text": "make breakfast",
+          "meaning_ko": "아침 식사를 준비하다",
+          "note_ko": "breakfast와 함께 쓰는 자연스러운 동사 표현이다.",
+          "level": "A2",
+          "type": "collocation"
+        }
+      ]
+    },
+    {
+      "id": "en-02",
+      "language": "en",
+      "source_text": "Could you say that again a little more slowly? I missed the last part.",
+      "expected_phrases": [
+        {
+          "text": "say that again",
+          "meaning_ko": "그 말을 다시 하다",
+          "note_ko": "상대에게 반복해 달라고 정중히 부탁하는 표현이다.",
+          "level": "A2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "en-03",
+      "language": "en",
+      "source_text": "The station is only a five-minute walk from this café. We can meet there after lunch.",
+      "expected_phrases": [
+        {
+          "text": "a five-minute walk",
+          "meaning_ko": "걸어서 5분 거리",
+          "note_ko": "장소 사이의 도보 거리를 말할 때 쓴다.",
+          "level": "A2",
+          "type": "collocation"
+        }
+      ]
+    },
+    {
+      "id": "en-04",
+      "language": "en",
+      "source_text": "Take an umbrella with you; the forecast says it may rain this afternoon.",
+      "expected_phrases": [
+        {
+          "text": "take an umbrella",
+          "meaning_ko": "우산을 가져가다",
+          "note_ko": "외출할 때 물건을 챙기라는 맥락에서 쓴다.",
+          "level": "A2",
+          "type": "collocation"
+        }
+      ]
+    },
+    {
+      "id": "en-05",
+      "language": "en",
+      "source_text": "I don't quite understand this word. Could you explain it in another way?",
+      "expected_phrases": [
+        {
+          "text": "I don't quite understand",
+          "meaning_ko": "잘 이해하지 못하다",
+          "note_ko": "quite가 완곡한 느낌을 더한다.",
+          "level": "B1",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "fr-01",
+      "language": "fr",
+      "source_text": "Je prépare le petit déjeuner avant de partir au travail. Le dimanche, je prends mon temps.",
+      "expected_phrases": [
+        {
+          "text": "prépare le petit déjeuner",
+          "meaning_ko": "아침 식사를 준비하다",
+          "note_ko": "petit déjeuner와 함께 쓰는 자연스러운 표현이다.",
+          "level": "B1",
+          "type": "collocation"
+        }
+      ]
+    },
+    {
+      "id": "fr-02",
+      "language": "fr",
+      "source_text": "Vous pouvez répéter un peu plus lentement, s'il vous plaît ? Je n'ai pas compris la fin.",
+      "expected_phrases": [
+        {
+          "text": "un peu plus lentement",
+          "meaning_ko": "조금 더 천천히",
+          "note_ko": "정중한 요청에서 속도를 완곡하게 조절한다.",
+          "level": "A2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "fr-03",
+      "language": "fr",
+      "source_text": "La station est à cinq minutes à pied de ce café. On peut se retrouver là-bas après le déjeuner.",
+      "expected_phrases": [
+        {
+          "text": "à cinq minutes à pied",
+          "meaning_ko": "걸어서 5분 거리에",
+          "note_ko": "장소 사이의 도보 거리를 나타낸다.",
+          "level": "A2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "fr-04",
+      "language": "fr",
+      "source_text": "Prends un parapluie, la météo annonce de la pluie cet après-midi. On sortira ensuite.",
+      "expected_phrases": [
+        {
+          "text": "Prends un parapluie",
+          "meaning_ko": "우산을 챙겨",
+          "note_ko": "친한 사람에게 하는 비격식 명령형이다.",
+          "level": "A2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "fr-05",
+      "language": "fr",
+      "source_text": "Je ne comprends pas très bien ce mot. Tu peux l'expliquer autrement ?",
+      "expected_phrases": [
+        {
+          "text": "Je ne comprends pas très bien",
+          "meaning_ko": "잘 이해하지 못하겠다",
+          "note_ko": "très bien을 써서 이해 정도를 부드럽게 표현한다.",
+          "level": "A2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "ja-01",
+      "language": "ja",
+      "source_text": "仕事に行く前に、朝ごはんを作ります。日曜日はゆっくりします。",
+      "expected_phrases": [
+        {
+          "text": "朝ごはんを作ります",
+          "reading": "あさごはんをつくります",
+          "meaning_ko": "아침밥을 만들어요",
+          "note_ko": "朝ごはんを作る는 아침밥을 준비한다는 표현이다.",
+          "level": "N5",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "ja-02",
+      "language": "ja",
+      "source_text": "すみません、もう一度ゆっくり言ってください。最後のところが聞こえませんでした。",
+      "expected_phrases": [
+        {
+          "text": "もう一度ゆっくり",
+          "reading": "もういちどゆっくり",
+          "meaning_ko": "한 번 더 천천히",
+          "note_ko": "もう一度와 ゆっくり로 반복과 속도를 부탁한다.",
+          "level": "N4",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "ja-03",
+      "language": "ja",
+      "source_text": "このカフェから駅まで歩いて五分です。昼ごはんのあとで会いましょう。",
+      "expected_phrases": [
+        {
+          "text": "駅まで歩いて五分",
+          "reading": "えきまであるいてごふん",
+          "meaning_ko": "역까지 걸어서 5분이에요",
+          "note_ko": "歩いて를 써서 도보 시간을 나타낸다.",
+          "level": "N4",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "ja-04",
+      "language": "ja",
+      "source_text": "午後は雨が降るそうです。出かけるときは傘を持って行ってください。",
+      "expected_phrases": [
+        {
+          "text": "傘を持って行ってください",
+          "reading": "かさをもっていってください",
+          "meaning_ko": "우산을 가지고 가세요",
+          "note_ko": "持って行く는 물건을 가지고 이동한다는 표현이다.",
+          "level": "N4",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "ja-05",
+      "language": "ja",
+      "source_text": "この言葉の意味がよく分かりません。別の言い方で説明してもらえますか。",
+      "expected_phrases": [
+        {
+          "text": "よく分かりません",
+          "reading": "よくわかりません",
+          "meaning_ko": "잘 모르겠어요",
+          "note_ko": "分からない를 정중하게 말하는 표현이다.",
+          "level": "N4",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "en-06",
+      "language": "en",
+      "source_text": "I can help you carry those bags if you give me a minute to park the car.",
+      "expected_phrases": [
+        {
+          "text": "give me a minute",
+          "meaning_ko": "잠깐만 시간을 주다",
+          "note_ko": "상대에게 짧은 시간을 부탁할 때 쓰는 표현이다.",
+          "level": "A2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "en-07",
+      "language": "en",
+      "source_text": "We ran out of coffee this morning, so I stopped at the shop on my way to work.",
+      "expected_phrases": [
+        {
+          "text": "ran out of coffee",
+          "meaning_ko": "커피가 다 떨어지다",
+          "note_ko": "ran out of는 물건이나 재고가 다 소진됐을 때 쓴다.",
+          "level": "B1",
+          "type": "phrasal_verb"
+        }
+      ]
+    },
+    {
+      "id": "en-08",
+      "language": "en",
+      "source_text": "Let me know when you arrive, and I will meet you outside the station.",
+      "expected_phrases": [
+        {
+          "text": "Let me know",
+          "meaning_ko": "나에게 알려 주다",
+          "note_ko": "상대에게 소식이나 정보를 알려 달라고 할 때 쓰는 표현이다.",
+          "level": "A2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "en-09",
+      "language": "en",
+      "source_text": "It is a little chilly outside, so I am going to put on my jacket.",
+      "expected_phrases": [
+        {
+          "text": "a little chilly",
+          "meaning_ko": "조금 쌀쌀한",
+          "note_ko": "a little을 붙여 추위의 정도를 부드럽게 나타낸다.",
+          "level": "A2",
+          "type": "collocation"
+        }
+      ]
+    },
+    {
+      "id": "en-10",
+      "language": "en",
+      "source_text": "Would you mind opening the window? The room is getting warm.",
+      "expected_phrases": [
+        {
+          "text": "Would you mind opening",
+          "meaning_ko": "열어 주시겠어요?",
+          "note_ko": "Would you mind 뒤에는 동사의 -ing형을 쓴다.",
+          "level": "B1",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "zh-06",
+      "language": "zh",
+      "source_text": "这件衣服有点儿贵，我再考虑一下。",
+      "expected_phrases": [
+        {
+          "text": "考虑一下",
+          "pinyin": "kǎo lǜ yí xià",
+          "meaning_ko": "좀 더 생각해 보다",
+          "note_ko": "一下를 붙여 동작을 가볍게 하거나 완곡하게 표현한다.",
+          "level": "2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "zh-07",
+      "language": "zh",
+      "source_text": "如果你有时间，我们一起去附近的公园散步吧。",
+      "expected_phrases": [
+        {
+          "text": "去附近的公园",
+          "pinyin": "qù fù jìn de gōng yuán",
+          "meaning_ko": "근처 공원에 가다",
+          "note_ko": "附近的는 가까운 곳에 있는 대상을 가리킨다.",
+          "level": "2",
+          "type": "collocation"
+        }
+      ]
+    },
+    {
+      "id": "zh-08",
+      "language": "zh",
+      "source_text": "这个周末我要在家打扫房间，然后准备下周的考试。",
+      "expected_phrases": [
+        {
+          "text": "打扫房间",
+          "pinyin": "dǎ sǎo fáng jiān",
+          "meaning_ko": "방을 청소하다",
+          "note_ko": "打扫는 장소를 깨끗하게 청소한다는 뜻이다.",
+          "level": "2",
+          "type": "collocation"
+        }
+      ]
+    },
+    {
+      "id": "zh-09",
+      "language": "zh",
+      "source_text": "我刚到公司，会议十分钟后开始。",
+      "expected_phrases": [
+        {
+          "text": "刚到公司",
+          "pinyin": "gāng dào gōng sī",
+          "meaning_ko": "방금 회사에 도착하다",
+          "note_ko": "刚은 어떤 일이 조금 전에 일어났음을 나타낸다.",
+          "level": "2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "zh-10",
+      "language": "zh",
+      "source_text": "这个汤太咸了，可以少放一点盐吗？",
+      "expected_phrases": [
+        {
+          "text": "少放一点盐",
+          "pinyin": "shǎo fàng yì diǎn yán",
+          "meaning_ko": "소금을 조금 적게 넣다",
+          "note_ko": "少放一点은 재료의 양을 줄여 달라는 표현이다.",
+          "level": "2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "fr-06",
+      "language": "fr",
+      "source_text": "Je n’ai pas encore fini mon travail, mais je peux vous aider après.",
+      "expected_phrases": [
+        {
+          "text": "pas encore fini",
+          "meaning_ko": "아직 끝내지 않았다",
+          "note_ko": "pas encore는 어떤 일이 아직 일어나지 않았다는 뜻이다.",
+          "level": "A2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "fr-07",
+      "language": "fr",
+      "source_text": "On se retrouve devant la bibliothèque à six heures ?",
+      "expected_phrases": [
+        {
+          "text": "On se retrouve",
+          "meaning_ko": "우리 만나는 거 어때요?",
+          "note_ko": "일상 대화에서 만날 약속을 제안하거나 확인할 때 쓴다.",
+          "level": "A2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "fr-08",
+      "language": "fr",
+      "source_text": "J’ai oublié mon portefeuille, alors je retourne à la maison.",
+      "expected_phrases": [
+        {
+          "text": "oublié mon portefeuille",
+          "meaning_ko": "지갑을 잊어버렸다",
+          "note_ko": "oublier quelque chose는 무엇인가를 잊어버리다는 뜻이다.",
+          "level": "A2",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "fr-09",
+      "language": "fr",
+      "source_text": "Il fait beau aujourd’hui, ça te dit de déjeuner dehors ?",
+      "expected_phrases": [
+        {
+          "text": "ça te dit de",
+          "meaning_ko": "같이 ~하는 거 어때?",
+          "note_ko": "친한 사람에게 어떤 일을 제안할 때 쓰는 비격식 표현이다.",
+          "level": "B1",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "fr-10",
+      "language": "fr",
+      "source_text": "Je suis désolé, je ne pourrai pas venir ce soir.",
+      "expected_phrases": [
+        {
+          "text": "ne pourrai pas venir",
+          "meaning_ko": "올 수 없을 것이다",
+          "note_ko": "미래형 pourrai의 부정으로 불참을 정중히 알린다.",
+          "level": "B1",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "ja-06",
+      "language": "ja",
+      "source_text": "電車が遅れているので、少し遅くなります。",
+      "expected_phrases": [
+        {
+          "text": "少し遅くなります",
+          "reading": "すこしおそくなります",
+          "meaning_ko": "조금 늦어집니다",
+          "note_ko": "도착이나 일정이 늦어질 때 정중하게 알리는 표현이다.",
+          "level": "N4",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "ja-07",
+      "language": "ja",
+      "source_text": "週末は友達と映画を見に行く予定です。",
+      "expected_phrases": [
+        {
+          "text": "見に行く予定です",
+          "reading": "みにいくよていです",
+          "meaning_ko": "보러 갈 예정이에요",
+          "note_ko": "동사 ます형 어간에 に行く를 붙여 목적을 나타낸다.",
+          "level": "N4",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "ja-08",
+      "language": "ja",
+      "source_text": "分からないことがあったら、いつでも聞いてください。",
+      "expected_phrases": [
+        {
+          "text": "いつでも聞いてください",
+          "reading": "いつでもきいてください",
+          "meaning_ko": "언제든지 물어보세요",
+          "note_ko": "언제든 질문해도 된다고 정중하게 안내하는 표현이다.",
+          "level": "N4",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "ja-09",
+      "language": "ja",
+      "source_text": "このアプリを使えば、簡単に予約できます。",
+      "expected_phrases": [
+        {
+          "text": "簡単に予約できます",
+          "reading": "かんたんによやくできます",
+          "meaning_ko": "간단히 예약할 수 있어요",
+          "note_ko": "簡単に는 동작이나 절차가 쉽다는 점을 나타낸다.",
+          "level": "N4",
+          "type": "sentence_pattern"
+        }
+      ]
+    },
+    {
+      "id": "ja-10",
+      "language": "ja",
+      "source_text": "今日は疲れたので、早めに寝ることにします。",
+      "expected_phrases": [
+        {
+          "text": "早めに寝る",
+          "reading": "はやめにねる",
+          "meaning_ko": "평소보다 일찍 자다",
+          "note_ko": "早めに는 보통 때보다 이른 시점을 나타낸다.",
+          "level": "N4",
+          "type": "sentence_pattern"
+        }
+      ]
+    }
+  ]
+}
