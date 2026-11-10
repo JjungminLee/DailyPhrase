@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { api } from '../api';
-import type { ArticleItem, BatchStudy, Feed, FeedVerification } from '../types';
+import type { ArticleItem, BatchStudy, Feed, FeedVerification, LocalJudgeResult } from '../types';
 
 export function useAdmin(initialLanguage = 'en') {
   const [feeds, setFeeds] = useState<Feed[]>([]);
@@ -14,26 +14,37 @@ export function useAdmin(initialLanguage = 'en') {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [study, setStudy] = useState<BatchStudy | null>(null);
+  const [qualityJudge, setQualityJudge] = useState<LocalJudgeResult | null>(null);
 
   const refresh = useCallback(async () => {
-    const [feedResponse, articleResponse] = await Promise.all([
+    const judgeRequest = api<{ result: LocalJudgeResult | null }>('/admin/quality-judge-results')
+      .then(({ result }) => result)
+      .catch(() => null);
+    const [feedResponse, articleResponse, judgeResponse] = await Promise.all([
       api<{ feeds: Feed[] }>('/admin/feeds'),
       api<{ articles: ArticleItem[] }>('/admin/articles'),
+      judgeRequest,
     ]);
     setFeeds(feedResponse.feeds);
     setArticles(articleResponse.articles);
+    setQualityJudge(judgeResponse);
   }, []);
 
   useEffect(() => {
     let active = true;
+    const judgeRequest = api<{ result: LocalJudgeResult | null }>('/admin/quality-judge-results')
+      .then(({ result }) => result)
+      .catch(() => null);
     void Promise.all([
       api<{ feeds: Feed[] }>('/admin/feeds'),
       api<{ articles: ArticleItem[] }>('/admin/articles'),
+      judgeRequest,
     ])
-      .then(([feedResponse, articleResponse]) => {
+      .then(([feedResponse, articleResponse, judgeResponse]) => {
         if (!active) return;
         setFeeds(feedResponse.feeds);
         setArticles(articleResponse.articles);
+        setQualityJudge(judgeResponse);
       })
       .catch((cause: unknown) => {
         if (active)
@@ -121,6 +132,32 @@ export function useAdmin(initialLanguage = 'en') {
     }
   }
 
+  async function runQualityJudge(mode: 'quick' | 'full') {
+    setBusy(true);
+    setError('');
+    setMessage(
+      mode === 'quick'
+        ? '언어별 대표 사례 4건을 빠르게 평가하고 있습니다.'
+        : '고정 평가셋 40건을 로컬 Qwen 평가기로 판정하고 있습니다.',
+    );
+    try {
+      const result = await api<{ result: LocalJudgeResult }>('/admin/quality-judge', {
+        method: 'POST',
+        body: JSON.stringify({ mode }),
+      });
+      setQualityJudge(result.result);
+      setMessage(
+        result.result.cached
+          ? '조건이 같은 기존 평가 결과를 불러왔습니다.'
+          : `${result.result.cases.length}건에 대한 로컬 평가를 저장했습니다.`,
+      );
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '로컬 평가에 실패했습니다.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function toggleFeed(feed: Feed) {
     setError('');
     try {
@@ -176,10 +213,12 @@ export function useAdmin(initialLanguage = 'en') {
     error,
     busy,
     study,
+    qualityJudge,
     verifyUrl,
     addSubscription,
     pollNow,
     compareBatch,
+    runQualityJudge,
     toggleFeed,
     verifyFeed,
     deleteFeed,

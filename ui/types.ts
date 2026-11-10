@@ -104,4 +104,33 @@ export type BatchStudy = {
   }>;
 };
 
+export type LocalJudgeCase = {
+  case_id: string;
+  language: string;
+  phrase: string;
+  code_checks: Record<string, boolean | null>;
+  judgment: {
+    naturalness: number;
+    context_fit: number;
+    beginner_usefulness: number;
+    language_quality: number;
+    field_quality: number;
+    confidence: number;
+    rationale: string;
+  };
+};
+export type LocalJudgeResult = {
+  timestamp: string;
+  evaluation_mode?: 'quick' | 'full';
+  cached?: boolean;
+  evaluator_model: string;
+  generator_model: string;
+  evaluator_rubric_revision: string;
+  baseline_file: string;
+  dataset: { cases: number; id: string };
+  interpretation: string;
+  summary: Record<string, { cases: number; averages: Record<string, number> }>;
+  cases: LocalJudgeCase[];
+};
+
 export type ApiError = Error & { payload?: unknown; status?: number };

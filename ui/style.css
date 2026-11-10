@@ -1619,6 +1619,12 @@ h1 em {
   color: #9ca18e;
   font: 500 10px var(--dp-font-body);
 }
+.admin-judge-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .admin-card-icon {
   align-items: center;
   background: #f2f6e9;
@@ -1758,6 +1764,26 @@ h1 em {
 .admin-study-result small {
   color: #93968b;
   font-size: 8px;
+}
+.admin-judge-table-wrap {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+.admin-judge-table {
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  text-align: left;
+  width: 100%;
+}
+.admin-judge-table th,
+.admin-judge-table td {
+  border-bottom: 1px solid #eef0e7;
+  padding: 0.7rem 0.8rem;
+  white-space: nowrap;
+}
+.admin-judge-table th {
+  color: #93968b;
+  font-size: 0.75rem;
 }
 .admin-article-row {
   align-items: flex-start;

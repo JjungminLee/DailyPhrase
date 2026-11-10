@@ -30,10 +30,12 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
     error,
     busy,
     study,
+    qualityJudge,
     verifyUrl,
     addSubscription,
     pollNow,
     compareBatch,
+    runQualityJudge,
     toggleFeed,
     verifyFeed,
     deleteFeed,
@@ -112,6 +114,76 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
           </p>
         </Surface>
       )}
+
+      <Surface className="admin-study-card">
+        <div className="admin-card-title">
+          <div>
+            <span className="panel-kicker">WEEK 4 · LOCAL QUALITY JUDGE</span>
+            <h2>로컬 Qwen 평가 결과</h2>
+          </div>
+          <div className="admin-judge-actions">
+            <ActionButton
+              tone="primary"
+              disabled={busy}
+              onClick={() => runQualityJudge('quick')}
+              type="button"
+            >
+              빠른 평가 · 4건
+            </ActionButton>
+            <ActionButton
+              tone="secondary"
+              disabled={busy}
+              onClick={() => runQualityJudge('full')}
+              type="button"
+            >
+              전체 평가 · 40건
+            </ActionButton>
+          </div>
+        </div>
+        <p className="admin-help">
+          빠른 평가는 언어별 1건씩 확인하며, 전체 평가는 40건을 모두 처리합니다. 동일 기준선·평가 모델·루브릭의
+          기존 결과가 있으면 재사용합니다. Ollama에서 평가하며 외부 평가 API로 전송하지 않습니다. 결과는 원어민
+          판단이나 실제 사용 빈도의 증거가 아닌 참고용 점수입니다.
+        </p>
+        {!qualityJudge ? (
+          <p className="admin-empty">아직 로컬 평가 결과가 없습니다. 기준선 결과가 준비되었는지 확인하고 실행하세요.</p>
+        ) : (
+          <>
+            <div className="admin-study-grid">
+              <article className="admin-study-result">
+                <b>
+                  {qualityJudge.evaluation_mode === 'quick' ? '빠른 표본' : '전체 평가'} ·{' '}
+                  {qualityJudge.evaluator_model}
+                </b>
+                <span>{qualityJudge.cases.length}건 평가</span>
+                <small>생성 모델 {qualityJudge.generator_model}</small>
+                <small>기준선 {qualityJudge.dataset.id} · {qualityJudge.dataset.cases}건</small>
+              </article>
+              <article className="admin-study-result">
+                <b>최근 평가</b>
+                <span>{new Date(qualityJudge.timestamp).toLocaleString()}</span>
+                <small>루브릭 SHA-256 {qualityJudge.evaluator_rubric_revision.slice(0, 12)}</small>
+                <small>모델 자기 평가 편향 가능</small>
+              </article>
+            </div>
+            <div className="admin-judge-table-wrap">
+              <table className="admin-judge-table">
+                <thead><tr><th>사례</th><th>언어</th><th>표현</th><th>원문 포함</th><th>자연스러움</th><th>문맥 적합성</th><th>초급 유용성</th><th>언어 정확성</th><th>필드 품질</th><th>확신</th></tr></thead>
+                <tbody>{qualityJudge.cases.map((item) => (
+                  <tr key={item.case_id}>
+                    <td>{item.case_id}</td><td>{item.language.toUpperCase()}</td><td>{item.phrase}</td>
+                    <td>{item.code_checks.grounded_in_source ? '예' : '아니오'}</td>
+                    <td>{item.judgment.naturalness}</td><td>{item.judgment.context_fit}</td>
+                    <td>{item.judgment.beginner_usefulness}</td><td>{item.judgment.language_quality}</td>
+                    <td>{item.judgment.field_quality}</td><td>{item.judgment.confidence}</td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+            <p className="admin-help">{qualityJudge.interpretation}</p>
+          </>
+        )}
+      </Surface>
 
       <div className="admin-layout">
         <FormSurface className="admin-form" onSubmit={addSubscription}>
