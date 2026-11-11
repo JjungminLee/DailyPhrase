@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { getLanguages } from './config.mjs';
+import { readFile, readdir } from 'node:fs/promises';
+import pathModule from 'node:path';
+import { getLanguages, rootDir } from './config.mjs';
 import { AppError, response } from './errors.mjs';
 import { latestArticle } from './feeds/rss.mjs';
 import { isAllowedHost } from './feeds/safe-fetch.mjs';
@@ -329,6 +331,16 @@ export async function handler(event = {}) {
         return response(200, await studyPolling({ concurrencyLevels: [1, 2, 4], repeats: 1 }));
       if (method === 'GET' && path === '/admin/quality-judge-results')
         return response(200, { result: await getLocalJudgeEvaluation() });
+      if (method === 'GET' && path === '/admin/multilingual-benchmark') {
+        const resultsDir = pathModule.join(rootDir, 'results');
+        const files = await readdir(resultsDir);
+        const rewardFiles = files.filter((file) => /^reward-harness-.*\.json$/u.test(file)).sort().reverse();
+        if (!rewardFiles.length) return response(200, { result: null });
+        const reward = JSON.parse(await readFile(pathModule.join(resultsDir, rewardFiles[0]), 'utf8'));
+        const baselineName = pathModule.basename(reward.baseline.file);
+        const baseline = JSON.parse(await readFile(pathModule.join(resultsDir, baselineName), 'utf8'));
+        return response(200, { result: { reward, baseline } });
+      }
       if (method === 'POST' && path === '/admin/quality-judge')
         return response(200, { result: await runLocalJudgeEvaluation(jsonBody(event)) });
       const feedMatch = path.match(/^\/admin\/feeds\/([^/]+)$/);

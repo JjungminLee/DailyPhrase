@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { api } from '../api';
-import type { ArticleItem, BatchStudy, Feed, FeedVerification, LocalJudgeResult } from '../types';
+import type { ArticleItem, BatchStudy, Feed, FeedVerification, LocalJudgeResult, MultilingualBenchmark } from '../types';
 
 export function useAdmin(initialLanguage = 'en') {
   const [feeds, setFeeds] = useState<Feed[]>([]);
@@ -15,19 +15,25 @@ export function useAdmin(initialLanguage = 'en') {
   const [busy, setBusy] = useState(false);
   const [study, setStudy] = useState<BatchStudy | null>(null);
   const [qualityJudge, setQualityJudge] = useState<LocalJudgeResult | null>(null);
+  const [benchmark, setBenchmark] = useState<MultilingualBenchmark | null>(null);
 
   const refresh = useCallback(async () => {
     const judgeRequest = api<{ result: LocalJudgeResult | null }>('/admin/quality-judge-results')
       .then(({ result }) => result)
       .catch(() => null);
-    const [feedResponse, articleResponse, judgeResponse] = await Promise.all([
+    const benchmarkRequest = api<{ result: MultilingualBenchmark | null }>('/admin/multilingual-benchmark')
+      .then(({ result }) => result)
+      .catch(() => null);
+    const [feedResponse, articleResponse, judgeResponse, benchmarkResponse] = await Promise.all([
       api<{ feeds: Feed[] }>('/admin/feeds'),
       api<{ articles: ArticleItem[] }>('/admin/articles'),
       judgeRequest,
+      benchmarkRequest,
     ]);
     setFeeds(feedResponse.feeds);
     setArticles(articleResponse.articles);
     setQualityJudge(judgeResponse);
+    setBenchmark(benchmarkResponse);
   }, []);
 
   useEffect(() => {
@@ -35,16 +41,21 @@ export function useAdmin(initialLanguage = 'en') {
     const judgeRequest = api<{ result: LocalJudgeResult | null }>('/admin/quality-judge-results')
       .then(({ result }) => result)
       .catch(() => null);
+    const benchmarkRequest = api<{ result: MultilingualBenchmark | null }>('/admin/multilingual-benchmark')
+      .then(({ result }) => result)
+      .catch(() => null);
     void Promise.all([
       api<{ feeds: Feed[] }>('/admin/feeds'),
       api<{ articles: ArticleItem[] }>('/admin/articles'),
       judgeRequest,
+      benchmarkRequest,
     ])
-      .then(([feedResponse, articleResponse, judgeResponse]) => {
+      .then(([feedResponse, articleResponse, judgeResponse, benchmarkResponse]) => {
         if (!active) return;
         setFeeds(feedResponse.feeds);
         setArticles(articleResponse.articles);
         setQualityJudge(judgeResponse);
+        setBenchmark(benchmarkResponse);
       })
       .catch((cause: unknown) => {
         if (active)
@@ -214,6 +225,7 @@ export function useAdmin(initialLanguage = 'en') {
     busy,
     study,
     qualityJudge,
+    benchmark,
     verifyUrl,
     addSubscription,
     pollNow,

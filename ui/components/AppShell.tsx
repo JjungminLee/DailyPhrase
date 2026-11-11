@@ -160,8 +160,8 @@ export function AppShell({
           ✓
         </NavButton>
         <NavButton
-          $active={pathname === '/admin'}
-          onClick={() => navigate('/admin')}
+          $active={pathname.startsWith('/admin')}
+          onClick={() => navigate('/admin/harness')}
           aria-label="Settings"
           title="설정"
           type="button"
