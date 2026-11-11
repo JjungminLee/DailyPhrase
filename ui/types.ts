@@ -133,4 +133,36 @@ export type LocalJudgeResult = {
   cases: LocalJudgeCase[];
 };
 
+export type MultilingualBenchmark = {
+  reward: {
+    timestamp: string;
+    dataset: { id: string; sha256: string; cases: number };
+    baseline: { file: string; model: { requested: string; digest: string; ollama_version?: string } };
+    reward_revision_sha256?: string;
+    per_language: Record<string, {
+      cases: number;
+      successful_generations: number;
+      eligible_outputs: number;
+      mean_code_reward: number | null;
+      checks: Record<string, { passed: number; failed: number }>;
+      injected_errors: { detected: number; total: number };
+    }>;
+    repeatability: { stable_cases: number; total_cases: number; repetitions_per_fixed_output: number };
+    injected_errors: { detected: number; total: number; kinds: string[] };
+    rag: { status: string; reason: string };
+    limitations: string[];
+  };
+  baseline: {
+    timestamp: string;
+    model: { requested: string; digest: string };
+    summary: Record<string, {
+      cases: number;
+      requests_succeeded: number;
+      grounded_outputs: number;
+      pronunciation_present: number;
+      chinese_pinyin_with_tone_marks: number;
+    }>;
+  };
+};
+
 export type ApiError = Error & { payload?: unknown; status?: number };

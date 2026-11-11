@@ -22,7 +22,7 @@ function ApplicationRoutes() {
   const { pathname } = useLocation();
   const dailyPhrase = useDailyPhrase();
 
-  if (pathname === '/admin') {
+  if (pathname.startsWith('/admin')) {
     return (
       <div className="admin-standalone">
         <AdminPage

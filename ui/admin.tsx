@@ -1,3 +1,4 @@
+import { Link, useLocation } from 'react-router-dom';
 import { useAdmin } from './hooks/useAdmin';
 import {
   ActionButton,
@@ -15,6 +16,12 @@ type AdminProps = {
 };
 
 export function AdminPage({ languages, onCollect }: AdminProps) {
+  const { pathname } = useLocation();
+  const section = pathname.split('/').filter(Boolean)[1] ?? 'harness';
+  const isFeeds = section === 'feeds';
+  const isReward = section === 'reward';
+  const isRag = section === 'rag';
+  const isHarness = !isFeeds && !isReward && !isRag;
   const {
     feeds,
     articles,
@@ -31,6 +38,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
     busy,
     study,
     qualityJudge,
+    benchmark,
     verifyUrl,
     addSubscription,
     pollNow,
@@ -49,15 +57,21 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
         <a className="ds-button ds-button-secondary" href="/">
           ← Daily Phrase
         </a>
-        <Eyebrow>PRIVATE WORKSPACE</Eyebrow>
+        <Eyebrow>ADMIN WORKSPACE</Eyebrow>
       </div>
+      <nav className="admin-section-nav" aria-label="관리자 섹션">
+        <Link className={isHarness ? 'active' : ''} to="/admin/harness">성능 · 하네스</Link>
+        <Link className={isReward ? 'active' : ''} to="/admin/reward">RL 보상</Link>
+        <Link className={isRag ? 'active' : ''} to="/admin/rag">RAG</Link>
+        <Link className={isFeeds ? 'active' : ''} to="/admin/feeds">구독 관리</Link>
+      </nav>
       <header className="admin-header">
         <div>
-          <div className="eyebrow muted">LOCAL FEED MANAGER</div>
-          <h1>아티클 구독 관리</h1>
-          <p>RSS 또는 Atom 주소를 등록하면 새 글을 확인해 오늘의 표현 후보로 모읍니다.</p>
+          <div className="eyebrow muted">{isFeeds ? 'LOCAL FEED MANAGER' : 'MODEL STUDY WORKSPACE'}</div>
+          <h1>{isFeeds ? '아티클 구독 관리' : isReward ? 'RL 보상 신호' : isRag ? 'RAG 지식베이스 실험' : '다국어 성능 · 평가 하네스'}</h1>
+          <p>{isFeeds ? 'RSS 구독과 발견한 아티클을 관리합니다.' : isReward ? '코드로 검증할 수 있는 학습 보상 항목과 현재 판정 결과를 확인합니다.' : isRag ? '허가된 표현 자료와 검색 필요 사례의 준비 상태를 관리합니다.' : '고정 평가셋으로 기준선과 실험 후보의 품질을 비교합니다.'}</p>
         </div>
-        <div className="admin-header-actions">
+        {isFeeds && <div className="admin-header-actions">
           <ActionButton
             tone="secondary"
             className="admin-poll-button"
@@ -76,16 +90,16 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
           >
             ↻ 새 글 확인
           </ActionButton>
-        </div>
+        </div>}
       </header>
 
-      <div className="admin-local-note">
+      {isFeeds && <div className="admin-local-note">
         <b>로컬 관리자</b>
         <span>구독 목록과 발견한 글은 이 컴퓨터의 JSON 파일에 저장됩니다.</span>
-      </div>
+      </div>}
       {message && <div className="admin-message">{message}</div>}
       {error && <div className="admin-error">{error}</div>}
-      {study && (
+      {isFeeds && study && (
         <Surface className="admin-study-card">
           <div className="admin-card-title">
             <div>
@@ -115,7 +129,110 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
         </Surface>
       )}
 
-      <Surface className="admin-study-card">
+      {isHarness && <Surface className="admin-study-card">
+        <div className="admin-card-title">
+          <div>
+            <span className="panel-kicker">WEEK 5 · MULTILINGUAL BENCHMARK</span>
+            <h2>다국어 성능 기준선과 보상 하네스</h2>
+          </div>
+          {benchmark && <span className="admin-inbox-total">후보 모델 비교 전 · 개선 판정 보류</span>}
+        </div>
+        {!benchmark ? (
+          <p className="admin-empty">저장된 보상 하네스 결과가 없습니다. `npm run evaluate:reward` 실행 후 새로고침하세요.</p>
+        ) : (
+          <>
+            <p className="admin-help">
+              이 화면은 동일한 held-out 40건의 현재 기준선과 코드 검사 결과를 보여줍니다. RL/SFT/RAG 후보 실행이 없어 아직 개선 여부를 판단할 수 없습니다.
+              코드 보상 통과는 자연스러움·의미 정확성의 점수가 아닙니다.
+            </p>
+            <div className="admin-study-grid">
+              <article className="admin-study-result">
+                <b>현재 기준선 · {benchmark.baseline.model.requested}</b>
+                <span>{benchmark.reward.dataset.id} · {benchmark.reward.dataset.cases}건</span>
+                <small>Digest {benchmark.baseline.model.digest.slice(0, 16)}…</small>
+                <small>평가 {new Date(benchmark.baseline.timestamp).toLocaleString()}</small>
+              </article>
+              <article className="admin-study-result">
+                <b>보상 적격 출력</b>
+                <span>{Object.values(benchmark.reward.per_language).reduce((n, row) => n + row.eligible_outputs, 0)} / {benchmark.reward.dataset.cases}</span>
+                <small>합성 코드 보상 기준 통과</small>
+                <small>하네스 {new Date(benchmark.reward.timestamp).toLocaleString()}</small>
+              </article>
+              <article className="admin-study-result">
+                <b>주입 오류 탐지</b>
+                <span>{benchmark.reward.injected_errors.detected} / {benchmark.reward.injected_errors.total}</span>
+                <small>{benchmark.reward.injected_errors.kinds.length}개 오류 유형</small>
+                <small>같은 고정 출력을 반복 재채점</small>
+              </article>
+              <article className="admin-study-result">
+                <b>평가 반복 일치</b>
+                <span>{benchmark.reward.repeatability.stable_cases} / {benchmark.reward.repeatability.total_cases}</span>
+                <small>{benchmark.reward.repeatability.repetitions_per_fixed_output}회 결정성 확인</small>
+                <small>생성 모델의 반복 안정성 측정은 아님</small>
+              </article>
+            </div>
+            <div className="admin-judge-table-wrap">
+              <table className="admin-judge-table">
+                <thead><tr><th>언어</th><th>요청 성공</th><th>원문 근거</th><th>보상 적격</th><th>보상 통과율</th><th>기준선 발음 필드</th><th>주입 오류 탐지</th></tr></thead>
+                <tbody>{Object.entries(benchmark.reward.per_language).map(([code, row]) => {
+                  const baselineRow = benchmark.baseline.summary[code];
+                  return <tr key={code}>
+                    <td>{code.toUpperCase()}</td>
+                    <td>{row.successful_generations}/{row.cases}</td>
+                    <td>{row.checks.source_grounded?.passed ?? '—'}/{row.cases}</td>
+                    <td>{row.eligible_outputs}/{row.cases}</td>
+                    <td>{row.mean_code_reward === null ? '—' : `${(row.mean_code_reward * 100).toFixed(0)}%`}</td>
+                    <td>{baselineRow ? `${baselineRow.pronunciation_present}/${baselineRow.cases}` : '—'}</td>
+                    <td>{row.injected_errors.detected}/{row.injected_errors.total}</td>
+                  </tr>;
+                })}</tbody>
+              </table>
+            </div>
+            <p className="admin-help">
+              RAG: {benchmark.reward.rag.status === 'not_run' ? '실행 안 함' : benchmark.reward.rag.status} — {benchmark.reward.rag.reason}
+              {' '}기준선 결과 파일: <code>{benchmark.reward.baseline.file}</code>
+            </p>
+            <details className="admin-benchmark-details">
+              <summary>해석 범위와 제한 사항</summary>
+              <ul>{benchmark.reward.limitations.map((item) => <li key={item}>{item}</li>)}</ul>
+            </details>
+          </>
+        )}
+      </Surface>}
+
+      {isReward && <Surface className="admin-study-card">
+        <div className="admin-card-title"><div><span className="panel-kicker">REWARD SIGNAL · BASELINE AUDIT</span><h2>코드 보상 항목별 결과</h2></div></div>
+        {!benchmark ? <p className="admin-empty">보상 하네스 결과가 없습니다. `npm run evaluate:reward` 실행 후 새로고침하세요.</p> : <>
+          <p className="admin-help">현재 점수는 기존 기준선 출력에 보상 검사를 적용한 결과입니다. RL 학습 후보는 아직 없어 개선 비교가 아닙니다. 모든 보상 항목이 통과해야 적격으로 집계되며, 적격은 언어 품질의 증명이 아닙니다.</p>
+          <div className="admin-study-grid">
+            <article className="admin-study-result"><b>보상 적격</b><span>{Object.values(benchmark.reward.per_language).reduce((n, row) => n + row.eligible_outputs, 0)}/{benchmark.reward.dataset.cases}</span><small>기준선 · {benchmark.reward.baseline.model.requested}</small></article>
+            <article className="admin-study-result"><b>보상 정의 버전</b><span>{benchmark.reward.reward_revision_sha256?.slice(0, 12) ?? '기록 없음'}</span><small>SHA-256</small></article>
+          </div>
+          <div className="admin-judge-table-wrap"><table className="admin-judge-table">
+            <thead><tr><th>언어</th><th>사례</th><th>스키마</th><th>원문 근거</th><th>길이</th><th>스크립트</th><th>발음 형식</th><th>한국어 필드</th><th>합성 보상</th></tr></thead>
+            <tbody>{Object.entries(benchmark.reward.per_language).map(([code, row]) => <tr key={code}>
+              <td>{code.toUpperCase()}</td><td>{row.cases}</td>
+              {['schema_valid','source_grounded','phrase_length_valid','target_script_compatible','pronunciation_format_valid','korean_fields_present'].map((key) => <td key={key}>{row.checks[key]?.passed ?? '—'}/{row.cases}</td>)}
+              <td>{row.eligible_outputs}/{row.cases}</td>
+            </tr>)}</tbody>
+          </table></div>
+          <p className="admin-help">의미 정확성, 문맥 적합성, 초급 유용성, 발음 정확성은 이 코드 보상으로 검증되지 않습니다.</p>
+        </>}
+      </Surface>}
+
+      {isRag && <Surface className="admin-study-card">
+        <div className="admin-card-title"><div><span className="panel-kicker">RETRIEVAL AUGMENTED GENERATION</span><h2>RAG 지식베이스 실험</h2></div><span className="admin-inbox-total">현재 미실행</span></div>
+        <p className="admin-help">RAG는 검증셋에서 검색으로 해결할 필요가 확인되고, 사용 권리가 확인된 표현 자료가 준비될 때만 별도 비교합니다. 현재는 허가된 코퍼스가 확인되지 않아 지식베이스를 만들지 않았습니다.</p>
+        <div className="admin-study-grid">
+          <article className="admin-study-result"><b>평가 사례</b><span>40건 held-out</span><small>검색 인덱스에 포함 금지</small></article>
+          <article className="admin-study-result"><b>검색 자료</b><span>미확보</span><small>자료 출처와 사용 권리 기록 필요</small></article>
+          <article className="admin-study-result"><b>실험 상태</b><span>{benchmark?.reward.rag.status === 'not_run' || !benchmark ? '미실행' : benchmark.reward.rag.status}</span><small>검색 적중과 근거성, 오류 변화를 측정</small></article>
+        </div>
+        {benchmark && <p className="admin-help">기록된 사유: {benchmark.reward.rag.reason}</p>}
+        <div className="admin-rag-plan"><b>비교 시 고정할 조건</b><span>같은 평가 사례 · 생성 모델과 프롬프트 · 평가 루브릭</span><span>RAG 전후 검색 적중 · 원문 근거 · 언어별 오류 수</span></div>
+      </Surface>}
+
+      {isHarness && <Surface className="admin-study-card">
         <div className="admin-card-title">
           <div>
             <span className="panel-kicker">WEEK 4 · LOCAL QUALITY JUDGE</span>
@@ -183,9 +300,9 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
             <p className="admin-help">{qualityJudge.interpretation}</p>
           </>
         )}
-      </Surface>
+      </Surface>}
 
-      <div className="admin-layout">
+      {isFeeds && <><div className="admin-layout">
         <FormSurface className="admin-form" onSubmit={addSubscription}>
           <div className="admin-card-title">
             <div>
@@ -388,7 +505,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
             ))}
           </div>
         </Surface>
-      )}
+      )}</>}
     </section>
   );
 }

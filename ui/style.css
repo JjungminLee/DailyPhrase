@@ -1821,6 +1821,55 @@ h1 em {
   color: #91a864;
   margin-left: 4px;
 }
+.admin-benchmark-details {
+  margin-top: 12px;
+  color: var(--dp-color-muted);
+  font-size: 13px;
+}
+.admin-benchmark-details summary {
+  cursor: pointer;
+  color: var(--dp-color-ink);
+  font-weight: 650;
+}
+.admin-benchmark-details ul {
+  display: grid;
+  gap: 6px;
+  padding-left: 20px;
+}
+.admin-section-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 25px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--dp-color-border);
+}
+.admin-section-nav a {
+  padding: 9px 14px;
+  border: 1px solid var(--dp-color-border);
+  border-radius: 999px;
+  color: var(--dp-color-subtle);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+.admin-section-nav a:hover,
+.admin-section-nav a.active {
+  border-color: #b4c78c;
+  color: #4a6422;
+  background: #f1f6e6;
+}
+.admin-rag-plan {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 14px;
+  color: var(--dp-color-subtle);
+  background: var(--dp-color-canvas);
+  font-size: 13px;
+}
+.admin-rag-plan b { color: var(--dp-color-ink); }
 @media (max-width: 900px) {
   .admin-layout {
     grid-template-columns: 1fr;
