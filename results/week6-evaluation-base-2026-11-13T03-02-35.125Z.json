@@ -1,0 +1,1621 @@
+{
+  "kind": "week6-sft-evaluation",
+  "run_id": "96cb0e34-f693-4717-913f-287f7541bffc",
+  "timestamp": "2026-11-13T03:02:35.125Z",
+  "git_sha": "e3aa1845db2cbb8c1c9f29319abb4db4891d6cad",
+  "model": {
+    "requested": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "adapter": null,
+    "variant": "base",
+    "license": "Apache-2.0"
+  },
+  "dataset": {
+    "id": "daily-phrase-eval-v2",
+    "sha256": "52ea48d680aaab3de52a7bde72ab47328005912390d45e1e096991d17750d4f8",
+    "cases": 40,
+    "split": "evaluation_only; do not use these cases for SFT, prompt examples, or retrieval indexing",
+    "used_as_training_data": false
+  },
+  "prompt_sha256_by_language": {
+    "zh": "68c980e21d2162147ebcbdc77f2c3ba1e878fe3a8ab81792e82b82300594ef6b",
+    "en": "dc6571cfcebc89d78e0cbdb68944f577f5870ddecf43af700f42ac4271b16629",
+    "fr": "ba6485341d14db6f4578f271a345879d996b2efd2d45eb501be97c18ed51bdf9",
+    "ja": "04c99210e00e1838cd84bcb5da172831ab5a924c1b634f5bf87203b2088b1cd9"
+  },
+  "generation": {
+    "temperature": 0.1,
+    "max_tokens": 500,
+    "seed": 42,
+    "do_sample": true,
+    "constrained_json_schema": true
+  },
+  "machine": {
+    "platform": "Darwin 25.3.0 arm64",
+    "cpu": "arm",
+    "logical_cpu_count": 10,
+    "total_memory_bytes": 17179869184,
+    "device": "mps",
+    "peak_process_rss_bytes": 592838656,
+    "peak_mps_driver_allocated_bytes": 2754347008
+  },
+  "runtime": {
+    "torch": "2.15.0",
+    "transformers": "5.22.2"
+  },
+  "summary": {
+    "cases": 40,
+    "requests_succeeded": 40,
+    "eligible_outputs": 1,
+    "mean_code_reward": 0.025,
+    "mean_latency_ms": 7697.445249999999,
+    "p50_latency_ms": 6602.48,
+    "p95_latency_ms": 13345.77,
+    "total_output_tokens": 5543
+  },
+  "per_language": {
+    "zh": {
+      "cases": 10,
+      "requests_succeeded": 10,
+      "source_grounded": 10,
+      "eligible_outputs": 1,
+      "mean_code_reward": 0.1,
+      "exact_reference_matches": 0,
+      "mean_latency_ms": 9080.172999999999,
+      "checks": {
+        "schema_valid": {
+          "passed": 10,
+          "failed": 0
+        },
+        "source_grounded": {
+          "passed": 10,
+          "failed": 0
+        },
+        "phrase_length_valid": {
+          "passed": 3,
+          "failed": 7
+        },
+        "target_script_compatible": {
+          "passed": 10,
+          "failed": 0
+        },
+        "pronunciation_format_valid": {
+          "passed": 10,
+          "failed": 0
+        },
+        "korean_fields_present": {
+          "passed": 4,
+          "failed": 6
+        }
+      }
+    },
+    "en": {
+      "cases": 10,
+      "requests_succeeded": 10,
+      "source_grounded": 10,
+      "eligible_outputs": 0,
+      "mean_code_reward": 0,
+      "exact_reference_matches": 0,
+      "mean_latency_ms": 5983.023999999999,
+      "checks": {
+        "schema_valid": {
+          "passed": 10,
+          "failed": 0
+        },
+        "source_grounded": {
+          "passed": 10,
+          "failed": 0
+        },
+        "phrase_length_valid": {
+          "passed": 0,
+          "failed": 10
+        },
+        "target_script_compatible": {
+          "passed": 10,
+          "failed": 0
+        },
+        "pronunciation_format_valid": {
+          "passed": 10,
+          "failed": 0
+        },
+        "korean_fields_present": {
+          "passed": 1,
+          "failed": 9
+        }
+      }
+    },
+    "fr": {
+      "cases": 10,
+      "requests_succeeded": 10,
+      "source_grounded": 9,
+      "eligible_outputs": 0,
+      "mean_code_reward": 0,
+      "exact_reference_matches": 1,
+      "mean_latency_ms": 10668.47,
+      "checks": {
+        "schema_valid": {
+          "passed": 9,
+          "failed": 1
+        },
+        "source_grounded": {
+          "passed": 9,
+          "failed": 1
+        },
+        "phrase_length_valid": {
+          "passed": 2,
+          "failed": 8
+        },
+        "target_script_compatible": {
+          "passed": 9,
+          "failed": 1
+        },
+        "pronunciation_format_valid": {
+          "passed": 10,
+          "failed": 0
+        },
+        "korean_fields_present": {
+          "passed": 0,
+          "failed": 10
+        }
+      }
+    },
+    "ja": {
+      "cases": 10,
+      "requests_succeeded": 10,
+      "source_grounded": 1,
+      "eligible_outputs": 0,
+      "mean_code_reward": 0,
+      "exact_reference_matches": 0,
+      "mean_latency_ms": 5058.114,
+      "checks": {
+        "schema_valid": {
+          "passed": 1,
+          "failed": 9
+        },
+        "source_grounded": {
+          "passed": 1,
+          "failed": 9
+        },
+        "phrase_length_valid": {
+          "passed": 0,
+          "failed": 10
+        },
+        "target_script_compatible": {
+          "passed": 1,
+          "failed": 9
+        },
+        "pronunciation_format_valid": {
+          "passed": 0,
+          "failed": 10
+        },
+        "korean_fields_present": {
+          "passed": 0,
+          "failed": 10
+        }
+      }
+    }
+  },
+  "limitations": [
+    "The 32-example training set is assistant-authored synthetic data and was not reviewed by native speakers.",
+    "The 40-case evaluation set is held out from training; small sample results do not establish general improvement.",
+    "Code reward checks eligibility conditions only and does not establish naturalness, meaning accuracy, or beginner usefulness.",
+    "The Qwen3-0.6B pilot is not a controlled comparison with the Qwen3.5-9B Ollama baseline."
+  ],
+  "cases": [
+    {
+      "id": "zh-01",
+      "language": "zh",
+      "source_text": "天气预报说，明天可能会下雨。出门的时候记得带伞。",
+      "reference": {
+        "text": "带伞",
+        "pinyin": "dài sǎn",
+        "meaning_ko": "우산을 챙기다",
+        "note_ko": "외출할 때 우산을 가져간다는 말이다.",
+        "level": "2",
+        "type": "collocation"
+      },
+      "status": "success",
+      "elapsed_ms": 6391.71,
+      "input_tokens": 513,
+      "output_tokens": 106,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"tian wei shu de shi yu ming de rui\", \"note_ko\": \"出门的时候记得带伞。\", \"level\": \"1\", \"type\": \"sentence_pattern\", \"reading\": \"tian wei shu de shi yu ming de rui\", \"meaning_ko\": \"明天可能会下雨。\", \"text\": \"天气预报说，明天可能会下雨。出门的时候记得带伞。\"}]}",
+      "output": {
+        "pinyin": "tian wei shu de shi yu ming de rui",
+        "note_ko": "出门的时候记得带伞。",
+        "level": "1",
+        "type": "sentence_pattern",
+        "reading": "tian wei shu de shi yu ming de rui",
+        "meaning_ko": "明天可能会下雨。",
+        "text": "天气预报说，明天可能会下雨。出门的时候记得带伞。"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "zh-02",
+      "language": "zh",
+      "source_text": "我每天早上七点起床，然后做早餐。周末我会晚一点儿起。",
+      "reference": {
+        "text": "做早餐",
+        "pinyin": "zuò zǎo cān",
+        "meaning_ko": "아침 식사를 준비하다",
+        "note_ko": "早餐과 함께 자주 쓰는 동사 표현이다.",
+        "level": "2",
+        "type": "collocation"
+      },
+      "status": "success",
+      "elapsed_ms": 6724.21,
+      "input_tokens": 516,
+      "output_tokens": 130,
+      "raw_output": "{\"phrases\": [{\"text\": \"早上\", \"note_ko\": \"시각\", \"level\": \"1\", \"pinyin\": \"shìjiāng\", \"type\": \"sentence_pattern\", \"reading\": \"시각\", \"meaning_ko\": \"시각\"}, {\"text\": \"早餐\", \"note_ko\": \"식사\", \"level\": \"1\", \"pinyin\": \"xíshā\", \"type\": \"sentence_pattern\", \"reading\": \"식사\", \"meaning_ko\": \"식사\"}]}\n\n  \n  \n  \t\t",
+      "output": {
+        "text": "早上",
+        "note_ko": "시각",
+        "level": "1",
+        "pinyin": "shìjiāng",
+        "type": "sentence_pattern",
+        "reading": "시각",
+        "meaning_ko": "시각"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": true,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": true
+      },
+      "reward": 1,
+      "eligible": true,
+      "exact_reference_match": false
+    },
+    {
+      "id": "zh-03",
+      "language": "zh",
+      "source_text": "你先休息一下，我来洗碗。今天的工作已经做完了。",
+      "reference": {
+        "text": "休息一下",
+        "pinyin": "xiū xi yí xià",
+        "meaning_ko": "잠깐 쉬다",
+        "note_ko": "一下를 붙여 동작을 가볍고 짧게 제안한다.",
+        "level": "2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 12774.25,
+      "input_tokens": 515,
+      "output_tokens": 245,
+      "raw_output": "{\"phrases\": [{\"text\": \"你先休息一下\", \"note_ko\": \"简洁自然的表达方式\", \"pinyin\": \"nǐ xiān xí jiàn yī\", \"level\": \"1\", \"type\": \"sentence_pattern\", \"reading\": \"you first take a break\", \"meaning_ko\": \"you first take a break\"}, {\"text\": \"我来洗碗\", \"note_ko\": \"简洁自然的表达方式\", \"pinyin\": \"wǒ lái shī wǎn\", \"level\": \"1\", \"type\": \"sentence_pattern\", \"reading\": \"i will wash the dishes\", \"meaning_ko\": \"i will wash the dishes\"}, {\"text\": \"今天的工作已经做完了\", \"note_ko\": \"简洁自然的表达方式\", \"pinyin\": \"jīn rì de gōng zuò yǐng zuò wán le\", \"level\": \"1\", \"type\": \"sentence_pattern\", \"reading\": \"today's work is done\", \"meaning_ko\": \"today's work is done\"}]}\n\n  \n  \n  \t\t",
+      "output": {
+        "text": "你先休息一下",
+        "note_ko": "简洁自然的表达方式",
+        "pinyin": "nǐ xiān xí jiàn yī",
+        "level": "1",
+        "type": "sentence_pattern",
+        "reading": "you first take a break",
+        "meaning_ko": "you first take a break"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": true,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "zh-04",
+      "language": "zh",
+      "source_text": "这家店离地铁站很近，走路只要五分钟。我们下班后去吃饭吧。",
+      "reference": {
+        "text": "离地铁站很近",
+        "pinyin": "lí dì tiě zhàn hěn jìn",
+        "meaning_ko": "지하철역에서 아주 가깝다",
+        "note_ko": "离 A 很近은 A와 가깝다는 위치 표현이다.",
+        "level": "3",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 16840.37,
+      "input_tokens": 518,
+      "output_tokens": 317,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"tā jiàn lǐ xì yuè jǐn, gōu zǒu yǐng zhǎng yī zhǐ\", \"note_ko\": \"reusable everyday pattern for walking time\", \"level\": \"1\", \"meaning_ko\": \"the restaurant is very close to the station, and it takes only five minutes to walk there.\",\"type\": \"sentence_pattern\", \"reading\": \"tā jiàn lǐ xì yuè jǐn, gōu zǒu yǐng zhǎng yī zhǐ\", \"text\": \"这家店离地铁站很近，走路只要五分钟。我们下班后去吃饭吧。\"}, {\"pinyin\": \"tā jiàn lǐ xì yuè jǐn, gōu zǒu yǐng zhǎng yī zhǐ\", \"note_ko\": \"reusable everyday pattern for walking time\", \"level\": \"1\", \"meaning_ko\": \"the restaurant is very close to the station, and it takes only five minutes to walk there.\",\"type\": \"sentence_pattern\", \"reading\": \"tā jiàn lǐ xì yuè jǐn, gōu zǒu yǐng zhǎng yī zhǐ\", \"text\": \"这家店离地铁站很近，走路只要五分钟。我们下班后去吃饭吧。\"}]}\n\n  \n  \n  \t\t",
+      "output": {
+        "pinyin": "tā jiàn lǐ xì yuè jǐn, gōu zǒu yǐng zhǎng yī zhǐ",
+        "note_ko": "reusable everyday pattern for walking time",
+        "level": "1",
+        "meaning_ko": "the restaurant is very close to the station, and it takes only five minutes to walk there.",
+        "type": "sentence_pattern",
+        "reading": "tā jiàn lǐ xì yuè jǐn, gōu zǒu yǐng zhǎng yī zhǐ",
+        "text": "这家店离地铁站很近，走路只要五分钟。我们下班后去吃饭吧。"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "zh-05",
+      "language": "zh",
+      "source_text": "我不太明白这个词的意思，可以再说一遍吗？请说慢一点。",
+      "reference": {
+        "text": "再说一遍",
+        "pinyin": "zài shuō yí biàn",
+        "meaning_ko": "한 번 더 말하다",
+        "note_ko": "다시 말해 달라고 부탁할 때 쓰는 표현이다.",
+        "level": "2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 10004.16,
+      "input_tokens": 515,
+      "output_tokens": 185,
+      "raw_output": "{\"phrases\": [{\"text\": \"我不太明白这个词的意思\", \"note_ko\": \"이어도 설명해 주세요\", \"level\": \"1\", \"pinyin\": \"ni tai ming gai chuan chuan yin de yin\", \"type\": \"sentence_pattern\", \"reading\": \"이어도 설명해 주세요\", \"meaning_ko\": \"이어도 설명해 주세요\"}, {\"text\": \"请说慢一点\", \"note_ko\": \"말을 빠르게 하시면\", \"level\": \"1\", \"pinyin\": \"le le hao yu jia\", \"type\": \"sentence_pattern\", \"reading\": \"말을 빠르게 하시면\", \"meaning_ko\": \"말을 빠르게 하시면\"}]}\n\n  \n  \n  \t\t",
+      "output": {
+        "text": "我不太明白这个词的意思",
+        "note_ko": "이어도 설명해 주세요",
+        "level": "1",
+        "pinyin": "ni tai ming gai chuan chuan yin de yin",
+        "type": "sentence_pattern",
+        "reading": "이어도 설명해 주세요",
+        "meaning_ko": "이어도 설명해 주세요"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": true
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "en-01",
+      "language": "en",
+      "source_text": "I usually make breakfast before I leave for work. Today I only had time for coffee.",
+      "reference": {
+        "text": "make breakfast",
+        "meaning_ko": "아침 식사를 준비하다",
+        "note_ko": "breakfast와 함께 쓰는 자연스러운 동사 표현이다.",
+        "level": "A2",
+        "type": "collocation"
+      },
+      "status": "success",
+      "elapsed_ms": 5325.15,
+      "input_tokens": 486,
+      "output_tokens": 94,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"wǒ 이 usually make breakfast before I leave for work\", \"note_ko\": \"usually\", \"level\": \"A2\", \"type\": \"sentence_pattern\", \"reading\": \"I usually make breakfast before I leave for work.\",\"meaning_ko\": \"I usually make breakfast before I leave for work.\",\"text\": \"I usually make breakfast before I leave for work.\"}]}",
+      "output": {
+        "pinyin": "wǒ 이 usually make breakfast before I leave for work",
+        "note_ko": "usually",
+        "level": "A2",
+        "type": "sentence_pattern",
+        "reading": "I usually make breakfast before I leave for work.",
+        "meaning_ko": "I usually make breakfast before I leave for work.",
+        "text": "I usually make breakfast before I leave for work."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "en-02",
+      "language": "en",
+      "source_text": "Could you say that again a little more slowly? I missed the last part.",
+      "reference": {
+        "text": "say that again",
+        "meaning_ko": "그 말을 다시 하다",
+        "note_ko": "상대에게 반복해 달라고 정중히 부탁하는 표현이다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 6650.39,
+      "input_tokens": 484,
+      "output_tokens": 126,
+      "raw_output": "{\"phrases\": [{\"text\": \"Could you say that again a little more slowly? I missed the last part.\" , \"level\": \"A2\", \"note_ko\": \"Use a slower tone for emphasis.\" , \"meaning_ko\": \"Could you repeat it a bit more slowly? I missed the last part.\" , \"pinyin\": \"kǒng yīng yāi nǎi yīng yí yī yá lǐ zhe qì yān zhe qì yān\" , \"type\": \"sentence_pattern\"}]}\n\n  \n  \n  ",
+      "output": {
+        "text": "Could you say that again a little more slowly? I missed the last part.",
+        "level": "A2",
+        "note_ko": "Use a slower tone for emphasis.",
+        "meaning_ko": "Could you repeat it a bit more slowly? I missed the last part.",
+        "pinyin": "kǒng yīng yāi nǎi yīng yí yī yá lǐ zhe qì yān zhe qì yān",
+        "type": "sentence_pattern"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "en-03",
+      "language": "en",
+      "source_text": "The station is only a five-minute walk from this café. We can meet there after lunch.",
+      "reference": {
+        "text": "a five-minute walk",
+        "meaning_ko": "걸어서 5분 거리",
+        "note_ko": "장소 사이의 도보 거리를 말할 때 쓴다.",
+        "level": "A2",
+        "type": "collocation"
+      },
+      "status": "success",
+      "elapsed_ms": 6264.25,
+      "input_tokens": 487,
+      "output_tokens": 107,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"zhōng jiàn yī wèi mǐn zǒu\", \"note_ko\": \"five-minute walk\", \"level\": \"A2\", \"type\": \"sentence_pattern\", \"reading\": \"the station is only a five-minute walk from this café.\",\"meaning_ko\": \"the station is only a five-minute walk from this café.\",\"text\": \"The station is only a five-minute walk from this café.\"}]}",
+      "output": {
+        "pinyin": "zhōng jiàn yī wèi mǐn zǒu",
+        "note_ko": "five-minute walk",
+        "level": "A2",
+        "type": "sentence_pattern",
+        "reading": "the station is only a five-minute walk from this café.",
+        "meaning_ko": "the station is only a five-minute walk from this café.",
+        "text": "The station is only a five-minute walk from this café."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "en-04",
+      "language": "en",
+      "source_text": "Take an umbrella with you; the forecast says it may rain this afternoon.",
+      "reference": {
+        "text": "take an umbrella",
+        "meaning_ko": "우산을 가져가다",
+        "note_ko": "외출할 때 물건을 챙기라는 맥락에서 쓴다.",
+        "level": "A2",
+        "type": "collocation"
+      },
+      "status": "success",
+      "elapsed_ms": 5238.51,
+      "input_tokens": 483,
+      "output_tokens": 93,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"tāi yuān yuè yīng\", \"note_ko\": \"take an umbrella\", \"level\": \"A2\", \"type\": \"sentence_pattern\", \"reading\": \"take an umbrella\", \"meaning_ko\": \"take an umbrella with you\", \"text\": \"Take an umbrella with you; the forecast says it may rain this afternoon.\"}]}",
+      "output": {
+        "pinyin": "tāi yuān yuè yīng",
+        "note_ko": "take an umbrella",
+        "level": "A2",
+        "type": "sentence_pattern",
+        "reading": "take an umbrella",
+        "meaning_ko": "take an umbrella with you",
+        "text": "Take an umbrella with you; the forecast says it may rain this afternoon."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "en-05",
+      "language": "en",
+      "source_text": "I don't quite understand this word. Could you explain it in another way?",
+      "reference": {
+        "text": "I don't quite understand",
+        "meaning_ko": "잘 이해하지 못하다",
+        "note_ko": "quite가 완곡한 느낌을 더한다.",
+        "level": "B1",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 6319.02,
+      "input_tokens": 484,
+      "output_tokens": 104,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"nengguo\", \"note_ko\": \"다른 방법으로 설명해줄 수 있습니다.\" , \"level\": \"A2\", \"reading\": \"다른 방법으로 설명해줄 수 있습니다.\" , \"meaning_ko\": \"다른 방법으로 설명해줄 수 있습니다.\" , \"type\": \"sentence_pattern\", \"text\": \"I don't quite understand this word. Could you explain it in another way?\"}]}",
+      "output": {
+        "pinyin": "nengguo",
+        "note_ko": "다른 방법으로 설명해줄 수 있습니다.",
+        "level": "A2",
+        "reading": "다른 방법으로 설명해줄 수 있습니다.",
+        "meaning_ko": "다른 방법으로 설명해줄 수 있습니다.",
+        "type": "sentence_pattern",
+        "text": "I don't quite understand this word. Could you explain it in another way?"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": true
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "fr-01",
+      "language": "fr",
+      "source_text": "Je prépare le petit déjeuner avant de partir au travail. Le dimanche, je prends mon temps.",
+      "reference": {
+        "text": "prépare le petit déjeuner",
+        "meaning_ko": "아침 식사를 준비하다",
+        "note_ko": "petit déjeuner와 함께 쓰는 자연스러운 표현이다.",
+        "level": "B1",
+        "type": "collocation"
+      },
+      "status": "success",
+      "elapsed_ms": 8893.1,
+      "input_tokens": 492,
+      "output_tokens": 165,
+      "raw_output": "{\"phrases\": [{\"text\": \"Je prépare le petit déjeuner avant de partir au travail\", \"level\": \"A2\", \"note_ko\": \"Use of present tense for daily routines\", \"meaning_ko\": \"I prepare breakfast before leaving for work.\",\"pinyin\": \"je prépare le petit déjeuner avant de partir au travail\", \"type\": \"sentence_pattern\"}, {\"text\": \"Le dimanche, je prends mon temps\", \"level\": \"B1\", \"note_ko\": \"Use of present tense for leisure time\", \"meaning_ko\": \"On Sunday, I take my time\", \"pinyin\": \"le dimanche, je prends mon temps\", \"type\": \"sentence_pattern\"}]}\n\n  \n  \n  \n ",
+      "output": {
+        "text": "Je prépare le petit déjeuner avant de partir au travail",
+        "level": "A2",
+        "note_ko": "Use of present tense for daily routines",
+        "meaning_ko": "I prepare breakfast before leaving for work.",
+        "pinyin": "je prépare le petit déjeuner avant de partir au travail",
+        "type": "sentence_pattern"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "fr-02",
+      "language": "fr",
+      "source_text": "Vous pouvez répéter un peu plus lentement, s'il vous plaît ? Je n'ai pas compris la fin.",
+      "reference": {
+        "text": "un peu plus lentement",
+        "meaning_ko": "조금 더 천천히",
+        "note_ko": "정중한 요청에서 속도를 완곡하게 조절한다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 10749.13,
+      "input_tokens": 494,
+      "output_tokens": 182,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"vous pouvez répéter un peu plus lentement\", \"note_ko\": \"repete\", \"level\": \"A2\", \"type\": \"sentence_pattern\", \"reading\": \"repete\", \"text\": \"vous pouvez répéter un peu plus lentement, s'il vous plaît ? Je n'ai pas compris la fin.\" , \"meaning_ko\": \"repete\"}, {\"pinyin\": \"je n'ai pas compris la fin\", \"note_ko\": \"n'ai pas compris\", \"level\": \"B1\", \"type\": \"sentence_pattern\", \"reading\": \"n'ai pas compris\", \"text\": \"Je n'ai pas compris la fin.\" , \"meaning_ko\": \"n'ai pas compris\"}]}\n\n  \n  \n  ",
+      "output": {
+        "pinyin": "vous pouvez répéter un peu plus lentement",
+        "note_ko": "repete",
+        "level": "A2",
+        "type": "sentence_pattern",
+        "reading": "repete",
+        "text": "vous pouvez répéter un peu plus lentement, s'il vous plaît ? Je n'ai pas compris la fin.",
+        "meaning_ko": "repete"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "fr-03",
+      "language": "fr",
+      "source_text": "La station est à cinq minutes à pied de ce café. On peut se retrouver là-bas après le déjeuner.",
+      "reference": {
+        "text": "à cinq minutes à pied",
+        "meaning_ko": "걸어서 5분 거리에",
+        "note_ko": "장소 사이의 도보 거리를 나타낸다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 13345.77,
+      "input_tokens": 495,
+      "output_tokens": 241,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"l'place à cinq minutos à pied de ce café\", \"note_ko\": \"très facile à traverser\", \"level\": \"A2\", \"type\": \"sentence_pattern\", \"reading\": \"l'place à cinq minutes à pied de ce café\", \"text\": \"La station est à cinq minutes à pied de ce café. On peut se retrouver là-bas après le déjeuner.\",\"meaning_ko\": \"la station est à cinq minutes à pied de ce café\"}, {\"pinyin\": \"l'place à cinq minutes à pied de ce café\", \"note_ko\": \"très facile à traverser\", \"level\": \"A2\", \"type\": \"sentence_pattern\", \"reading\": \"l'place à cinq minutes à pied de ce café\", \"text\": \"La station est à cinq minutes à pied de ce café. On peut se retrouver là-bas après le déjeuner.\",\"meaning_ko\": \"la station est à cinq minutes à pied de ce café\"}]}\n\n  \n  \n  ",
+      "output": {
+        "pinyin": "l'place à cinq minutos à pied de ce café",
+        "note_ko": "très facile à traverser",
+        "level": "A2",
+        "type": "sentence_pattern",
+        "reading": "l'place à cinq minutes à pied de ce café",
+        "text": "La station est à cinq minutes à pied de ce café. On peut se retrouver là-bas après le déjeuner.",
+        "meaning_ko": "la station est à cinq minutes à pied de ce café"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "fr-04",
+      "language": "fr",
+      "source_text": "Prends un parapluie, la météo annonce de la pluie cet après-midi. On sortira ensuite.",
+      "reference": {
+        "text": "Prends un parapluie",
+        "meaning_ko": "우산을 챙겨",
+        "note_ko": "친한 사람에게 하는 비격식 명령형이다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 8800.26,
+      "input_tokens": 495,
+      "output_tokens": 168,
+      "raw_output": "{\"phrases\": [{\"text\": \"Prends un parapluie\", \"note_ko\": \"A2\", \"level\": \"A2\", \"pinyin\": \"pārāpluie\", \"type\": \"phrasal_verb\", \"reading\": \"prends un parapluie\", \"meaning_ko\": \"prends un parapluie\"}, {\"text\": \"On sortira ensuite\", \"note_ko\": \"B1\", \"level\": \"B1\", \"pinyin\": \"zǒu xūrì shéhòu\", \"reading\": \"on sortira ensuite\", \"meaning_ko\": \"on sortira ensuite\", \"type\": \"phrasal_verb\"}]}\n\n  \n  \n  ",
+      "output": {
+        "text": "Prends un parapluie",
+        "note_ko": "A2",
+        "level": "A2",
+        "pinyin": "pārāpluie",
+        "type": "phrasal_verb",
+        "reading": "prends un parapluie",
+        "meaning_ko": "prends un parapluie"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": true,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": true
+    },
+    {
+      "id": "fr-05",
+      "language": "fr",
+      "source_text": "Je ne comprends pas très bien ce mot. Tu peux l'expliquer autrement ?",
+      "reference": {
+        "text": "Je ne comprends pas très bien",
+        "meaning_ko": "잘 이해하지 못하겠다",
+        "note_ko": "très bien을 써서 이해 정도를 부드럽게 표현한다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 27909.36,
+      "input_tokens": 487,
+      "output_tokens": 500,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"ji ne komprehnsin pi tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse tse",
+      "output": null,
+      "checks": {
+        "schema_valid": false,
+        "source_grounded": false,
+        "phrase_length_valid": false,
+        "target_script_compatible": false,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "ja-01",
+      "language": "ja",
+      "source_text": "仕事に行く前に、朝ごはんを作ります。日曜日はゆっくりします。",
+      "reference": {
+        "text": "朝ごはんを作ります",
+        "reading": "あさごはんをつくります",
+        "meaning_ko": "아침밥을 만들어요",
+        "note_ko": "朝ごはんを作る는 아침밥을 준비한다는 표현이다.",
+        "level": "N5",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 5029.49,
+      "input_tokens": 625,
+      "output_tokens": 87,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"shi jia ge ge\", \"note_ko\": \"일요일은 빠르게 하세요.\",\"level\": \"N1\", \"meaning_ko\": \"일요일은 빠르게 하세요.\",\"type\": \"sentence_pattern\", \"reading\": \"일\r\r\r\r\r\r\r\r\r\r\r\r",
+      "output": null,
+      "checks": {
+        "schema_valid": false,
+        "source_grounded": false,
+        "phrase_length_valid": false,
+        "target_script_compatible": false,
+        "pronunciation_format_valid": false,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "ja-02",
+      "language": "ja",
+      "source_text": "すみません、もう一度ゆっくり言ってください。最後のところが聞こえませんでした。",
+      "reference": {
+        "text": "もう一度ゆっくり",
+        "reading": "もういちどゆっくり",
+        "meaning_ko": "한 번 더 천천히",
+        "note_ko": "もう一度와 ゆっくり로 반복과 속도를 부탁한다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 6635.3,
+      "input_tokens": 625,
+      "output_tokens": 121,
+      "raw_output": "{\n  \"phrases\": [\n    {\n      \"text\": \"すみません、もう一度ゆっくり言ってください\",\n      \"note_ko\": \"언제든지 더 긴장하지 말고, 더 빠르게 말해주세요\",\n      \"level\": \"N1\"\n    ,\n    \"pinyin\": \"sui-ramen, mo-ho-ji-ji-ji-ke-ite-ke-ka-ki\"\n  ,\n  \"type\": \"sentence_pattern\"\n  ,\n  \"reading\": \"언\n\n  \n\n\n\n\n\n\n\n",
+      "output": null,
+      "checks": {
+        "schema_valid": false,
+        "source_grounded": false,
+        "phrase_length_valid": false,
+        "target_script_compatible": false,
+        "pronunciation_format_valid": false,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "ja-03",
+      "language": "ja",
+      "source_text": "このカフェから駅まで歩いて五分です。昼ごはんのあとで会いましょう。",
+      "reference": {
+        "text": "駅まで歩いて五分",
+        "reading": "えきまであるいてごふん",
+        "meaning_ko": "역까지 걸어서 5분이에요",
+        "note_ko": "歩いて를 써서 도보 시간을 나타낸다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 4782.37,
+      "input_tokens": 628,
+      "output_tokens": 89,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"nǐ zhe kāfá yāo de shijíng yè wǔ fān\", \"note_ko\": \"会いましょう\", \"level\": \"N1\", \"meaning_ko\": \"会いましょう\", \"type\": \"sentence_pattern\", \"reading\": \"会  \t\t\t\t\t\t\t\t\t\t",
+      "output": null,
+      "checks": {
+        "schema_valid": false,
+        "source_grounded": false,
+        "phrase_length_valid": false,
+        "target_script_compatible": false,
+        "pronunciation_format_valid": false,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "ja-04",
+      "language": "ja",
+      "source_text": "午後は雨が降るそうです。出かけるときは傘を持って行ってください。",
+      "reference": {
+        "text": "傘を持って行ってください",
+        "reading": "かさをもっていってください",
+        "meaning_ko": "우산을 가지고 가세요",
+        "note_ko": "持って行く는 물건을 가지고 이동한다는 표현이다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 2762.01,
+      "input_tokens": 624,
+      "output_tokens": 39,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"rui hou gai gai\", \"note_ko\": \"雨가 날 때에는傘 \t\t    \t\t   ",
+      "output": null,
+      "checks": {
+        "schema_valid": false,
+        "source_grounded": false,
+        "phrase_length_valid": false,
+        "target_script_compatible": false,
+        "pronunciation_format_valid": false,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "ja-05",
+      "language": "ja",
+      "source_text": "この言葉の意味がよく分かりません。別の言い方で説明してもらえますか。",
+      "reference": {
+        "text": "よく分かりません",
+        "reading": "よくわかりません",
+        "meaning_ko": "잘 모르겠어요",
+        "note_ko": "分からない를 정중하게 말하는 표현이다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 5616.91,
+      "input_tokens": 628,
+      "output_tokens": 103,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"ná yè yīng\", \"note_ko\": \"意味がよく分からない\", \"level\": \"N1\", \"meaning_ko\": \"意味がよく分からない\", \"reading\": \"ná yè yīng\", \"type\": \"sentence_pattern\", \"text\": \"この言葉の意味がよく分かりません。別の言い方で説\n\n\n\n\n\n\n\n\n\n\n\n",
+      "output": null,
+      "checks": {
+        "schema_valid": false,
+        "source_grounded": false,
+        "phrase_length_valid": false,
+        "target_script_compatible": false,
+        "pronunciation_format_valid": false,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "en-06",
+      "language": "en",
+      "source_text": "I can help you carry those bags if you give me a minute to park the car.",
+      "reference": {
+        "text": "give me a minute",
+        "meaning_ko": "잠깐만 시간을 주다",
+        "note_ko": "상대에게 짧은 시간을 부탁할 때 쓰는 표현이다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 7968.58,
+      "input_tokens": 486,
+      "output_tokens": 131,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"wǒ kě yǐng nǐ kě yǐng bāi zhe bāi\", \"level\": \"A2\", \"note_ko\": \"useful for everyday situations\", \"meaning_ko\": \"help you carry the bags if you give me a minute to park the car.\",\"reading\": \"I can help you carry those bags if you give me a minute to park the car.\",\"type\": \"sentence_pattern\", \"text\": \"I can help you carry those bags if you give me a minute to park the car.\"}]}",
+      "output": {
+        "pinyin": "wǒ kě yǐng nǐ kě yǐng bāi zhe bāi",
+        "level": "A2",
+        "note_ko": "useful for everyday situations",
+        "meaning_ko": "help you carry the bags if you give me a minute to park the car.",
+        "reading": "I can help you carry those bags if you give me a minute to park the car.",
+        "type": "sentence_pattern",
+        "text": "I can help you carry those bags if you give me a minute to park the car."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "en-07",
+      "language": "en",
+      "source_text": "We ran out of coffee this morning, so I stopped at the shop on my way to work.",
+      "reference": {
+        "text": "ran out of coffee",
+        "meaning_ko": "커피가 다 떨어지다",
+        "note_ko": "ran out of는 물건이나 재고가 다 소진됐을 때 쓴다.",
+        "level": "B1",
+        "type": "phrasal_verb"
+      },
+      "status": "success",
+      "elapsed_ms": 6756.71,
+      "input_tokens": 488,
+      "output_tokens": 124,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"wǒ jiāo chū zǒng fā shì yīn gāo\", \"note_ko\": \"run out of coffee\", \"level\": \"A2\", \"type\": \"sentence_pattern\", \"reading\": \"we ran out of coffee this morning\", \"meaning_ko\": \"we ran out of coffee this morning, so I stopped at the shop on my way to work.\",\"text\": \"We ran out of coffee this morning, so I stopped at the shop on my way to work.\"}]}",
+      "output": {
+        "pinyin": "wǒ jiāo chū zǒng fā shì yīn gāo",
+        "note_ko": "run out of coffee",
+        "level": "A2",
+        "type": "sentence_pattern",
+        "reading": "we ran out of coffee this morning",
+        "meaning_ko": "we ran out of coffee this morning, so I stopped at the shop on my way to work.",
+        "text": "We ran out of coffee this morning, so I stopped at the shop on my way to work."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "en-08",
+      "language": "en",
+      "source_text": "Let me know when you arrive, and I will meet you outside the station.",
+      "reference": {
+        "text": "Let me know",
+        "meaning_ko": "나에게 알려 주다",
+        "note_ko": "상대에게 소식이나 정보를 알려 달라고 할 때 쓰는 표현이다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 5170.17,
+      "input_tokens": 484,
+      "output_tokens": 96,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"lèi zhi zhi zhi zhi\", \"note_ko\": \"meet you outside the station\", \"level\": \"A2\", \"meaning_ko\": \"meet you outside the station\", \"reading\": \"meet you outside the station\", \"type\": \"sentence_pattern\", \"text\": \"Let me know when you arrive, and I will meet you outside the station.\"}]}",
+      "output": {
+        "pinyin": "lèi zhi zhi zhi zhi",
+        "note_ko": "meet you outside the station",
+        "level": "A2",
+        "meaning_ko": "meet you outside the station",
+        "reading": "meet you outside the station",
+        "type": "sentence_pattern",
+        "text": "Let me know when you arrive, and I will meet you outside the station."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "en-09",
+      "language": "en",
+      "source_text": "It is a little chilly outside, so I am going to put on my jacket.",
+      "reference": {
+        "text": "a little chilly",
+        "meaning_ko": "조금 쌀쌀한",
+        "note_ko": "a little을 붙여 추위의 정도를 부드럽게 나타낸다.",
+        "level": "A2",
+        "type": "collocation"
+      },
+      "status": "success",
+      "elapsed_ms": 4709.13,
+      "input_tokens": 485,
+      "output_tokens": 83,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"tāi tāi tāi\", \"note_ko\": \"cold\", \"level\": \"A2\", \"meaning_ko\": \"cold\", \"reading\": \"cold\", \"type\": \"sentence_pattern\", \"text\": \"It is a little chilly outside, so I am going to put on my jacket.\"}]}",
+      "output": {
+        "pinyin": "tāi tāi tāi",
+        "note_ko": "cold",
+        "level": "A2",
+        "meaning_ko": "cold",
+        "reading": "cold",
+        "type": "sentence_pattern",
+        "text": "It is a little chilly outside, so I am going to put on my jacket."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "en-10",
+      "language": "en",
+      "source_text": "Would you mind opening the window? The room is getting warm.",
+      "reference": {
+        "text": "Would you mind opening",
+        "meaning_ko": "열어 주시겠어요?",
+        "note_ko": "Would you mind 뒤에는 동사의 -ing형을 쓴다.",
+        "level": "B1",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 5428.33,
+      "input_tokens": 481,
+      "output_tokens": 97,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"wǒng yìng xīn tóu\", \"note_ko\": \"open the window\", \"level\": \"A2\", \"type\": \"sentence_pattern\", \"reading\": \"would you mind opening the window? The room is getting warm.\",\"meaning_ko\": \"open the window\", \"text\": \"Would you mind opening the window? The room is getting warm.\"}]}",
+      "output": {
+        "pinyin": "wǒng yìng xīn tóu",
+        "note_ko": "open the window",
+        "level": "A2",
+        "type": "sentence_pattern",
+        "reading": "would you mind opening the window? The room is getting warm.",
+        "meaning_ko": "open the window",
+        "text": "Would you mind opening the window? The room is getting warm."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "zh-06",
+      "language": "zh",
+      "source_text": "这件衣服有点儿贵，我再考虑一下。",
+      "reference": {
+        "text": "考虑一下",
+        "pinyin": "kǎo lǜ yí xià",
+        "meaning_ko": "좀 더 생각해 보다",
+        "note_ko": "一下를 붙여 동작을 가볍게 하거나 완곡하게 표현한다.",
+        "level": "2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 7943.08,
+      "input_tokens": 510,
+      "output_tokens": 149,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"yì jī yì\", \"note_ko\": \"consider the price\", \"level\": \"1\", \"type\": \"sentence_pattern\", \"text\": \"这件衣服有点儿贵，我再考虑一下。\", \"meaning_ko\": \"这件衣服有点儿贵，我再考虑一下。\"}, {\"pinyin\": \"yì jī\", \"note_ko\": \"consider\", \"level\": \"1\", \"type\": \"sentence_pattern\", \"text\": \"这件衣服有点儿贵，我再考虑一下。\", \"meaning_ko\": \"这件衣服有点儿贵，我再考虑一下。\"}]}\n\n  \n  \n  \t\t",
+      "output": {
+        "pinyin": "yì jī yì",
+        "note_ko": "consider the price",
+        "level": "1",
+        "type": "sentence_pattern",
+        "text": "这件衣服有点儿贵，我再考虑一下。",
+        "meaning_ko": "这件衣服有点儿贵，我再考虑一下。"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "zh-07",
+      "language": "zh",
+      "source_text": "如果你有时间，我们一起去附近的公园散步吧。",
+      "reference": {
+        "text": "去附近的公园",
+        "pinyin": "qù fù jìn de gōng yuán",
+        "meaning_ko": "근처 공원에 가다",
+        "note_ko": "附近的는 가까운 곳에 있는 대상을 가리킨다.",
+        "level": "2",
+        "type": "collocation"
+      },
+      "status": "success",
+      "elapsed_ms": 8160.79,
+      "input_tokens": 510,
+      "output_tokens": 147,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"nǐ yǒu shí jiān, wǒ yīng qù xìng yuǎn de píng yuán shǒu dù\", \"note_ko\": \"reusable everyday pattern for time and place\", \"level\": \"1\", \"meaning_ko\": \"if you have time, we can go to the nearby park for a walk.\",\"type\": \"sentence_pattern\", \"reading\": \"if you have time, we can go to the nearby park for a walk.\",\"text\": \"如果你有时间，我们一起去附近的公园散步吧。\"}]}\n\n  \n  \n  \t\t",
+      "output": {
+        "pinyin": "nǐ yǒu shí jiān, wǒ yīng qù xìng yuǎn de píng yuán shǒu dù",
+        "note_ko": "reusable everyday pattern for time and place",
+        "level": "1",
+        "meaning_ko": "if you have time, we can go to the nearby park for a walk.",
+        "type": "sentence_pattern",
+        "reading": "if you have time, we can go to the nearby park for a walk.",
+        "text": "如果你有时间，我们一起去附近的公园散步吧。"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "zh-08",
+      "language": "zh",
+      "source_text": "这个周末我要在家打扫房间，然后准备下周的考试。",
+      "reference": {
+        "text": "打扫房间",
+        "pinyin": "dǎ sǎo fáng jiān",
+        "meaning_ko": "방을 청소하다",
+        "note_ko": "打扫는 장소를 깨끗하게 청소한다는 뜻이다.",
+        "level": "2",
+        "type": "collocation"
+      },
+      "status": "success",
+      "elapsed_ms": 11611.53,
+      "input_tokens": 512,
+      "output_tokens": 199,
+      "raw_output": "{\"phrases\": [{\"text\": \"我要在家打扫房间\", \"note_ko\": \"日常表达，表示计划做家务或准备活动\", \"level\": \"1\", \"pinyin\": \"yǒu xì jiā shōu qìng tái\", \"type\": \"sentence_pattern\", \"reading\": \"yǒu xì jiā shōu qìng tái\", \"meaning_ko\": \"我要在家打扫房间\"}, {\"text\": \"准备下周的考试\", \"note_ko\": \"日常表达，表示准备考试\", \"level\": \"1\", \"pinyin\": \"dào yī fēng yī xià de shèxì\", \"type\": \"sentence_pattern\", \"reading\": \"dào yī fēng yī xià de shèxì\", \"meaning_ko\": \"准备下周的考试\"}]}\n\n  \n  \n  \t\t",
+      "output": {
+        "text": "我要在家打扫房间",
+        "note_ko": "日常表达，表示计划做家务或准备活动",
+        "level": "1",
+        "pinyin": "yǒu xì jiā shōu qìng tái",
+        "type": "sentence_pattern",
+        "reading": "yǒu xì jiā shōu qìng tái",
+        "meaning_ko": "我要在家打扫房间"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": true,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "zh-09",
+      "language": "zh",
+      "source_text": "我刚到公司，会议十分钟后开始。",
+      "reference": {
+        "text": "刚到公司",
+        "pinyin": "gāng dào gōng sī",
+        "meaning_ko": "방금 회사에 도착하다",
+        "note_ko": "刚은 어떤 일이 조금 전에 일어났음을 나타낸다.",
+        "level": "2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 4140.77,
+      "input_tokens": 509,
+      "output_tokens": 74,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"gāng gāng\", \"note_ko\": \"다음에 시작합니다.\" , \"level\": \"1\", \"type\": \"sentence_pattern\", \"text\": \"我刚到公司，会议十分钟后开始。\", \"meaning_ko\": \"다음에 시작합니다.\"}]}",
+      "output": {
+        "pinyin": "gāng gāng",
+        "note_ko": "다음에 시작합니다.",
+        "level": "1",
+        "type": "sentence_pattern",
+        "text": "我刚到公司，会议十分钟后开始。",
+        "meaning_ko": "다음에 시작합니다."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": true
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "zh-10",
+      "language": "zh",
+      "source_text": "这个汤太咸了，可以少放一点盐吗？",
+      "reference": {
+        "text": "少放一点盐",
+        "pinyin": "shǎo fàng yì diǎn yán",
+        "meaning_ko": "소금을 조금 적게 넣다",
+        "note_ko": "少放一点은 재료의 양을 줄여 달라는 표현이다.",
+        "level": "2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 6210.86,
+      "input_tokens": 512,
+      "output_tokens": 116,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"tāng tai chán le\", \"note_ko\": \"다른 양의 풍요를 더해보세요.\" , \"level\": \"1\", \"type\": \"sentence_pattern\", \"text\": \"这个汤太咸了，可以少放一点盐吗？\", \"reading\": \"这个汤太咸了，可以少放一点盐吗？\", \"meaning_ko\": \"다른 양의 풍요를 더해보세요.\"}]}",
+      "output": {
+        "pinyin": "tāng tai chán le",
+        "note_ko": "다른 양의 풍요를 더해보세요.",
+        "level": "1",
+        "type": "sentence_pattern",
+        "text": "这个汤太咸了，可以少放一点盐吗？",
+        "reading": "这个汤太咸了，可以少放一点盐吗？",
+        "meaning_ko": "다른 양의 풍요를 더해보세요."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": true
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "fr-06",
+      "language": "fr",
+      "source_text": "Je n’ai pas encore fini mon travail, mais je peux vous aider après.",
+      "reference": {
+        "text": "pas encore fini",
+        "meaning_ko": "아직 끝내지 않았다",
+        "note_ko": "pas encore는 어떤 일이 아직 일어나지 않았다는 뜻이다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 7119.62,
+      "input_tokens": 485,
+      "output_tokens": 131,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"něi něi fēn měi wāng zǐ\", \"level\": \"A2\", \"note_ko\": \"Use a simple, everyday expression to indicate that you can help after work\", \"meaning_ko\": \"I haven't finished my work, but I can help you after.\",\"type\": \"sentence_pattern\", \"reading\": \"Je n’ai pas encore fini mon travail, mais je peux vous aider après.\",\"text\": \"Je n’ai pas encore fini mon travail, mais je peux vous aider après.\"}]}",
+      "output": {
+        "pinyin": "něi něi fēn měi wāng zǐ",
+        "level": "A2",
+        "note_ko": "Use a simple, everyday expression to indicate that you can help after work",
+        "meaning_ko": "I haven't finished my work, but I can help you after.",
+        "type": "sentence_pattern",
+        "reading": "Je n’ai pas encore fini mon travail, mais je peux vous aider après.",
+        "text": "Je n’ai pas encore fini mon travail, mais je peux vous aider après."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "fr-07",
+      "language": "fr",
+      "source_text": "On se retrouve devant la bibliothèque à six heures ?",
+      "reference": {
+        "text": "On se retrouve",
+        "meaning_ko": "우리 만나는 거 어때요?",
+        "note_ko": "일상 대화에서 만날 약속을 제안하거나 확인할 때 쓴다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 6383.32,
+      "input_tokens": 482,
+      "output_tokens": 109,
+      "raw_output": "{\"phrases\": [{\"text\": \"On se retrouve devant la bibliothèque à six heures\", \"level\": \"A2\", \"note_ko\": \"Repete le temps et la place\", \"meaning_ko\": \"On reappearait devant la bibliothèque à six heures.\",\"pinyin\": \"zun se rehote devant la bibliothèque à sì shí hòu hòu\" , \"type\": \"sentence_pattern\"}]}\n\n  \n  \n  ",
+      "output": {
+        "text": "On se retrouve devant la bibliothèque à six heures",
+        "level": "A2",
+        "note_ko": "Repete le temps et la place",
+        "meaning_ko": "On reappearait devant la bibliothèque à six heures.",
+        "pinyin": "zun se rehote devant la bibliothèque à sì shí hòu hòu",
+        "type": "sentence_pattern"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "fr-08",
+      "language": "fr",
+      "source_text": "J’ai oublié mon portefeuille, alors je retourne à la maison.",
+      "reference": {
+        "text": "oublié mon portefeuille",
+        "meaning_ko": "지갑을 잊어버렸다",
+        "note_ko": "oublier quelque chose는 무엇인가를 잊어버리다는 뜻이다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 9877.99,
+      "input_tokens": 488,
+      "output_tokens": 189,
+      "raw_output": "{\"phrases\": [{\"text\": \"J’ai oublié mon portefeuille\", \"note_ko\": \"J’ai oublié mon portefeuille\", \"level\": \"A2\", \"pinyin\": \"yu oubliet mon portefeuille\", \"type\": \"phrasal_verb\", \"reading\": \"J’ai oublié mon portefeuille\", \"meaning_ko\": \"I forgot my wallet\"}, {\"text\": \"je retourne à la maison\", \"note_ko\": \"je retourne à la maison\", \"level\": \"B1\", \"pinyin\": \"je retourne à la maison\", \"type\": \"phrasal_verb\", \"reading\": \"je retourne à la maison\", \"meaning_ko\": \"I return home\"}]}\n\n  \n  \n  ",
+      "output": {
+        "text": "J’ai oublié mon portefeuille",
+        "note_ko": "J’ai oublié mon portefeuille",
+        "level": "A2",
+        "pinyin": "yu oubliet mon portefeuille",
+        "type": "phrasal_verb",
+        "reading": "J’ai oublié mon portefeuille",
+        "meaning_ko": "I forgot my wallet"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": true,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "fr-09",
+      "language": "fr",
+      "source_text": "Il fait beau aujourd’hui, ça te dit de déjeuner dehors ?",
+      "reference": {
+        "text": "ça te dit de",
+        "meaning_ko": "같이 ~하는 거 어때?",
+        "note_ko": "친한 사람에게 어떤 일을 제안할 때 쓰는 비격식 표현이다.",
+        "level": "B1",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 7003.67,
+      "input_tokens": 485,
+      "output_tokens": 126,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"l'faits bua tae de dejeuner dehors\", \"note_ko\": \"expressions for everyday use in French\", \"level\": \"A2\", \"reading\": \"l'faits bua tae de dejeuner dehors\", \"meaning_ko\": \"today is nice, so you can have lunch outside?\"  , \"type\": \"sentence_pattern\", \"text\": \"Il fait beau aujourd’hui, ça te dit de déjeuner dehors ?\"}]}\n\n  \n  \n  ",
+      "output": {
+        "pinyin": "l'faits bua tae de dejeuner dehors",
+        "note_ko": "expressions for everyday use in French",
+        "level": "A2",
+        "reading": "l'faits bua tae de dejeuner dehors",
+        "meaning_ko": "today is nice, so you can have lunch outside?",
+        "type": "sentence_pattern",
+        "text": "Il fait beau aujourd’hui, ça te dit de déjeuner dehors ?"
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "fr-10",
+      "language": "fr",
+      "source_text": "Je suis désolé, je ne pourrai pas venir ce soir.",
+      "reference": {
+        "text": "ne pourrai pas venir",
+        "meaning_ko": "올 수 없을 것이다",
+        "note_ko": "미래형 pourrai의 부정으로 불참을 정중히 알린다.",
+        "level": "B1",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 6602.48,
+      "input_tokens": 483,
+      "output_tokens": 110,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"ji shi desolé, ji ne pourrai pas min gi\", \"note_ko\": \"expresses a feeling of regret and inability to attend\", \"level\": \"A2\", \"type\": \"sentence_pattern\", \"reading\": \"je ne pourrai pas venir ce soir\", \"meaning_ko\": \"I am sorry, I can't come tonight.\",\"text\": \"Je suis désolé, je ne pourrai pas venir ce soir.\"}]}",
+      "output": {
+        "pinyin": "ji shi desolé, ji ne pourrai pas min gi",
+        "note_ko": "expresses a feeling of regret and inability to attend",
+        "level": "A2",
+        "type": "sentence_pattern",
+        "reading": "je ne pourrai pas venir ce soir",
+        "meaning_ko": "I am sorry, I can't come tonight.",
+        "text": "Je suis désolé, je ne pourrai pas venir ce soir."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": true,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "ja-06",
+      "language": "ja",
+      "source_text": "電車が遅れているので、少し遅くなります。",
+      "reference": {
+        "text": "少し遅くなります",
+        "reading": "すこしおそくなります",
+        "meaning_ko": "조금 늦어집니다",
+        "note_ko": "도착이나 일정이 늦어질 때 정중하게 알리는 표현이다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 4625.68,
+      "input_tokens": 619,
+      "output_tokens": 85,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"dàn chē gē gè lù de\" , \"note_ko\": \"다른 시간에 도착할 수 있습니다.\" , \"level\": \"N1\", \"meaning_ko\": \"다른 시간에 도착할 수 있습니다.\" , \"type\": \"sentence_pattern\", \"reading\": \"다  \t\t\t\t\t\t\t\t\t\t",
+      "output": null,
+      "checks": {
+        "schema_valid": false,
+        "source_grounded": false,
+        "phrase_length_valid": false,
+        "target_script_compatible": false,
+        "pronunciation_format_valid": false,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "ja-07",
+      "language": "ja",
+      "source_text": "週末は友達と映画を見に行く予定です。",
+      "reference": {
+        "text": "見に行く予定です",
+        "reading": "みにいくよていです",
+        "meaning_ko": "보러 갈 예정이에요",
+        "note_ko": "동사 ます형 어간에 に行く를 붙여 목적을 나타낸다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 3690.48,
+      "input_tokens": 620,
+      "output_tokens": 58,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"wǔ yuè\", \"note_ko\": \"주말에 친구와 영화를 보는 예정입니다.\",\"level\": \"N1\", \"reading\": \"주  \t\t\t\t  \t\t\t ",
+      "output": null,
+      "checks": {
+        "schema_valid": false,
+        "source_grounded": false,
+        "phrase_length_valid": false,
+        "target_script_compatible": false,
+        "pronunciation_format_valid": false,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "ja-08",
+      "language": "ja",
+      "source_text": "分からないことがあったら、いつでも聞いてください。",
+      "reference": {
+        "text": "いつでも聞いてください",
+        "reading": "いつでもきいてください",
+        "meaning_ko": "언제든지 물어보세요",
+        "note_ko": "언제든 질문해도 된다고 정중하게 안내하는 표현이다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 7282.46,
+      "input_tokens": 616,
+      "output_tokens": 129,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"wú xìng kě yǒu wèn zhèng kě liǎo\", \"note_ko\": \"Useful for asking questions when you don't know anything.\",\"level\": \"N1\", \"type\": \"sentence_pattern\", \"reading\": \"wú xìng kě yǒu wèn zhèng kě liǎo\", \"text\": \"分からないことがあったら、いつでも聞いてください。\", \"meaning_ko\": \"Useful for asking questions when you don't know anything.\"}]}",
+      "output": {
+        "pinyin": "wú xìng kě yǒu wèn zhèng kě liǎo",
+        "note_ko": "Useful for asking questions when you don't know anything.",
+        "level": "N1",
+        "type": "sentence_pattern",
+        "reading": "wú xìng kě yǒu wèn zhèng kě liǎo",
+        "text": "分からないことがあったら、いつでも聞いてください。",
+        "meaning_ko": "Useful for asking questions when you don't know anything."
+      },
+      "checks": {
+        "schema_valid": true,
+        "source_grounded": true,
+        "phrase_length_valid": false,
+        "target_script_compatible": true,
+        "pronunciation_format_valid": false,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "ja-09",
+      "language": "ja",
+      "source_text": "このアプリを使えば、簡単に予約できます。",
+      "reference": {
+        "text": "簡単に予約できます",
+        "reading": "かんたんによやくできます",
+        "meaning_ko": "간단히 예약할 수 있어요",
+        "note_ko": "簡単に는 동작이나 절차가 쉽다는 점을 나타낸다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 5727.94,
+      "input_tokens": 616,
+      "output_tokens": 110,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"nǐ yì qì yuǎn qì zhōng\", \"note_ko\": \"simple and easy to use\", \"level\": \"N1\", \"meaning_ko\": \"simple and easy to use\", \"type\": \"sentence_pattern\", \"reading\": \"nǐ yì qì yuǎn qì zhōng\", \"text\": \"このアプリを使えば、簡単に  \t\t\t\t\t\t\t\t\t\t",
+      "output": null,
+      "checks": {
+        "schema_valid": false,
+        "source_grounded": false,
+        "phrase_length_valid": false,
+        "target_script_compatible": false,
+        "pronunciation_format_valid": false,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    },
+    {
+      "id": "ja-10",
+      "language": "ja",
+      "source_text": "今日は疲れたので、早めに寝ることにします。",
+      "reference": {
+        "text": "早めに寝る",
+        "reading": "はやめにねる",
+        "meaning_ko": "평소보다 일찍 자다",
+        "note_ko": "早めに는 보통 때보다 이른 시점을 나타낸다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "status": "success",
+      "elapsed_ms": 4428.5,
+      "input_tokens": 619,
+      "output_tokens": 78,
+      "raw_output": "{\"phrases\": [{\"pinyin\": \"zhōu yī lè yì lì yè\", \"note_ko\": \"다시 일어나기\", \"level\": \"N1\", \"meaning_ko\": \"다시 일어나기\", \"type\": \"sentence_pattern\", \"reading\": \"다  \n\n\n\n\n\n\n\n  ",
+      "output": null,
+      "checks": {
+        "schema_valid": false,
+        "source_grounded": false,
+        "phrase_length_valid": false,
+        "target_script_compatible": false,
+        "pronunciation_format_valid": false,
+        "korean_fields_present": false
+      },
+      "reward": 0,
+      "eligible": false,
+      "exact_reference_match": false
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import { AppError } from '../errors.mjs';
 
-function phraseSchema(language) {
+export function phraseSchema(language) {
   const pronunciationField = language === 'zh' ? 'pinyin' : language === 'ja' ? 'reading' : null;
   const types =
     language === 'zh' || language === 'ja'

@@ -1,0 +1,576 @@
+{
+  "dataset_id": "daily-phrase-week6-training-draft-v1",
+  "created_on": "2026-11-13",
+  "purpose": "User-authorized synthetic feasibility pilot. The assistant-authored examples are not native-speaker reviewed; record that limitation with every result.",
+  "split": "training_only",
+  "status": "approved_for_training",
+  "rights": {
+    "source": "Assistant-authored original example sentences; no article text copied.",
+    "reuse_authorized": true,
+    "review_status": "approved",
+    "authorization_basis": "User requested proceeding with the SFT pilot and recording results in the admin workspace."
+  },
+  "held_out_evaluation": "data/evaluation-set-v2.json; excluded from this dataset",
+  "cases": [
+    {
+      "id": "w6-zh-01",
+      "language": "zh",
+      "source_text": "虽然今天下雨，我们还是按计划去看了展览。",
+      "expected_phrase": {
+        "text": "按计划",
+        "pinyin": "àn jì huà",
+        "meaning_ko": "계획대로",
+        "note_ko": "按计划은 정해 둔 계획에 따라 한다는 뜻이다.",
+        "level": "3",
+        "type": "collocation"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-zh-02",
+      "language": "zh",
+      "source_text": "你把地址发给我，我就能找到那家店。",
+      "expected_phrase": {
+        "text": "发给我",
+        "pinyin": "fā gěi wǒ",
+        "meaning_ko": "나에게 보내다",
+        "note_ko": "发给 뒤에 받는 사람을 두어 무엇을 누구에게 보내는지 나타낸다.",
+        "level": "2",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-zh-03",
+      "language": "zh",
+      "source_text": "饭已经热好了，趁热吃吧。",
+      "expected_phrase": {
+        "text": "趁热",
+        "pinyin": "chèn rè",
+        "meaning_ko": "따뜻할 때",
+        "note_ko": "趁热은 음식이 식기 전에 먹으라고 권할 때 쓴다.",
+        "level": "3",
+        "type": "collocation"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-zh-04",
+      "language": "zh",
+      "source_text": "如果身体不舒服，最好早点儿休息。",
+      "expected_phrase": {
+        "text": "不舒服",
+        "pinyin": "bù shū fu",
+        "meaning_ko": "몸이 불편하다",
+        "note_ko": "몸 상태나 기분이 좋지 않을 때 두루 쓰는 표현이다.",
+        "level": "2",
+        "type": "collocation"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-zh-05",
+      "language": "zh",
+      "source_text": "他每天坐公交去上班，路上要四十分钟。",
+      "expected_phrase": {
+        "text": "去上班",
+        "pinyin": "qù shàng bān",
+        "meaning_ko": "출근하러 가다",
+        "note_ko": "去 뒤에 목적을 나타내는 동작을 이어 붙인 표현이다.",
+        "level": "2",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-zh-06",
+      "language": "zh",
+      "source_text": "这个周末我打算在家休息，不想安排太多事情。",
+      "expected_phrase": {
+        "text": "打算在家",
+        "pinyin": "dǎ suàn zài jiā",
+        "meaning_ko": "집에 있을 생각이다",
+        "note_ko": "打算 뒤에 계획하는 행동이나 장소를 이어 쓸 수 있다.",
+        "level": "3",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-zh-07",
+      "language": "zh",
+      "source_text": "请稍等一下，我去确认一下预约时间。",
+      "expected_phrase": {
+        "text": "确认一下",
+        "pinyin": "què rèn yí xià",
+        "meaning_ko": "한번 확인하다",
+        "note_ko": "동사 뒤의 一下는 부탁이나 동작의 어감을 부드럽게 한다.",
+        "level": "3",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-zh-08",
+      "language": "zh",
+      "source_text": "这附近有没有可以坐下来休息的地方？",
+      "expected_phrase": {
+        "text": "坐下来休息",
+        "pinyin": "zuò xià lái xiū xi",
+        "meaning_ko": "앉아서 쉬다",
+        "note_ko": "坐下来는 앉는 동작이 완료되어 그 상태가 됨을 나타낸다.",
+        "level": "3",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-en-01",
+      "language": "en",
+      "source_text": "I ran into an old friend while I was waiting for the bus.",
+      "expected_phrase": {
+        "text": "ran into",
+        "meaning_ko": "우연히 만났다",
+        "note_ko": "사람을 목적어로 쓰면 우연히 마주쳤다는 뜻이 된다.",
+        "level": "B1",
+        "type": "phrasal_verb"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-en-02",
+      "language": "en",
+      "source_text": "Could you look after my plants while I'm away this weekend?",
+      "expected_phrase": {
+        "text": "look after",
+        "meaning_ko": "돌보다",
+        "note_ko": "look after는 사람이나 물건을 보살피거나 챙긴다는 뜻이다.",
+        "level": "A2",
+        "type": "phrasal_verb"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-en-03",
+      "language": "en",
+      "source_text": "We decided to put off the meeting until Friday.",
+      "expected_phrase": {
+        "text": "put off the meeting",
+        "meaning_ko": "회의를 미루다",
+        "note_ko": "put off는 약속이나 일을 나중으로 미룰 때 쓴다.",
+        "level": "B1",
+        "type": "phrasal_verb"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-en-04",
+      "language": "en",
+      "source_text": "The shop is just around the corner from the station.",
+      "expected_phrase": {
+        "text": "around the corner",
+        "meaning_ko": "모퉁이를 돌면 있는",
+        "note_ko": "장소를 설명할 때 가까운 곳에 있음을 나타내는 표현이다.",
+        "level": "A2",
+        "type": "collocation"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-en-05",
+      "language": "en",
+      "source_text": "Please keep an eye on the soup while I answer the phone.",
+      "expected_phrase": {
+        "text": "keep an eye on",
+        "meaning_ko": "계속 살펴보다",
+        "note_ko": "무언가를 주의 깊게 지켜봐 달라고 부탁할 때 쓴다.",
+        "level": "B1",
+        "type": "idiom"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-en-06",
+      "language": "en",
+      "source_text": "I usually take a short walk after lunch to clear my head.",
+      "expected_phrase": {
+        "text": "clear my head",
+        "meaning_ko": "머리를 식히다",
+        "note_ko": "잠깐 쉬며 생각을 정리하거나 기분을 환기한다는 뜻이다.",
+        "level": "B1",
+        "type": "idiom"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-en-07",
+      "language": "en",
+      "source_text": "It turned out to be much easier than I expected.",
+      "expected_phrase": {
+        "text": "turned out to be",
+        "meaning_ko": "결국 ~인 것으로 드러났다",
+        "note_ko": "뒤에 오는 결과가 예상과 같거나 달랐음을 설명할 때 쓴다.",
+        "level": "B1",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-en-08",
+      "language": "en",
+      "source_text": "When you have a moment, could you send me the address?",
+      "expected_phrase": {
+        "text": "have a moment",
+        "meaning_ko": "잠깐 시간이 있다",
+        "note_ko": "부탁을 부드럽게 시작할 때 상대에게 잠깐의 여유가 있는지 묻는다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-fr-01",
+      "language": "fr",
+      "source_text": "Après le travail, nous prenons souvent un café près de la gare.",
+      "expected_phrase": {
+        "text": "près de la gare",
+        "meaning_ko": "역 근처에",
+        "note_ko": "près de는 장소가 어떤 기준점과 가까움을 나타낸다.",
+        "level": "A2",
+        "type": "collocation"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-fr-02",
+      "language": "fr",
+      "source_text": "Elle a décidé de reporter le rendez-vous à demain.",
+      "expected_phrase": {
+        "text": "a décidé de",
+        "meaning_ko": "~하기로 결정했다",
+        "note_ko": "décider de 뒤에는 동사원형을 이어 계획이나 결정을 말할 수 있다.",
+        "level": "B1",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-fr-03",
+      "language": "fr",
+      "source_text": "On se retrouve devant le cinéma à huit heures.",
+      "expected_phrase": {
+        "text": "se retrouve devant",
+        "meaning_ko": "~앞에서 만난다",
+        "note_ko": "se retrouver는 약속한 사람들이 서로 만나는 상황에 쓴다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-fr-04",
+      "language": "fr",
+      "source_text": "Il fait froid ce matin, alors je mets mon manteau.",
+      "expected_phrase": {
+        "text": "Il fait froid",
+        "meaning_ko": "날씨가 춥다",
+        "note_ko": "날씨의 추위나 더위를 말할 때 비인칭 주어 il을 쓴다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-fr-05",
+      "language": "fr",
+      "source_text": "Je n'ai pas encore trouvé mes clés, elles sont peut-être dans le sac.",
+      "expected_phrase": {
+        "text": "pas encore trouvé",
+        "meaning_ko": "아직 찾지 못했다",
+        "note_ko": "복합과거에서 부정어 ne와 pas는 조동사를 둘러싸며 encore는 아직을 뜻한다.",
+        "level": "B1",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-fr-06",
+      "language": "fr",
+      "source_text": "Nous avons eu du mal à trouver une table libre.",
+      "expected_phrase": {
+        "text": "du mal à trouver",
+        "meaning_ko": "찾는 데 어려움을 겪었다",
+        "note_ko": "avoir du mal à 뒤에 동사원형을 이어 어떤 일이 어렵다고 말한다.",
+        "level": "B1",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-fr-07",
+      "language": "fr",
+      "source_text": "N'oublie pas de fermer la fenêtre avant de partir.",
+      "expected_phrase": {
+        "text": "avant de partir",
+        "meaning_ko": "떠나기 전에",
+        "note_ko": "avant de 뒤에는 주어를 다시 쓰지 않고 동사원형을 쓴다.",
+        "level": "A2",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-fr-08",
+      "language": "fr",
+      "source_text": "Ce restaurant vaut vraiment la peine d'être essayé.",
+      "expected_phrase": {
+        "text": "vaut vraiment la peine",
+        "meaning_ko": "정말 그럴 가치가 있다",
+        "note_ko": "valoir la peine은 어떤 일을 해 볼 가치가 있다고 말할 때 쓴다.",
+        "level": "B1",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-ja-01",
+      "language": "ja",
+      "source_text": "駅に着いたら、改札の前で待っていてください。",
+      "expected_phrase": {
+        "text": "駅に着いたら",
+        "reading": "えきについたら",
+        "meaning_ko": "역에 도착하면",
+        "note_ko": "동사 과거형에 ら를 붙여 어떤 일이 끝난 뒤의 조건을 나타낸다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-ja-02",
+      "language": "ja",
+      "source_text": "雨が降りそうなので、傘を持って行きます。",
+      "expected_phrase": {
+        "text": "降りそうなので",
+        "reading": "ふりそうなので",
+        "meaning_ko": "비가 올 것 같아서",
+        "note_ko": "동사 어간에 そう를 붙여 겉으로 보이는 징후나 예상을 나타낸다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-ja-03",
+      "language": "ja",
+      "source_text": "この店は量が多いわりに、値段が安いです。",
+      "expected_phrase": {
+        "text": "量が多いわりに",
+        "reading": "りょうがおおいわりに",
+        "meaning_ko": "양이 많은 것에 비해",
+        "note_ko": "わりに는 앞의 예상이나 정도와 뒤의 결과가 다를 때 쓴다.",
+        "level": "N3",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-ja-04",
+      "language": "ja",
+      "source_text": "困ったときは、遠慮なく連絡してください。",
+      "expected_phrase": {
+        "text": "遠慮なく連絡",
+        "reading": "えんりょなくれんらく",
+        "meaning_ko": "사양하지 말고 연락",
+        "note_ko": "遠慮なく는 상대가 부담 갖지 말고 행동해도 된다고 권할 때 쓴다.",
+        "level": "N3",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-ja-05",
+      "language": "ja",
+      "source_text": "時間に余裕があれば、帰りに本屋へ寄ります。",
+      "expected_phrase": {
+        "text": "帰りに本屋へ",
+        "reading": "かえりにほんやへ",
+        "meaning_ko": "돌아가는 길에 서점에",
+        "note_ko": "帰りに는 돌아가는 도중에 어떤 행동을 한다는 뜻이다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-ja-06",
+      "language": "ja",
+      "source_text": "彼は説明を聞いたあと、すぐに手続きを始めました。",
+      "expected_phrase": {
+        "text": "説明を聞いたあと",
+        "reading": "せつめいをきいたあと",
+        "meaning_ko": "설명을 들은 뒤",
+        "note_ko": "동사 과거형에 あと를 붙여 그 동작이 끝난 다음을 나타낸다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-ja-07",
+      "language": "ja",
+      "source_text": "このアプリは、初めてでも簡単に使えます。",
+      "expected_phrase": {
+        "text": "初めてでも",
+        "reading": "はじめてでも",
+        "meaning_ko": "처음이라도",
+        "note_ko": "명사나 동사 형태에 でも를 붙여 예상과 달리 조건이 문제가 되지 않음을 나타낸다.",
+        "level": "N4",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    },
+    {
+      "id": "w6-ja-08",
+      "language": "ja",
+      "source_text": "忘れ物に気づいたので、駅まで取りに戻りました。",
+      "expected_phrase": {
+        "text": "取りに戻りました",
+        "reading": "とりにもどりました",
+        "meaning_ko": "가지러 되돌아갔다",
+        "note_ko": "동사 어간에 に行く나 に戻る를 이어 목적을 나타낼 수 있다.",
+        "level": "N3",
+        "type": "sentence_pattern"
+      },
+      "label_review": {
+        "status": "approved",
+        "reviewer": "Codex (AI-assisted check; not native-speaker reviewed)",
+        "reviewed_on": "2026-11-13"
+      }
+    }
+  ]
+}

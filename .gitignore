@@ -1,4 +1,8 @@
 node_modules/
+.venv-week6/
+results/week6-sft-*/
+results/week6-grpo-*/
+results/week6-evaluation-*.json
 results/*.json
 data/articles.json
 data/subscriptions.json

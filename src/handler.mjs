@@ -341,6 +341,48 @@ export async function handler(event = {}) {
         const baseline = JSON.parse(await readFile(pathModule.join(resultsDir, baselineName), 'utf8'));
         return response(200, { result: { reward, baseline } });
       }
+      if (method === 'GET' && path === '/admin/week6-experiments') {
+        const resultsDir = pathModule.join(rootDir, 'results');
+        const entries = await readdir(resultsDir, { withFileTypes: true });
+        const evaluationFiles = entries
+          .filter((entry) => entry.isFile() && /^week6-evaluation-.*\.json$/u.test(entry.name))
+          .map((entry) => entry.name)
+          .sort()
+          .reverse()
+          .slice(0, 8);
+        const trainingDirs = entries
+          .filter((entry) => entry.isDirectory() && /^week6-(?:sft|grpo)-/u.test(entry.name))
+          .map((entry) => entry.name)
+          .sort()
+          .reverse();
+        const [evaluations, trainingRuns, dataset] = await Promise.all([
+          Promise.all(evaluationFiles.map(async (file) =>
+            JSON.parse(await readFile(pathModule.join(resultsDir, file), 'utf8')),
+          )),
+          Promise.all(trainingDirs.map(async (directory) => {
+            try {
+              return JSON.parse(await readFile(pathModule.join(resultsDir, directory, 'run-manifest.json'), 'utf8'));
+            } catch {
+              return null;
+            }
+          })),
+          readFile(pathModule.join(rootDir, 'data/week6-training-draft.json'), 'utf8').then((raw) => JSON.parse(raw)),
+        ]);
+        return response(200, {
+          evaluations,
+          training_runs: trainingRuns.filter((run) => run?.kind === 'week6-sft-lora'),
+          grpo_runs: trainingRuns.filter((run) => run?.kind === 'week6-grpo-lora'),
+          dataset: {
+            id: dataset.dataset_id,
+            status: dataset.status,
+            rights_status: dataset.rights?.review_status || 'unknown',
+            cases: dataset.cases?.length || 0,
+            native_speaker_reviewed: Boolean(dataset.cases?.length) && dataset.cases.every((item) =>
+              /native speaker/i.test(item.label_review?.reviewer || ''),
+            ),
+          },
+        });
+      }
       if (method === 'POST' && path === '/admin/quality-judge')
         return response(200, { result: await runLocalJudgeEvaluation(jsonBody(event)) });
       const feedMatch = path.match(/^\/admin\/feeds\/([^/]+)$/);

@@ -1,0 +1,16 @@
+{
+  "kind": "week6-grpo-lora",
+  "status": "aborted_no_reward",
+  "status_note": "첫 진단 스텝에서 4개 completion 모두 보상 0, 보상 표준편차 0. 추론 토큰이 길이를 소진해 중단하고 설정을 조정함.",
+  "created_at": "2026-11-13T04:30:27Z",
+  "model_id": "Qwen/Qwen3-0.6B",
+  "model_revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+  "starting_adapter": "results/week6-sft-20261113T023817Z/adapter",
+  "dataset_id": "daily-phrase-week6-training-draft-v1",
+  "dataset_sha256": "d7a866afbe71ee4f6cfd0ca73dcafc9d5b5761aa3a7755a895bb7779f7dc9388",
+  "evaluation_dataset_used_for_training": false,
+  "reward": "Binary evaluateReward code checks; no model-judge reward.",
+  "device": "mps",
+  "settings": { "max_steps": 8, "num_generations": 4, "batch_size": 4, "max_completion_length": 220, "temperature": 0.7, "beta": 0.04 },
+  "training_log": [{ "step": 1, "reward": 0, "reward_std": 0, "frac_reward_zero_std": 1, "step_time_seconds": 105.1, "completion_mean_length": 186, "completion_clipped_ratio": 0.75 }]
+}

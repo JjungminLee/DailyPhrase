@@ -165,4 +165,75 @@ export type MultilingualBenchmark = {
   };
 };
 
+export type Week6Evaluation = {
+  run_id: string;
+  timestamp: string;
+  model: { requested: string; revision: string; adapter: string | null; variant: 'base' | 'sft_lora'; license: string };
+  dataset: { id: string; sha256: string; cases: number; split: string; used_as_training_data: boolean };
+  generation: { temperature: number; max_tokens: number; seed: number; do_sample: boolean; constrained_json_schema?: boolean };
+  machine: { platform: string; device: string; peak_process_rss_bytes: number; peak_mps_driver_allocated_bytes: number | null };
+  runtime: { torch: string; transformers: string };
+  summary: { cases: number; requests_succeeded: number; eligible_outputs: number; mean_code_reward: number; mean_latency_ms: number; p50_latency_ms: number; p95_latency_ms: number; total_output_tokens: number };
+  per_language: Record<string, {
+    cases: number;
+    requests_succeeded: number;
+    source_grounded: number;
+    eligible_outputs: number;
+    mean_code_reward: number | null;
+    exact_reference_matches: number;
+    mean_latency_ms: number | null;
+    checks: Record<string, { passed: number; failed: number }>;
+  }>;
+  limitations: string[];
+  cases: Array<{
+    id: string;
+    language: string;
+    status: string;
+    output: { text?: string } | null;
+    checks: Record<string, boolean>;
+    reward: number;
+    eligible: boolean;
+    elapsed_ms: number;
+    raw_output: string;
+  }>;
+};
+
+export type Week6TrainingRun = {
+  created_at: string;
+  git_sha: string;
+  model_id: string;
+  model_revision: string;
+  dataset_id: string;
+  dataset_sha256: string;
+  dataset_counts: Record<string, number>;
+  device: string;
+  lora: { r: number; alpha: number; dropout: number };
+  training: { train_loss?: number; train_runtime?: number; train_steps_per_second?: number; epoch?: number };
+};
+
+export type Week6GrpoRun = {
+  status?: string;
+  status_note?: string;
+  created_at: string;
+  model_id: string;
+  model_revision: string;
+  starting_adapter?: string;
+  dataset_id: string;
+  dataset_sha256: string;
+  evaluation_dataset_used_for_training: boolean;
+  reward?: string;
+  device: string;
+  settings?: Record<string, number | string | boolean>;
+  training?: { train_loss?: number; train_runtime?: number; train_steps_per_second?: number };
+  training_log?: Array<Record<string, number | string>>;
+  peak_mps_driver_allocated_bytes?: number | null;
+};
+
+export type Week6Experiments = {
+  evaluations: Week6Evaluation[];
+  training_runs: Week6TrainingRun[];
+  grpo_runs: Week6GrpoRun[];
+  dataset: { id: string; status: string; rights_status: string; cases: number; native_speaker_reviewed: boolean };
+};
+
 export type ApiError = Error & { payload?: unknown; status?: number };

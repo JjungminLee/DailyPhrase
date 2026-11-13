@@ -21,7 +21,8 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
   const isFeeds = section === 'feeds';
   const isReward = section === 'reward';
   const isRag = section === 'rag';
-  const isHarness = !isFeeds && !isReward && !isRag;
+  const isTraining = section === 'training';
+  const isHarness = !isFeeds && !isReward && !isRag && !isTraining;
   const {
     feeds,
     articles,
@@ -39,6 +40,7 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
     study,
     qualityJudge,
     benchmark,
+    week6Experiments,
     verifyUrl,
     addSubscription,
     pollNow,
@@ -50,6 +52,10 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
   } = useAdmin(languages[0]?.code ?? 'en');
   const newArticles = articles.filter((article) => article.status === 'new');
   const baselineArticles = articles.filter((article) => article.status === 'baseline');
+  const week6Base = week6Experiments?.evaluations.find((item) => item.model.variant === 'base' && item.generation.constrained_json_schema);
+  const week6Sft = week6Experiments?.evaluations.find((item) => item.model.variant === 'sft_lora' && item.generation.constrained_json_schema);
+  const week6Training = week6Experiments?.training_runs[0];
+  const week6Grpo = week6Experiments?.grpo_runs[0];
 
   return (
     <section className="admin-page">
@@ -63,13 +69,14 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
         <Link className={isHarness ? 'active' : ''} to="/admin/harness">성능 · 하네스</Link>
         <Link className={isReward ? 'active' : ''} to="/admin/reward">RL 보상</Link>
         <Link className={isRag ? 'active' : ''} to="/admin/rag">RAG</Link>
+        <Link className={isTraining ? 'active' : ''} to="/admin/training">학습 파일럿</Link>
         <Link className={isFeeds ? 'active' : ''} to="/admin/feeds">구독 관리</Link>
       </nav>
       <header className="admin-header">
         <div>
           <div className="eyebrow muted">{isFeeds ? 'LOCAL FEED MANAGER' : 'MODEL STUDY WORKSPACE'}</div>
-          <h1>{isFeeds ? '아티클 구독 관리' : isReward ? 'RL 보상 신호' : isRag ? 'RAG 지식베이스 실험' : '다국어 성능 · 평가 하네스'}</h1>
-          <p>{isFeeds ? 'RSS 구독과 발견한 아티클을 관리합니다.' : isReward ? '코드로 검증할 수 있는 학습 보상 항목과 현재 판정 결과를 확인합니다.' : isRag ? '허가된 표현 자료와 검색 필요 사례의 준비 상태를 관리합니다.' : '고정 평가셋으로 기준선과 실험 후보의 품질을 비교합니다.'}</p>
+          <h1>{isFeeds ? '아티클 구독 관리' : isReward ? 'RL 보상 신호' : isRag ? 'RAG 지식베이스 실험' : isTraining ? 'SFT · RLVR 학습 파일럿' : '다국어 성능 · 평가 하네스'}</h1>
+          <p>{isFeeds ? 'RSS 구독과 발견한 아티클을 관리합니다.' : isReward ? '코드로 검증할 수 있는 학습 보상 항목과 현재 판정 결과를 확인합니다.' : isRag ? '허가된 표현 자료와 검색 필요 사례의 준비 상태를 관리합니다.' : isTraining ? '학습 실행 정보와 held-out 기준선·어댑터 평가 결과를 함께 기록합니다.' : '고정 평가셋으로 기준선과 실험 후보의 품질을 비교합니다.'}</p>
         </div>
         {isFeeds && <div className="admin-header-actions">
           <ActionButton
@@ -99,6 +106,65 @@ export function AdminPage({ languages, onCollect }: AdminProps) {
       </div>}
       {message && <div className="admin-message">{message}</div>}
       {error && <div className="admin-error">{error}</div>}
+      {isTraining && <Surface className="admin-study-card">
+        <div className="admin-card-title">
+          <div><span className="panel-kicker">WEEK 6 · TRAINING EXPERIMENTS</span><h2>LoRA SFT 파일럿 결과</h2></div>
+          {week6Experiments && <span className="admin-inbox-total">held-out 평가 · 변경 불가 40건</span>}
+        </div>
+        {!week6Experiments ? <p className="admin-empty">학습 결과를 불러오지 못했습니다. 로컬 API에서 `/admin/week6-experiments`를 확인하세요.</p> : <>
+          <p className="admin-help">
+            데이터 {week6Experiments.dataset.id} · {week6Experiments.dataset.cases}건 · {week6Experiments.dataset.status} · 재사용 권한 {week6Experiments.dataset.rights_status}.
+            학습 문장은 AI가 작성했고 원어민 검수를 거치지 않았습니다. 이 파일럿은 실행 가능성을 확인하며, 언어 품질 향상을 입증하지 않습니다.
+          </p>
+          <div className="admin-study-grid">
+            <article className="admin-study-result"><b>학습 데이터</b><span>{week6Training ? Object.values(week6Training.dataset_counts).reduce((sum, value) => sum + value, 0) : week6Experiments.dataset.cases}건</span><small>EN · ZH · FR · JA 균형</small><small>원어민 검수 {week6Experiments.dataset.native_speaker_reviewed ? '완료' : '미실시'}</small></article>
+            <article className="admin-study-result"><b>SFT 실행</b><span>{week6Training ? `${week6Training.training.train_runtime?.toFixed(1) ?? '—'}초` : '기록 없음'}</span><small>{week6Training?.device ?? '—'} · LoRA r={week6Training?.lora.r ?? '—'}</small><small>학습 loss {week6Training?.training.train_loss?.toFixed(3) ?? '—'}</small></article>
+            <article className="admin-study-result"><b>GRPO · RLVR</b><span>{week6Grpo?.status === 'completed_no_learning_signal' ? '업데이트 없음' : week6Grpo?.status === 'aborted' ? '중단' : week6Grpo?.status ?? '미실행'}</span><small>{week6Grpo?.device ?? '—'} · {week6Grpo?.settings?.max_steps ?? '—'} steps</small><small>{week6Grpo?.status_note ?? '기록 없음'}</small></article>
+            <article className="admin-study-result"><b>기본 모델 적격</b><span>{week6Base ? `${week6Base.summary.eligible_outputs}/${week6Base.summary.cases}` : '평가 전'}</span><small>Qwen3-0.6B · {week6Base?.summary.mean_code_reward.toFixed(3) ?? '—'} 평균 보상</small><small>p50 {week6Base?.summary.p50_latency_ms.toFixed(0) ?? '—'} ms</small></article>
+            <article className="admin-study-result"><b>SFT 어댑터 적격</b><span>{week6Sft ? `${week6Sft.summary.eligible_outputs}/${week6Sft.summary.cases}` : '평가 전'}</span><small>Qwen3-0.6B + LoRA · {week6Sft?.summary.mean_code_reward.toFixed(3) ?? '—'} 평균 보상</small><small>p50 {week6Sft?.summary.p50_latency_ms.toFixed(0) ?? '—'} ms</small></article>
+          </div>
+          {week6Base && week6Sft && <>
+            <div className="admin-judge-table-wrap"><table className="admin-judge-table">
+              <thead><tr><th>언어</th><th>기본 적격</th><th>SFT 적격</th><th>기본 원문 근거</th><th>SFT 원문 근거</th><th>기본 스키마</th><th>SFT 스키마</th><th>기본 p50</th><th>SFT p50</th></tr></thead>
+              <tbody>{['zh', 'en', 'fr', 'ja'].map((code) => {
+                const base = week6Base.per_language[code];
+                const sft = week6Sft.per_language[code];
+                return <tr key={code}>
+                  <td>{code.toUpperCase()}</td>
+                  <td>{base.eligible_outputs}/{base.cases}</td><td>{sft.eligible_outputs}/{sft.cases}</td>
+                  <td>{base.source_grounded}/{base.cases}</td><td>{sft.source_grounded}/{sft.cases}</td>
+                  <td>{base.checks.schema_valid?.passed ?? 0}/{base.cases}</td><td>{sft.checks.schema_valid?.passed ?? 0}/{sft.cases}</td>
+                  <td>{base.mean_latency_ms?.toFixed(0) ?? '—'} ms</td><td>{sft.mean_latency_ms?.toFixed(0) ?? '—'} ms</td>
+                </tr>;
+              })}</tbody>
+            </table></div>
+            <p className="admin-help">
+              비교 조건: 모델 revision {week6Base.model.revision.slice(0, 12)} · 동일 프롬프트·생성 설정 · 평가셋 SHA-256 {week6Base.dataset.sha256.slice(0, 12)}.
+              두 평가 실행 {new Date(week6Base.timestamp).toLocaleString()} / {new Date(week6Sft.timestamp).toLocaleString()}.
+            </p>
+          </>}
+          <details className="admin-benchmark-details"><summary>실행 메타데이터와 한계</summary>
+            {week6Training && <p className="admin-help">학습 데이터 SHA-256 {week6Training.dataset_sha256} · 커밋 {week6Training.git_sha} · 모델 revision {week6Training.model_revision}.</p>}
+            <ul><li>학습 자료는 32개의 AI 작성 문장이고 원어민이 검수하지 않았습니다.</li><li>기존 Qwen3.5-9B 기준선과는 모델 크기·계열이 달라 직접 전후 비교하지 않습니다.</li><li>코드 보상 적격성은 의미 정확성, 자연스러움, 초급 유용성을 판정하지 않습니다.</li><li>GRPO는 유효한 보상 변동을 만들지 못해 평가 후보로 채택하지 않았습니다.</li><li>기본/SFT 사례별 원문 출력과 검사 상세는 아래 결과 파일에 저장됩니다.</li></ul>
+          </details>
+          {week6Experiments.grpo_runs.map((run, index) => <details className="admin-benchmark-details" key={`${run.created_at}-${index}`}>
+            <summary>GRPO 실행 · {run.status ?? '상태 미기록'} · {new Date(run.created_at).toLocaleString()}</summary>
+            <p className="admin-help">{run.status_note ?? run.reward} · 장치 {run.device} · 설정 {JSON.stringify(run.settings ?? {})}</p>
+            <p className="admin-help">시작 어댑터 {run.starting_adapter ?? '—'} · 학습 평가셋 사용 {run.evaluation_dataset_used_for_training ? '예' : '아니오'} · 피크 MPS 메모리 {run.peak_mps_driver_allocated_bytes ? `${(run.peak_mps_driver_allocated_bytes / 1024 ** 3).toFixed(2)} GB` : '—'}.</p>
+            {run.training_log?.map((log, logIndex) => <p className="admin-help" key={logIndex}>스텝 {String(log.step ?? logIndex + 1)} · 보상 {String(log['rewards/code_reward/mean'] ?? '—')} · 그룹 표준편차 {String(log['rewards/code_reward/std'] ?? '—')}.</p>)}
+          </details>)}
+          {week6Experiments.evaluations.map((run) => <details className="admin-benchmark-details" key={run.run_id}>
+            <summary>{run.model.variant === 'base' ? '기본 모델' : 'SFT LoRA'} · {run.generation.constrained_json_schema ? 'JSON Schema 제약' : '형식 제약 없음 · 주 비교에서 제외'} · {new Date(run.timestamp).toLocaleString()} · 적격 {run.summary.eligible_outputs}/{run.summary.cases}</summary>
+            <div className="admin-judge-table-wrap"><table className="admin-judge-table">
+              <thead><tr><th>사례</th><th>언어</th><th>원문</th><th>출력</th><th>적격</th><th>지연</th></tr></thead>
+              <tbody>{run.cases.map((item) => <tr key={item.id}>
+                <td>{item.id}</td><td>{item.language.toUpperCase()}</td><td>{item.output?.text ?? '—'}</td>
+                <td><code>{item.raw_output.slice(0, 240)}</code></td><td>{item.eligible ? '예' : '아니오'}</td><td>{item.elapsed_ms.toFixed(0)} ms</td>
+              </tr>)}</tbody>
+            </table></div>
+          </details>)}
+        </>}
+      </Surface>}
       {isFeeds && study && (
         <Surface className="admin-study-card">
           <div className="admin-card-title">

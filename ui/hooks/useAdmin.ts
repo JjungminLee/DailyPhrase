@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { api } from '../api';
-import type { ArticleItem, BatchStudy, Feed, FeedVerification, LocalJudgeResult, MultilingualBenchmark } from '../types';
+import type { ArticleItem, BatchStudy, Feed, FeedVerification, LocalJudgeResult, MultilingualBenchmark, Week6Experiments } from '../types';
 
 export function useAdmin(initialLanguage = 'en') {
   const [feeds, setFeeds] = useState<Feed[]>([]);
@@ -16,6 +16,7 @@ export function useAdmin(initialLanguage = 'en') {
   const [study, setStudy] = useState<BatchStudy | null>(null);
   const [qualityJudge, setQualityJudge] = useState<LocalJudgeResult | null>(null);
   const [benchmark, setBenchmark] = useState<MultilingualBenchmark | null>(null);
+  const [week6Experiments, setWeek6Experiments] = useState<Week6Experiments | null>(null);
 
   const refresh = useCallback(async () => {
     const judgeRequest = api<{ result: LocalJudgeResult | null }>('/admin/quality-judge-results')
@@ -24,16 +25,19 @@ export function useAdmin(initialLanguage = 'en') {
     const benchmarkRequest = api<{ result: MultilingualBenchmark | null }>('/admin/multilingual-benchmark')
       .then(({ result }) => result)
       .catch(() => null);
-    const [feedResponse, articleResponse, judgeResponse, benchmarkResponse] = await Promise.all([
+    const week6Request = api<Week6Experiments>('/admin/week6-experiments').catch(() => null);
+    const [feedResponse, articleResponse, judgeResponse, benchmarkResponse, week6Response] = await Promise.all([
       api<{ feeds: Feed[] }>('/admin/feeds'),
       api<{ articles: ArticleItem[] }>('/admin/articles'),
       judgeRequest,
       benchmarkRequest,
+      week6Request,
     ]);
     setFeeds(feedResponse.feeds);
     setArticles(articleResponse.articles);
     setQualityJudge(judgeResponse);
     setBenchmark(benchmarkResponse);
+    setWeek6Experiments(week6Response);
   }, []);
 
   useEffect(() => {
@@ -44,18 +48,21 @@ export function useAdmin(initialLanguage = 'en') {
     const benchmarkRequest = api<{ result: MultilingualBenchmark | null }>('/admin/multilingual-benchmark')
       .then(({ result }) => result)
       .catch(() => null);
+    const week6Request = api<Week6Experiments>('/admin/week6-experiments').catch(() => null);
     void Promise.all([
       api<{ feeds: Feed[] }>('/admin/feeds'),
       api<{ articles: ArticleItem[] }>('/admin/articles'),
       judgeRequest,
       benchmarkRequest,
+      week6Request,
     ])
-      .then(([feedResponse, articleResponse, judgeResponse, benchmarkResponse]) => {
+      .then(([feedResponse, articleResponse, judgeResponse, benchmarkResponse, week6Response]) => {
         if (!active) return;
         setFeeds(feedResponse.feeds);
         setArticles(articleResponse.articles);
         setQualityJudge(judgeResponse);
         setBenchmark(benchmarkResponse);
+        setWeek6Experiments(week6Response);
       })
       .catch((cause: unknown) => {
         if (active)
@@ -226,6 +233,7 @@ export function useAdmin(initialLanguage = 'en') {
     study,
     qualityJudge,
     benchmark,
+    week6Experiments,
     verifyUrl,
     addSubscription,
     pollNow,
